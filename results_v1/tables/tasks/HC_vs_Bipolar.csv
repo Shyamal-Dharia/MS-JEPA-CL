@@ -1,0 +1,37 @@
+method,eval_type,task,chance,bacc,bacc_std,auc,auc_std,f1_macro,precision,recall,n_valid_sites,n_hc,n_disease
+ComBat (Transformer from scratch),finetune_loso,HC vs Bipolar,0.5,nan,,nan,,nan,nan,nan,0,950,41
+JEPA + Adversarial (No Curriculum),finetune_loso,HC vs Bipolar,0.5,nan,,nan,,nan,nan,nan,0,950,41
+JEPA + Adversarial (With Curriculum),finetune_loso,HC vs Bipolar,0.5,nan,,nan,,nan,nan,nan,0,950,41
+JEPA + Contrastive (No Curriculum),finetune_loso,HC vs Bipolar,0.5,nan,,nan,,nan,nan,nan,0,950,41
+JEPA + Contrastive (With Curriculum),finetune_loso,HC vs Bipolar,0.5,nan,,nan,,nan,nan,nan,0,950,41
+JEPA + VICReg (No Curriculum),finetune_loso,HC vs Bipolar,0.5,nan,,nan,,nan,nan,nan,0,950,41
+JEPA + VICReg (With Curriculum),finetune_loso,HC vs Bipolar,0.5,nan,,nan,,nan,nan,nan,0,950,41
+JEPA Vanilla (No Curriculum),finetune_loso,HC vs Bipolar,0.5,nan,,nan,,nan,nan,nan,0,950,41
+JEPA Vanilla (With Curriculum),finetune_loso,HC vs Bipolar,0.5,nan,,nan,,nan,nan,nan,0,950,41
+Raw (Transformer from scratch),finetune_loso,HC vs Bipolar,0.5,nan,,nan,,nan,nan,nan,0,950,41
+SimCLR Baseline,finetune_loso,HC vs Bipolar,0.5,nan,,nan,,nan,nan,nan,0,950,41
+Transformer-VAE,finetune_loso,HC vs Bipolar,0.5,nan,,nan,,nan,nan,nan,0,950,41
+ComBat (Transformer from scratch),frozen_linear,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA + Adversarial (No Curriculum),frozen_linear,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA + Adversarial (With Curriculum),frozen_linear,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA + Contrastive (No Curriculum),frozen_linear,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA + Contrastive (With Curriculum),frozen_linear,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA + VICReg (No Curriculum),frozen_linear,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA + VICReg (With Curriculum),frozen_linear,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA Vanilla (No Curriculum),frozen_linear,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA Vanilla (With Curriculum),frozen_linear,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+Raw (Transformer from scratch),frozen_linear,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+SimCLR Baseline,frozen_linear,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+Transformer-VAE,frozen_linear,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+ComBat (Transformer from scratch),frozen_mlp,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA + Adversarial (No Curriculum),frozen_mlp,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA + Adversarial (With Curriculum),frozen_mlp,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA + Contrastive (No Curriculum),frozen_mlp,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA + Contrastive (With Curriculum),frozen_mlp,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA + VICReg (No Curriculum),frozen_mlp,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA + VICReg (With Curriculum),frozen_mlp,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA Vanilla (No Curriculum),frozen_mlp,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+JEPA Vanilla (With Curriculum),frozen_mlp,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+Raw (Transformer from scratch),frozen_mlp,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+SimCLR Baseline,frozen_mlp,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41
+Transformer-VAE,frozen_mlp,HC vs Bipolar,0.5,nan,nan,nan,nan,nan,nan,nan,0.0,950,41

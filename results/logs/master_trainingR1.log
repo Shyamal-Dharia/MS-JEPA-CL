@@ -1,0 +1,16 @@
+nohup: ignoring input
+=======================================================================
+Starting Massive Multi-GPU Training Suite (Round 1: First-stage Models)
+=======================================================================
+Launching GPU 0 jobs...
+Launching GPU 1 jobs...
+Launching GPU 2 jobs...
+=======================================================================
+Round 1 training jobs have been dispatched to the background.
+Check progress in results/train_logs/
+
+NOTE: Once these finish, you MUST run Round 2 to train the Phase 2 models:
+CUDA_VISIBLE_DEVICES=0 python src/jepa/train_phase2_contrastive.py
+CUDA_VISIBLE_DEVICES=1 python src/jepa/train_phase2.py
+CUDA_VISIBLE_DEVICES=2 python src/jepa/train_phase2_contrastive.py --no_curriculum
+=======================================================================

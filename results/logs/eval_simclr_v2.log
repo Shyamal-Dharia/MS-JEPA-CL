@@ -1,0 +1,38 @@
+nohup: ignoring input
+2026-03-08 12:47:52,328 [INFO] Loaded 1626 subjects
+2026-03-08 12:47:52,765 [INFO] Data: (1626, 93, 400), 13 sites, 9 diagnoses
+2026-03-08 12:47:52,765 [INFO] 
+======================================================================
+2026-03-08 12:47:52,765 [INFO] STEP 1: Extracting embeddings / features for all methods
+2026-03-08 12:47:52,765 [INFO] ======================================================================
+2026-03-08 12:47:52,766 [INFO] 
+  → SimCLR Baseline
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+2026-03-08 12:47:57,139 [INFO]     Shape: (1626, 400) (4.4s)
+2026-03-08 12:47:57,139 [INFO] 
+======================================================================
+2026-03-08 12:47:57,139 [INFO] STEP 2: Site classification probing (LOSO)
+2026-03-08 12:47:57,139 [INFO] ======================================================================
+2026-03-08 12:47:57,159 [INFO]   13 sites, chance = 7.7%
+2026-03-08 12:47:57,159 [INFO] 
+  SimCLR Baseline | linear probe → site
+2026-03-08 12:49:12,988 [INFO]     bAcc=35.0% (chance=7.7%) | F1=0.352 | Sites=13
+2026-03-08 12:49:13,008 [INFO] 
+  SimCLR Baseline | mlp probe → site
+2026-03-08 12:49:32,139 [INFO]     bAcc=27.1% (chance=7.7%) | F1=0.268 | Sites=13
+2026-03-08 12:49:32,145 [INFO] 
+======================================================================
+2026-03-08 12:49:32,145 [INFO] STEP 3: Diagnosis classification (LOSO)
+2026-03-08 12:49:32,145 [INFO] ======================================================================
+2026-03-08 12:49:32,177 [INFO] 
+──────────────────────────────────────────────────────────────────────
+2026-03-08 12:49:32,228 [INFO] TASK: HC vs ALL | N=1626 (HC=950, Disease=676) | chance=50.0%
+2026-03-08 13:05:33,269 [INFO]   SimCLR Baseline           | linear probe | bAcc=55.0%±1.3% (Δ=+5.0%) | AUC=0.561±0.005 | F1=0.548 | Sites=11.0
+2026-03-08 13:13:46,712 [INFO]   SimCLR Baseline           | mlp    probe | bAcc=52.4%±0.9% (Δ=+2.4%) | AUC=0.539±0.012 | F1=0.522 | Sites=11.0
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(

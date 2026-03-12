@@ -1,0 +1,205 @@
+nohup: ignoring input
+2026-03-08 17:46:34,405 [INFO] Phase 2 + Adversarial v2 on cuda
+2026-03-08 17:46:34,405 [INFO] Key v2 changes: disc_steps=5, disc_hidden=128, disc_lr=0.0005, alpha_warmup=10
+2026-03-08 17:46:34,453 [INFO] Main: 950 | Replay: 141
+2026-03-08 17:46:34,521 [INFO] Batch: 54 main + 10 replay
+/home/s.dharia-ra/miniconda3/envs/ml/lib/python3.10/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+/data/s.dharia-ra/multi-site-problem/src/jepa/train_p2_advv.py:356: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(cfg.phase1_checkpoint, map_location=device)
+2026-03-08 17:46:35,113 [INFO] Loaded Phase 1 from checkpoints/phase1_nocurr/model_final.pt
+2026-03-08 17:46:35,114 [INFO] JEPA params: 9,862,800 | Disc params: 61,008
+
+--- WARNING: RUNNING Phase 2 ADV WITHOUT CURRICULUM ---
+
+============================================================
+Phase 2 + Adversarial v2: Multi-step Disc + Stronger Head
+============================================================
+  disc_steps:     5 (K updates per encoder step)
+  disc_hidden:    128
+  disc_lr:        0.0005
+  alpha_warmup:   10 epochs
+  epochs:         80
+============================================================
+HCOnlyDataset: kept 950/1626 (HC only)
+Site encoder: 16 sites → ['ATT', 'ATV', 'CIN', 'COI', 'HKH', 'HRC', 'HUH', 'KPM', 'KTT', 'KUS', 'KUT', 'NKN', 'OSU', 'SWA', 'UTO', 'YC']
+Site-balanced sampler (13 sites):
+  ATT: 31 HC, weight=0.0323
+  ATV: 77 HC, weight=0.0130
+  CIN: 39 HC, weight=0.0256
+  COI: 124 HC, weight=0.0081
+  HKH: 29 HC, weight=0.0345
+  HRC: 49 HC, weight=0.0204
+  HUH: 67 HC, weight=0.0149
+  KTT: 75 HC, weight=0.0133
+  KUT: 159 HC, weight=0.0063
+  NKN: 2 HC, weight=0.5000
+  OSU: 27 HC, weight=0.0370
+  SWA: 101 HC, weight=0.0099
+  UTO: 170 HC, weight=0.0059
+2026-03-08 17:46:38,711 [INFO] E1 B10/17 | JEPA: 0.2522 ADV: 2.5928 Disc: 2.6251 | α:0.000
+2026-03-08 17:46:40,545 [INFO] Epoch 1/80 | Total: 2.8305 (JEPA: 0.2699, ADV: 2.5605) | Disc loss: 2.6377, Disc acc: 16.3% | α: 0.000 | SITE PROBE: 23.4% (chance=9.1%)
+2026-03-08 17:46:42,865 [INFO] E2 B10/17 | JEPA: 0.2472 ADV: 2.2235 Disc: 2.2690 | α:0.000
+2026-03-08 17:46:44,298 [INFO] Epoch 2/80 | Total: 2.5106 (JEPA: 0.2630, ADV: 2.2476) | Disc loss: 2.2949, Disc acc: 26.7% | α: 0.000
+2026-03-08 17:46:46,608 [INFO] E3 B10/17 | JEPA: 0.2682 ADV: 2.0989 Disc: 2.1460 | α:0.000
+2026-03-08 17:46:48,091 [INFO] Epoch 3/80 | Total: 2.3380 (JEPA: 0.2606, ADV: 2.0774) | Disc loss: 2.1054, Disc acc: 36.8% | α: 0.000
+2026-03-08 17:46:50,380 [INFO] E4 B10/17 | JEPA: 0.2558 ADV: 1.9647 Disc: 2.0051 | α:0.000
+2026-03-08 17:46:51,898 [INFO] Epoch 4/80 | Total: 2.1541 (JEPA: 0.2668, ADV: 1.8874) | Disc loss: 1.9473, Disc acc: 43.5% | α: 0.000
+2026-03-08 17:46:54,186 [INFO] E5 B10/17 | JEPA: 0.2490 ADV: 1.7002 Disc: 1.6947 | α:0.000
+2026-03-08 17:46:55,673 [INFO] Epoch 5/80 | Total: 2.0074 (JEPA: 0.2659, ADV: 1.7415) | Disc loss: 1.7846, Disc acc: 49.3% | α: 0.000
+2026-03-08 17:46:57,959 [INFO] E6 B10/17 | JEPA: 0.2242 ADV: 1.4637 Disc: 1.5449 | α:0.000
+2026-03-08 17:46:59,471 [INFO] Epoch 6/80 | Total: 1.7802 (JEPA: 0.2646, ADV: 1.5156) | Disc loss: 1.5861, Disc acc: 56.4% | α: 0.000
+2026-03-08 17:47:01,748 [INFO] E7 B10/17 | JEPA: 0.2685 ADV: 1.4814 Disc: 1.5123 | α:0.000
+2026-03-08 17:47:03,266 [INFO] Epoch 7/80 | Total: 1.6472 (JEPA: 0.2723, ADV: 1.3749) | Disc loss: 1.4479, Disc acc: 59.8% | α: 0.000
+2026-03-08 17:47:05,564 [INFO] E8 B10/17 | JEPA: 0.2693 ADV: 1.3124 Disc: 1.3931 | α:0.000
+2026-03-08 17:47:07,054 [INFO] Epoch 8/80 | Total: 1.5055 (JEPA: 0.2724, ADV: 1.2331) | Disc loss: 1.3024, Disc acc: 65.6% | α: 0.000
+2026-03-08 17:47:09,378 [INFO] E9 B10/17 | JEPA: 0.2367 ADV: 1.1417 Disc: 1.1821 | α:0.000
+2026-03-08 17:47:10,876 [INFO] Epoch 9/80 | Total: 1.3842 (JEPA: 0.2763, ADV: 1.1079) | Disc loss: 1.1729, Disc acc: 69.5% | α: 0.000
+2026-03-08 17:47:13,239 [INFO] E10 B10/17 | JEPA: 0.2698 ADV: 1.1102 Disc: 1.1778 | α:0.000
+2026-03-08 17:47:14,690 [INFO] Epoch 10/80 | Total: 1.2519 (JEPA: 0.2719, ADV: 0.9800) | Disc loss: 1.0604, Disc acc: 70.3% | α: 0.000
+2026-03-08 17:47:17,014 [INFO] E11 B10/17 | JEPA: 0.2018 ADV: 1.0423 Disc: 1.1245 | α:0.000
+2026-03-08 17:47:18,493 [INFO] Epoch 11/80 | Total: 1.2600 (JEPA: 0.2750, ADV: 0.9849) | Disc loss: 1.0561, Disc acc: 70.1% | α: 0.000
+2026-03-08 17:47:20,838 [INFO] E12 B10/17 | JEPA: 0.2234 ADV: 1.1791 Disc: 1.3200 | α:0.071
+2026-03-08 17:47:22,302 [INFO] Epoch 12/80 | Total: 1.5616 (JEPA: 0.2716, ADV: 1.2899) | Disc loss: 1.4587, Disc acc: 61.6% | α: 0.071
+2026-03-08 17:47:24,662 [INFO] E13 B10/17 | JEPA: 0.2703 ADV: 2.4061 Disc: 2.6414 | α:0.142
+2026-03-08 17:47:26,091 [INFO] Epoch 13/80 | Total: 2.7180 (JEPA: 0.3083, ADV: 2.4096) | Disc loss: 2.6952, Disc acc: 30.6% | α: 0.142
+2026-03-08 17:47:28,428 [INFO] E14 B10/17 | JEPA: 0.4184 ADV: 2.6278 Disc: 2.6983 | α:0.211
+2026-03-08 17:47:29,848 [INFO] Epoch 14/80 | Total: 2.9893 (JEPA: 0.3199, ADV: 2.6694) | Disc loss: 2.8837, Disc acc: 20.0% | α: 0.211
+2026-03-08 17:47:32,200 [INFO] E15 B10/17 | JEPA: 0.2488 ADV: 2.4303 Disc: 2.5832 | α:0.278
+2026-03-08 17:47:33,564 [INFO] Epoch 15/80 | Total: 2.8001 (JEPA: 0.2942, ADV: 2.5059) | Disc loss: 2.6633, Disc acc: 19.7% | α: 0.278
+2026-03-08 17:47:35,924 [INFO] E16 B10/17 | JEPA: 0.3175 ADV: 2.5069 Disc: 2.5569 | α:0.343
+2026-03-08 17:47:37,325 [INFO] Epoch 16/80 | Total: 2.7559 (JEPA: 0.3275, ADV: 2.4284) | Disc loss: 2.5447, Disc acc: 20.9% | α: 0.343
+2026-03-08 17:47:39,701 [INFO] E17 B10/17 | JEPA: 0.5207 ADV: 2.2649 Disc: 2.3084 | α:0.404
+2026-03-08 17:47:41,109 [INFO] Epoch 17/80 | Total: 2.6221 (JEPA: 0.3347, ADV: 2.2874) | Disc loss: 2.3605, Disc acc: 25.6% | α: 0.404
+2026-03-08 17:47:43,495 [INFO] E18 B10/17 | JEPA: 0.2864 ADV: 2.1225 Disc: 2.2740 | α:0.462
+2026-03-08 17:47:44,882 [INFO] Epoch 18/80 | Total: 2.5776 (JEPA: 0.3322, ADV: 2.2453) | Disc loss: 2.3687, Disc acc: 25.4% | α: 0.462
+2026-03-08 17:47:47,231 [INFO] E19 B10/17 | JEPA: 0.3456 ADV: 2.3483 Disc: 2.4460 | α:0.516
+2026-03-08 17:47:48,672 [INFO] Epoch 19/80 | Total: 2.6194 (JEPA: 0.3437, ADV: 2.2757) | Disc loss: 2.3779, Disc acc: 27.2% | α: 0.516
+2026-03-08 17:47:51,025 [INFO] E20 B10/17 | JEPA: 0.3066 ADV: 2.1231 Disc: 2.2345 | α:0.567
+2026-03-08 17:47:52,470 [INFO] Epoch 20/80 | Total: 2.6035 (JEPA: 0.3309, ADV: 2.2726) | Disc loss: 2.3951, Disc acc: 25.2% | α: 0.567
+2026-03-08 17:47:52,638 [INFO] Checkpoint: checkpoints/phase2_adversarial_nocurr/model_A_phase2advv2_ep20.pt
+2026-03-08 17:47:54,978 [INFO] E21 B10/17 | JEPA: 0.2944 ADV: 2.4663 Disc: 2.5918 | α:0.613
+2026-03-08 17:47:56,398 [INFO] Epoch 21/80 | Total: 2.7681 (JEPA: 0.3490, ADV: 2.4192) | Disc loss: 2.5127, Disc acc: 22.0% | α: 0.613
+2026-03-08 17:47:58,753 [INFO] E22 B10/17 | JEPA: 0.3085 ADV: 2.4120 Disc: 2.4026 | α:0.656
+2026-03-08 17:48:00,172 [INFO] Epoch 22/80 | Total: 2.7171 (JEPA: 0.3547, ADV: 2.3624) | Disc loss: 2.4358, Disc acc: 24.0% | α: 0.656
+2026-03-08 17:48:02,550 [INFO] E23 B10/17 | JEPA: 0.3651 ADV: 2.3222 Disc: 2.4231 | α:0.695
+2026-03-08 17:48:03,931 [INFO] Epoch 23/80 | Total: 2.6644 (JEPA: 0.3230, ADV: 2.3413) | Disc loss: 2.4112, Disc acc: 23.5% | α: 0.695
+2026-03-08 17:48:06,340 [INFO] E24 B10/17 | JEPA: 0.3308 ADV: 2.4178 Disc: 2.5527 | α:0.730
+2026-03-08 17:48:07,699 [INFO] Epoch 24/80 | Total: 2.7701 (JEPA: 0.3997, ADV: 2.3704) | Disc loss: 2.4231, Disc acc: 22.7% | α: 0.730
+2026-03-08 17:48:10,083 [INFO] E25 B10/17 | JEPA: 0.3766 ADV: 2.4291 Disc: 2.5068 | α:0.762
+2026-03-08 17:48:11,473 [INFO] Epoch 25/80 | Total: 2.6598 (JEPA: 0.3570, ADV: 2.3028) | Disc loss: 2.3640, Disc acc: 23.8% | α: 0.762
+2026-03-08 17:48:13,826 [INFO] E26 B10/17 | JEPA: 0.3001 ADV: 2.0449 Disc: 2.1169 | α:0.790
+2026-03-08 17:48:15,257 [INFO] Epoch 26/80 | Total: 2.6335 (JEPA: 0.3250, ADV: 2.3085) | Disc loss: 2.3538, Disc acc: 22.8% | α: 0.790
+2026-03-08 17:48:17,621 [INFO] E27 B10/17 | JEPA: 0.3860 ADV: 2.3821 Disc: 2.3962 | α:0.815
+2026-03-08 17:48:19,004 [INFO] Epoch 27/80 | Total: 2.6932 (JEPA: 0.3551, ADV: 2.3381) | Disc loss: 2.3711, Disc acc: 22.0% | α: 0.815
+2026-03-08 17:48:21,365 [INFO] E28 B10/17 | JEPA: 0.3233 ADV: 2.2876 Disc: 2.4070 | α:0.838
+2026-03-08 17:48:22,783 [INFO] Epoch 28/80 | Total: 2.6676 (JEPA: 0.3329, ADV: 2.3347) | Disc loss: 2.4098, Disc acc: 24.1% | α: 0.838
+2026-03-08 17:48:25,149 [INFO] E29 B10/17 | JEPA: 0.4096 ADV: 2.4626 Disc: 2.5449 | α:0.858
+2026-03-08 17:48:26,552 [INFO] Epoch 29/80 | Total: 2.7857 (JEPA: 0.3487, ADV: 2.4370) | Disc loss: 2.4583, Disc acc: 20.3% | α: 0.858
+2026-03-08 17:48:28,930 [INFO] E30 B10/17 | JEPA: 0.3427 ADV: 2.4468 Disc: 2.5117 | α:0.876
+2026-03-08 17:48:30,297 [INFO] Epoch 30/80 | Total: 2.7737 (JEPA: 0.3625, ADV: 2.4111) | Disc loss: 2.4498, Disc acc: 20.3% | α: 0.876
+2026-03-08 17:48:32,704 [INFO] E31 B10/17 | JEPA: 0.2810 ADV: 2.4448 Disc: 2.5161 | α:0.891
+2026-03-08 17:48:34,072 [INFO] Epoch 31/80 | Total: 2.7709 (JEPA: 0.3500, ADV: 2.4209) | Disc loss: 2.4727, Disc acc: 19.2% | α: 0.891
+2026-03-08 17:48:36,491 [INFO] E32 B10/17 | JEPA: 0.4081 ADV: 2.3644 Disc: 2.4036 | α:0.905
+2026-03-08 17:48:37,896 [INFO] Epoch 32/80 | Total: 2.7740 (JEPA: 0.3679, ADV: 2.4061) | Disc loss: 2.4652, Disc acc: 17.6% | α: 0.905
+2026-03-08 17:48:40,287 [INFO] E33 B10/17 | JEPA: 0.3257 ADV: 2.4121 Disc: 2.3768 | α:0.917
+2026-03-08 17:48:41,694 [INFO] Epoch 33/80 | Total: 2.7243 (JEPA: 0.3337, ADV: 2.3906) | Disc loss: 2.4260, Disc acc: 20.3% | α: 0.917
+2026-03-08 17:48:44,076 [INFO] E34 B10/17 | JEPA: 0.2574 ADV: 2.2567 Disc: 2.3948 | α:0.928
+2026-03-08 17:48:45,484 [INFO] Epoch 34/80 | Total: 2.7246 (JEPA: 0.3196, ADV: 2.4050) | Disc loss: 2.4462, Disc acc: 18.5% | α: 0.928
+2026-03-08 17:48:47,858 [INFO] E35 B10/17 | JEPA: 0.2868 ADV: 2.6123 Disc: 2.6774 | α:0.937
+2026-03-08 17:48:49,300 [INFO] Epoch 35/80 | Total: 2.7801 (JEPA: 0.3817, ADV: 2.3984) | Disc loss: 2.4556, Disc acc: 19.2% | α: 0.937
+2026-03-08 17:48:51,683 [INFO] E36 B10/17 | JEPA: 0.4255 ADV: 2.3924 Disc: 2.4368 | α:0.945
+2026-03-08 17:48:53,059 [INFO] Epoch 36/80 | Total: 2.7292 (JEPA: 0.3440, ADV: 2.3852) | Disc loss: 2.4137, Disc acc: 20.9% | α: 0.945
+2026-03-08 17:48:55,426 [INFO] E37 B10/17 | JEPA: 0.3468 ADV: 2.4249 Disc: 2.5330 | α:0.952
+2026-03-08 17:48:56,833 [INFO] Epoch 37/80 | Total: 2.8081 (JEPA: 0.3541, ADV: 2.4540) | Disc loss: 2.4915, Disc acc: 15.7% | α: 0.952
+2026-03-08 17:48:59,209 [INFO] E38 B10/17 | JEPA: 0.2983 ADV: 2.2281 Disc: 2.2539 | α:0.959
+2026-03-08 17:49:00,622 [INFO] Epoch 38/80 | Total: 2.6829 (JEPA: 0.3107, ADV: 2.3723) | Disc loss: 2.4142, Disc acc: 19.7% | α: 0.959
+2026-03-08 17:49:03,023 [INFO] E39 B10/17 | JEPA: 0.3939 ADV: 2.4540 Disc: 2.4585 | α:0.964
+2026-03-08 17:49:04,516 [INFO] Epoch 39/80 | Total: 2.7695 (JEPA: 0.3513, ADV: 2.4182) | Disc loss: 2.4381, Disc acc: 18.4% | α: 0.964
+2026-03-08 17:49:06,946 [INFO] E40 B10/17 | JEPA: 0.3155 ADV: 2.4539 Disc: 2.4665 | α:0.969
+2026-03-08 17:49:08,436 [INFO] Epoch 40/80 | Total: 2.6564 (JEPA: 0.3159, ADV: 2.3406) | Disc loss: 2.3841, Disc acc: 21.6% | α: 0.969
+2026-03-08 17:49:08,616 [INFO] Checkpoint: checkpoints/phase2_adversarial_nocurr/model_A_phase2advv2_ep40.pt
+2026-03-08 17:49:10,999 [INFO] E41 B10/17 | JEPA: 0.3050 ADV: 2.1379 Disc: 2.3484 | α:0.973
+2026-03-08 17:49:12,492 [INFO] Epoch 41/80 | Total: 2.6748 (JEPA: 0.3038, ADV: 2.3710) | Disc loss: 2.4493, Disc acc: 18.4% | α: 0.973
+2026-03-08 17:49:14,860 [INFO] E42 B10/17 | JEPA: 0.3127 ADV: 2.2754 Disc: 2.3549 | α:0.976
+2026-03-08 17:49:16,391 [INFO] Epoch 42/80 | Total: 2.7237 (JEPA: 0.3288, ADV: 2.3949) | Disc loss: 2.4373, Disc acc: 20.7% | α: 0.976
+2026-03-08 17:49:18,786 [INFO] E43 B10/17 | JEPA: 0.3480 ADV: 2.2607 Disc: 2.3256 | α:0.980
+2026-03-08 17:49:20,326 [INFO] Epoch 43/80 | Total: 2.7254 (JEPA: 0.3515, ADV: 2.3739) | Disc loss: 2.4225, Disc acc: 20.0% | α: 0.980
+2026-03-08 17:49:22,720 [INFO] E44 B10/17 | JEPA: 0.5487 ADV: 2.3608 Disc: 2.4615 | α:0.982
+2026-03-08 17:49:24,272 [INFO] Epoch 44/80 | Total: 2.6885 (JEPA: 0.3265, ADV: 2.3619) | Disc loss: 2.3947, Disc acc: 19.6% | α: 0.982
+2026-03-08 17:49:26,672 [INFO] E45 B10/17 | JEPA: 0.2864 ADV: 2.2852 Disc: 2.3279 | α:0.985
+2026-03-08 17:49:28,182 [INFO] Epoch 45/80 | Total: 2.6774 (JEPA: 0.3083, ADV: 2.3692) | Disc loss: 2.3958, Disc acc: 21.1% | α: 0.985
+2026-03-08 17:49:30,613 [INFO] E46 B10/17 | JEPA: 0.2904 ADV: 2.3457 Disc: 2.4070 | α:0.987
+2026-03-08 17:49:32,156 [INFO] Epoch 46/80 | Total: 2.6860 (JEPA: 0.3309, ADV: 2.3551) | Disc loss: 2.3984, Disc acc: 19.6% | α: 0.987
+2026-03-08 17:49:34,604 [INFO] E47 B10/17 | JEPA: 0.3253 ADV: 2.4239 Disc: 2.4961 | α:0.988
+2026-03-08 17:49:36,133 [INFO] Epoch 47/80 | Total: 2.6886 (JEPA: 0.3195, ADV: 2.3691) | Disc loss: 2.4107, Disc acc: 19.4% | α: 0.988
+2026-03-08 17:49:38,562 [INFO] E48 B10/17 | JEPA: 0.3492 ADV: 2.4968 Disc: 2.4749 | α:0.990
+2026-03-08 17:49:40,073 [INFO] Epoch 48/80 | Total: 2.7393 (JEPA: 0.3737, ADV: 2.3656) | Disc loss: 2.4010, Disc acc: 21.0% | α: 0.990
+2026-03-08 17:49:42,437 [INFO] E49 B10/17 | JEPA: 0.3127 ADV: 2.2710 Disc: 2.3371 | α:0.991
+2026-03-08 17:49:44,000 [INFO] Epoch 49/80 | Total: 2.6734 (JEPA: 0.3130, ADV: 2.3604) | Disc loss: 2.3960, Disc acc: 20.2% | α: 0.991
+2026-03-08 17:49:46,420 [INFO] E50 B10/17 | JEPA: 0.2876 ADV: 2.3035 Disc: 2.3481 | α:0.992
+2026-03-08 17:49:47,941 [INFO] Epoch 50/80 | Total: 2.6792 (JEPA: 0.3158, ADV: 2.3634) | Disc loss: 2.3886, Disc acc: 21.1% | α: 0.992
+2026-03-08 17:49:50,330 [INFO] E51 B10/17 | JEPA: 0.3486 ADV: 2.2008 Disc: 2.2058 | α:0.993
+2026-03-08 17:49:51,850 [INFO] Epoch 51/80 | Total: 2.6633 (JEPA: 0.3051, ADV: 2.3582) | Disc loss: 2.3971, Disc acc: 20.1% | α: 0.993
+2026-03-08 17:49:54,227 [INFO] E52 B10/17 | JEPA: 0.3533 ADV: 2.3863 Disc: 2.4992 | α:0.994
+2026-03-08 17:49:55,790 [INFO] Epoch 52/80 | Total: 2.6101 (JEPA: 0.2923, ADV: 2.3178) | Disc loss: 2.3775, Disc acc: 23.2% | α: 0.994
+2026-03-08 17:49:58,166 [INFO] E53 B10/17 | JEPA: 0.2588 ADV: 2.3268 Disc: 2.3585 | α:0.995
+2026-03-08 17:49:59,726 [INFO] Epoch 53/80 | Total: 2.6295 (JEPA: 0.3089, ADV: 2.3206) | Disc loss: 2.3467, Disc acc: 23.5% | α: 0.995
+2026-03-08 17:50:02,166 [INFO] E54 B10/17 | JEPA: 0.3663 ADV: 2.3776 Disc: 2.4551 | α:0.996
+2026-03-08 17:50:03,698 [INFO] Epoch 54/80 | Total: 2.6018 (JEPA: 0.3031, ADV: 2.2987) | Disc loss: 2.3392, Disc acc: 23.6% | α: 0.996
+2026-03-08 17:50:06,127 [INFO] E55 B10/17 | JEPA: 0.2929 ADV: 2.3823 Disc: 2.3892 | α:0.996
+2026-03-08 17:50:07,646 [INFO] Epoch 55/80 | Total: 2.6456 (JEPA: 0.3119, ADV: 2.3337) | Disc loss: 2.3773, Disc acc: 23.2% | α: 0.996
+2026-03-08 17:50:10,051 [INFO] E56 B10/17 | JEPA: 0.2531 ADV: 2.2634 Disc: 2.2170 | α:0.997
+2026-03-08 17:50:11,585 [INFO] Epoch 56/80 | Total: 2.6345 (JEPA: 0.2849, ADV: 2.3497) | Disc loss: 2.3770, Disc acc: 21.7% | α: 0.997
+2026-03-08 17:50:13,984 [INFO] E57 B10/17 | JEPA: 0.3644 ADV: 2.2303 Disc: 2.3125 | α:0.997
+2026-03-08 17:50:15,523 [INFO] Epoch 57/80 | Total: 2.6261 (JEPA: 0.2989, ADV: 2.3272) | Disc loss: 2.3569, Disc acc: 22.4% | α: 0.997
+2026-03-08 17:50:17,905 [INFO] E58 B10/17 | JEPA: 0.3232 ADV: 2.3282 Disc: 2.3459 | α:0.998
+2026-03-08 17:50:19,448 [INFO] Epoch 58/80 | Total: 2.5953 (JEPA: 0.3001, ADV: 2.2953) | Disc loss: 2.3236, Disc acc: 23.5% | α: 0.998
+2026-03-08 17:50:21,840 [INFO] E59 B10/17 | JEPA: 0.2478 ADV: 2.2273 Disc: 2.2588 | α:0.998
+2026-03-08 17:50:23,377 [INFO] Epoch 59/80 | Total: 2.5633 (JEPA: 0.3060, ADV: 2.2573) | Disc loss: 2.3012, Disc acc: 24.3% | α: 0.998
+2026-03-08 17:50:25,764 [INFO] E60 B10/17 | JEPA: 0.2461 ADV: 2.2453 Disc: 2.2800 | α:0.998
+2026-03-08 17:50:27,274 [INFO] Epoch 60/80 | Total: 2.5677 (JEPA: 0.3215, ADV: 2.2463) | Disc loss: 2.3041, Disc acc: 27.0% | α: 0.998
+2026-03-08 17:50:27,420 [INFO] Checkpoint: checkpoints/phase2_adversarial_nocurr/model_A_phase2advv2_ep60.pt
+2026-03-08 17:50:29,835 [INFO] E61 B10/17 | JEPA: 0.2861 ADV: 2.2276 Disc: 2.2768 | α:0.998
+2026-03-08 17:50:31,342 [INFO] Epoch 61/80 | Total: 2.5164 (JEPA: 0.2758, ADV: 2.2406) | Disc loss: 2.2729, Disc acc: 25.8% | α: 0.998
+2026-03-08 17:50:33,769 [INFO] E62 B10/17 | JEPA: 0.2860 ADV: 2.3934 Disc: 2.4458 | α:0.999
+2026-03-08 17:50:35,271 [INFO] Epoch 62/80 | Total: 2.5261 (JEPA: 0.2759, ADV: 2.2502) | Disc loss: 2.3029, Disc acc: 24.6% | α: 0.999
+2026-03-08 17:50:37,677 [INFO] E63 B10/17 | JEPA: 0.2845 ADV: 2.2557 Disc: 2.2956 | α:0.999
+2026-03-08 17:50:39,180 [INFO] Epoch 63/80 | Total: 2.5166 (JEPA: 0.2829, ADV: 2.2337) | Disc loss: 2.2725, Disc acc: 25.4% | α: 0.999
+2026-03-08 17:50:41,560 [INFO] E64 B10/17 | JEPA: 0.2736 ADV: 2.2257 Disc: 2.3208 | α:0.999
+2026-03-08 17:50:43,078 [INFO] Epoch 64/80 | Total: 2.5437 (JEPA: 0.3015, ADV: 2.2421) | Disc loss: 2.2762, Disc acc: 24.7% | α: 0.999
+2026-03-08 17:50:45,476 [INFO] E65 B10/17 | JEPA: 0.2409 ADV: 2.2495 Disc: 2.2117 | α:0.999
+2026-03-08 17:50:46,996 [INFO] Epoch 65/80 | Total: 2.4796 (JEPA: 0.2774, ADV: 2.2022) | Disc loss: 2.2542, Disc acc: 27.4% | α: 0.999
+2026-03-08 17:50:49,388 [INFO] E66 B10/17 | JEPA: 0.2605 ADV: 2.1563 Disc: 2.2259 | α:0.999
+2026-03-08 17:50:50,917 [INFO] Epoch 66/80 | Total: 2.4579 (JEPA: 0.2803, ADV: 2.1776) | Disc loss: 2.2312, Disc acc: 28.5% | α: 0.999
+2026-03-08 17:50:53,272 [INFO] E67 B10/17 | JEPA: 0.2263 ADV: 2.2334 Disc: 2.3130 | α:0.999
+2026-03-08 17:50:54,856 [INFO] Epoch 67/80 | Total: 2.4486 (JEPA: 0.2800, ADV: 2.1687) | Disc loss: 2.2361, Disc acc: 29.5% | α: 0.999
+2026-03-08 17:50:57,237 [INFO] E68 B10/17 | JEPA: 0.2536 ADV: 2.2978 Disc: 2.2611 | α:0.999
+2026-03-08 17:50:58,792 [INFO] Epoch 68/80 | Total: 2.4044 (JEPA: 0.2791, ADV: 2.1253) | Disc loss: 2.1969, Disc acc: 29.6% | α: 0.999
+2026-03-08 17:51:01,202 [INFO] E69 B10/17 | JEPA: 0.3253 ADV: 2.1818 Disc: 2.1421 | α:0.999
+2026-03-08 17:51:02,777 [INFO] Epoch 69/80 | Total: 2.3740 (JEPA: 0.2813, ADV: 2.0927) | Disc loss: 2.1562, Disc acc: 32.9% | α: 0.999
+2026-03-08 17:51:05,193 [INFO] E70 B10/17 | JEPA: 0.2714 ADV: 1.9415 Disc: 2.0651 | α:1.000
+2026-03-08 17:51:06,736 [INFO] Epoch 70/80 | Total: 2.3533 (JEPA: 0.2905, ADV: 2.0628) | Disc loss: 2.1221, Disc acc: 34.9% | α: 1.000
+2026-03-08 17:51:09,121 [INFO] E71 B10/17 | JEPA: 0.3164 ADV: 1.9774 Disc: 1.8797 | α:1.000
+2026-03-08 17:51:10,711 [INFO] Epoch 71/80 | Total: 2.3325 (JEPA: 0.2726, ADV: 2.0599) | Disc loss: 2.1002, Disc acc: 35.0% | α: 1.000
+2026-03-08 17:51:13,101 [INFO] E72 B10/17 | JEPA: 0.2393 ADV: 2.1041 Disc: 2.0420 | α:1.000
+2026-03-08 17:51:14,672 [INFO] Epoch 72/80 | Total: 2.3008 (JEPA: 0.2763, ADV: 2.0246) | Disc loss: 2.0693, Disc acc: 36.5% | α: 1.000
+2026-03-08 17:51:17,045 [INFO] E73 B10/17 | JEPA: 0.2071 ADV: 1.8522 Disc: 1.9095 | α:1.000
+2026-03-08 17:51:18,629 [INFO] Epoch 73/80 | Total: 2.2334 (JEPA: 0.2444, ADV: 1.9890) | Disc loss: 2.0620, Disc acc: 34.1% | α: 1.000
+2026-03-08 17:51:21,005 [INFO] E74 B10/17 | JEPA: 0.3132 ADV: 2.1471 Disc: 2.1367 | α:1.000
+2026-03-08 17:51:22,622 [INFO] Epoch 74/80 | Total: 2.2586 (JEPA: 0.3071, ADV: 1.9515) | Disc loss: 1.9917, Disc acc: 38.6% | α: 1.000
+2026-03-08 17:51:25,022 [INFO] E75 B10/17 | JEPA: 0.2343 ADV: 1.7806 Disc: 1.9706 | α:1.000
+2026-03-08 17:51:26,598 [INFO] Epoch 75/80 | Total: 2.1672 (JEPA: 0.2669, ADV: 1.9003) | Disc loss: 1.9823, Disc acc: 37.2% | α: 1.000
+2026-03-08 17:51:29,013 [INFO] E76 B10/17 | JEPA: 0.3145 ADV: 1.8664 Disc: 1.9644 | α:1.000
+2026-03-08 17:51:30,594 [INFO] Epoch 76/80 | Total: 2.1474 (JEPA: 0.2730, ADV: 1.8744) | Disc loss: 1.9446, Disc acc: 38.9% | α: 1.000
+2026-03-08 17:51:33,030 [INFO] E77 B10/17 | JEPA: 0.2425 ADV: 1.8962 Disc: 1.9531 | α:1.000
+2026-03-08 17:51:34,603 [INFO] Epoch 77/80 | Total: 2.1457 (JEPA: 0.2629, ADV: 1.8829) | Disc loss: 1.9423, Disc acc: 38.5% | α: 1.000
+2026-03-08 17:51:36,998 [INFO] E78 B10/17 | JEPA: 0.2025 ADV: 1.8766 Disc: 1.9034 | α:1.000
+2026-03-08 17:51:38,571 [INFO] Epoch 78/80 | Total: 2.1480 (JEPA: 0.2793, ADV: 1.8687) | Disc loss: 1.9385, Disc acc: 38.9% | α: 1.000
+2026-03-08 17:51:40,968 [INFO] E79 B10/17 | JEPA: 0.3044 ADV: 1.6389 Disc: 1.7839 | α:1.000
+2026-03-08 17:51:42,555 [INFO] Epoch 79/80 | Total: 2.0356 (JEPA: 0.2686, ADV: 1.7669) | Disc loss: 1.8601, Disc acc: 43.2% | α: 1.000
+2026-03-08 17:51:44,933 [INFO] E80 B10/17 | JEPA: 0.3137 ADV: 1.7948 Disc: 1.9416 | α:1.000
+2026-03-08 17:51:46,542 [INFO] Epoch 80/80 | Total: 2.0011 (JEPA: 0.2648, ADV: 1.7363) | Disc loss: 1.7947, Disc acc: 46.0% | α: 1.000
+2026-03-08 17:51:46,708 [INFO] Checkpoint: checkpoints/phase2_adversarial_nocurr/model_A_phase2advv2_ep80.pt
+2026-03-08 17:51:46,771 [INFO] Final model: checkpoints/phase2_adversarial_nocurr/model_A_phase2advv2_final.pt
+2026-03-08 17:51:46,830 [INFO] Saved evaluation-ready checkpoint: checkpoints/phase2_adversarial_nocurr/model_final.pt

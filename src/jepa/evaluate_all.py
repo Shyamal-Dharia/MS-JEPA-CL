@@ -44,6 +44,7 @@ from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.metrics import (
     balanced_accuracy_score, roc_auc_score,
     f1_score, precision_score, recall_score,
+    confusion_matrix,
 )
 from scipy.stats import wilcoxon
 
@@ -112,6 +113,7 @@ class EvalConfig:
         ("HC vs Dysthymia", 0, 8),
         ("HC vs Others",    0, 99),
         ("Multiclass (ALL)",0, "MULTI"),
+        ("Multiclass (Multi-Site)", 0, "MULTI_FILTERED"),
     ]
 
     # ── Fine-tuning hyperparams ──
@@ -226,6 +228,33 @@ def aggregate_seed_metrics(seed_metrics_list):
         else:
             agg[k] = vals[0]  # non-numeric, just keep first
     return agg
+
+
+def compute_per_site_metrics(y_true, y_pred, sites, valid_mask):
+    """Compute bAcc per held-out site (only where both classes present)."""
+    per_site = {}
+    for site in np.unique(sites):
+        mask = (sites == site) & valid_mask
+        if mask.sum() < 2:
+            continue
+        yt, yp = y_true[mask], y_pred[mask]
+        if len(np.unique(yt)) < 2:
+            per_site[str(site)] = {"bacc": float("nan"), "n": int(mask.sum())}
+            continue
+        per_site[str(site)] = {
+            "bacc": float(balanced_accuracy_score(yt, yp)),
+            "n": int(mask.sum()),
+        }
+    return per_site
+
+
+def compute_topk_accuracy(y_true, y_probs, k=3):
+    """Top-k accuracy for multiclass. y_probs: (N, C)."""
+    if y_probs is None or y_probs.ndim != 2:
+        return float("nan")
+    topk = np.argsort(y_probs, axis=1)[:, -k:]
+    correct = np.array([y_true[i] in topk[i] for i in range(len(y_true))])
+    return float(correct.mean())
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -407,9 +436,14 @@ def run_frozen_probe_loso_single(X, y, sites, probe_type="linear", class_weight=
 
     # Aggregate over valid predictions
     valid = ~np.isnan(all_preds)
+    preds_info = {
+        "all_preds": all_preds, "all_probs": all_probs,
+        "y_true": y, "sites": sites, "valid_mask": valid,
+    }
     if valid.sum() == 0:
-        return {"bacc": float("nan"), "auc": float("nan"), "f1_macro": float("nan"),
-                "precision": float("nan"), "recall": float("nan"), "n_valid_sites": 0}
+        return ({"bacc": float("nan"), "auc": float("nan"), "f1_macro": float("nan"),
+                 "precision": float("nan"), "recall": float("nan"), "n_valid_sites": 0},
+                preds_info)
 
     # For multiclass, all_probs might have rows of NaNs
     prob_arr = all_probs[valid]
@@ -428,7 +462,7 @@ def run_frozen_probe_loso_single(X, y, sites, probe_type="linear", class_weight=
             sites_used += 1
     metrics["n_valid_sites"] = sites_used
 
-    return metrics
+    return metrics, preds_info
 
 
 def run_frozen_probe_loso(X, y, sites, probe_type="linear", class_weight=True,
@@ -443,12 +477,15 @@ def run_frozen_probe_loso(X, y, sites, probe_type="linear", class_weight=True,
         seeds = [42]
 
     seed_results = []
-    for seed in seeds:
-        m = run_frozen_probe_loso_single(X, y, sites, probe_type, class_weight,
-                                          seed=seed, val_fraction=val_fraction)
+    first_preds = None
+    for i, seed in enumerate(seeds):
+        m, preds = run_frozen_probe_loso_single(X, y, sites, probe_type, class_weight,
+                                                 seed=seed, val_fraction=val_fraction)
         seed_results.append(m)
+        if i == 0:
+            first_preds = preds
 
-    return aggregate_seed_metrics(seed_results)
+    return aggregate_seed_metrics(seed_results), first_preds
 
 
 def run_frozen_probe_site_cv(X, y_site, probe_type="linear"):
@@ -723,9 +760,14 @@ def run_finetune_loso_single(checkpoint_path, cfg, X_task, y_task, sites_task,
         sites_used += 1
 
     valid = ~np.isnan(all_preds)
+    preds_info = {
+        "all_preds": all_preds, "all_probs": all_probs,
+        "y_true": y_task, "sites": sites_task, "valid_mask": valid,
+    }
     if valid.sum() == 0:
-        return {"bacc": float("nan"), "auc": float("nan"), "f1_macro": float("nan"),
-                "precision": float("nan"), "recall": float("nan"), "n_valid_sites": 0}
+        return ({"bacc": float("nan"), "auc": float("nan"), "f1_macro": float("nan"),
+                 "precision": float("nan"), "recall": float("nan"), "n_valid_sites": 0},
+                preds_info)
 
     # For multiclass, all_probs might have rows of NaNs where valid is False, but we slice with valid
     prob_arr = all_probs[valid]
@@ -736,7 +778,7 @@ def run_finetune_loso_single(checkpoint_path, cfg, X_task, y_task, sites_task,
 
     metrics = compute_metrics(y_task[valid], all_preds[valid].astype(int), prob_arr)
     metrics["n_valid_sites"] = sites_used
-    return metrics
+    return metrics, preds_info
 
 
 def run_finetune_loso(checkpoint_path, cfg, X_task, y_task, sites_task, method_type="jepa"):
@@ -746,14 +788,17 @@ def run_finetune_loso(checkpoint_path, cfg, X_task, y_task, sites_task, method_t
     Runs run_finetune_loso_single() across cfg.seeds and returns mean +- std.
     """
     seed_results = []
-    for seed in cfg.seeds:
-        seed_metrics = run_finetune_loso_single(
+    first_preds = None
+    for i, seed in enumerate(cfg.seeds):
+        seed_metrics, preds = run_finetune_loso_single(
             checkpoint_path, cfg, X_task, y_task, sites_task,
             method_type=method_type, seed=seed,
         )
         seed_results.append(seed_metrics)
+        if i == 0:
+            first_preds = preds
 
-    return aggregate_seed_metrics(seed_results)
+    return aggregate_seed_metrics(seed_results), first_preds
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -810,8 +855,19 @@ def evaluate_all(cfg: EvalConfig):
         shape = method_features[method_name].shape
         logger.info(f"    Shape: {shape} ({dt:.1f}s)")
 
+    # ── Save embeddings for visualization ──
+    embed_dir = Path(cfg.save_dir) / "embeddings"
+    embed_dir.mkdir(parents=True, exist_ok=True)
+    np.save(embed_dir / "sites.npy", sites)
+    np.save(embed_dir / "diags.npy", diags)
+    for mname, feat in method_features.items():
+        safe_name = mname.replace(" ", "_").replace("(", "").replace(")", "").replace("+", "plus")
+        np.save(embed_dir / f"{safe_name}.npy", feat)
+    logger.info(f"Embeddings saved to {embed_dir}/ ({len(method_features)} methods)")
+
     # ── Results storage ──
     all_results = []
+    all_preds_store = {}  # (method, eval_type, task) -> preds_info dict
 
     # ── STEP 2: Site classification probing ──
     logger.info("\n" + "=" * 70)
@@ -856,6 +912,15 @@ def evaluate_all(cfg: EvalConfig):
         elif disorder_diag == "MULTI":
             mask = np.ones(len(diags), dtype=bool)
             y_task = LabelEncoder().fit_transform(diags)
+        elif disorder_diag == "MULTI_FILTERED":
+            # Keep only diagnosis classes that appear at >=2 sites
+            from collections import defaultdict
+            diag_sites = defaultdict(set)
+            for d, st in zip(diags, sites):
+                diag_sites[d].add(st)
+            valid_classes = sorted([d for d, st_set in diag_sites.items() if len(st_set) >= 2])
+            mask = np.isin(diags, valid_classes)
+            y_task = LabelEncoder().fit_transform(diags[mask])
         else:
             mask = np.isin(diags, [hc_diag, disorder_diag])
             y_task = (diags[mask] == disorder_diag).astype(int)
@@ -866,7 +931,7 @@ def evaluate_all(cfg: EvalConfig):
         n_classes = len(np.unique(y_task))
 
         logger.info(f"\n{'─' * 70}")
-        if disorder_diag == "MULTI":
+        if disorder_diag in ("MULTI", "MULTI_FILTERED"):
             class_counts = {int(c): int((y_task == c).sum()) for c in np.unique(y_task)}
             logger.info(f"TASK: {task_name} | N={len(y_task)} | {n_classes} classes | counts={class_counts} | chance={task_chance:.1%}")
             n_hc = class_counts.get(0, 0)
@@ -881,7 +946,7 @@ def evaluate_all(cfg: EvalConfig):
             continue
 
         # Skip if disease subjects are all at one site (LOSO will produce 0 valid folds)
-        if disorder_diag not in ("ALL", "MULTI"):
+        if disorder_diag not in ("ALL", "MULTI", "MULTI_FILTERED"):
             disease_mask = y_task == 1
             disease_sites = set(sites_task[disease_mask])
             if len(disease_sites) < 2:
@@ -889,27 +954,21 @@ def evaluate_all(cfg: EvalConfig):
                 continue
 
         for method_name, ckpt_path, method_type in cfg.methods:
-            if method_type in ["combat", "combat_scratch"]:
-                logger.info(
-                    f"  ⚠ {method_name:25s} | skipped | "
-                    "ComBat under strict LOSO would require fitting on all sites "
-                    "(test-site leakage)."
-                )
-                continue
-
             # Get features for this task subset
-            if method_type == "combat":
-                # Re-run ComBat on just this subset for fair comparison
-                X_feat = get_combat_features(X_task_raw, sites_task)
-            else:
-                X_feat_all = method_features[method_name]
-                X_feat = X_feat_all[mask]
+            X_feat_all = method_features[method_name]
+            X_feat = X_feat_all[mask]
 
             # ── 3A: Frozen probing ──
             for probe_type in ["linear", "mlp"]:
-                metrics = run_frozen_probe_loso(X_feat, y_task, sites_task,
+                metrics, preds_info = run_frozen_probe_loso(X_feat, y_task, sites_task,
                                                 probe_type=probe_type, class_weight=True,
                                                 seeds=cfg.seeds, val_fraction=cfg.val_fraction)
+
+                # Collect detailed predictions for later analysis
+                detail_key = (method_name, f"frozen_{probe_type}", task_name)
+                if preds_info is not None:
+                    all_preds_store[detail_key] = preds_info
+
                 result = {
                     "method": method_name,
                     "eval_type": f"frozen_{probe_type}",
@@ -932,29 +991,29 @@ def evaluate_all(cfg: EvalConfig):
 
             # ── 3B: End-to-end fine-tuning (LOSO) ──
             if method_type in ["jepa", "scratch"]:
-                ft_metrics = run_finetune_loso(
+                ft_metrics, ft_preds = run_finetune_loso(
                     ckpt_path, cfg, X_task_raw, y_task, sites_task,
-                    method_type="jepa", # 'jepa' triggers FineTuneModel with or without a ckpt
+                    method_type="jepa",
                 )
             elif method_type == "combat_scratch":
-                combat_feat = get_combat_features(X_task_raw, sites_task)
-                combat_3d = combat_feat.reshape(len(X_task_raw), 93, 400)
-                ft_metrics = run_finetune_loso(
+                # ComBat harmonize, reshape to 3D, fine-tune transformer
+                combat_flat = get_combat_features(X_task_raw, sites_task)
+                combat_3d = combat_flat.reshape(len(X_task_raw), 93, 400)
+                ft_metrics, ft_preds = run_finetune_loso(
                     None, cfg, combat_3d, y_task, sites_task,
-                    method_type="jepa", # use Transformer architecture on top of combat features
+                    method_type="jepa",
                 )
             else:
-                # For raw / combat, fine-tune an MLP on features
-                if method_type == "combat":
-                    ft_metrics = run_finetune_loso(
-                        None, cfg, X_feat, y_task, sites_task,
-                        method_type="raw",
-                    )
-                else:
-                    ft_metrics = run_finetune_loso(
-                        None, cfg, X_task_raw, y_task, sites_task,
-                        method_type="raw",
-                    )
+                # raw — fine-tune an MLP on raw flattened features
+                ft_metrics, ft_preds = run_finetune_loso(
+                    None, cfg, X_task_raw, y_task, sites_task,
+                    method_type="raw",
+                )
+
+            # Collect detailed predictions for later analysis
+            detail_key = (method_name, "finetune_loso", task_name)
+            if ft_preds is not None:
+                all_preds_store[detail_key] = ft_preds
 
             result = {
                 "method": method_name,
@@ -996,6 +1055,110 @@ def evaluate_all(cfg: EvalConfig):
     with open(results_path, "w") as f:
         json.dump(merged, f, indent=2, default=str)
     logger.info(f"\nResults saved: {results_path} ({len(all_results)} new, {len(existing)} existing)")
+
+    # ── Save detailed analysis (confusion matrices, per-site, top-k) ──
+    detail_dir = save_dir / "detailed"
+    detail_dir.mkdir(parents=True, exist_ok=True)
+    detailed_analyses = []
+
+    for (method, eval_type, task), pinfo in all_preds_store.items():
+        valid = pinfo["valid_mask"]
+        if valid.sum() == 0:
+            continue
+        y_true_v = pinfo["y_true"][valid]
+        y_pred_v = pinfo["all_preds"][valid].astype(int)
+        probs_v = pinfo["all_probs"][valid] if pinfo["all_probs"] is not None else None
+        sites_v = pinfo["sites"]
+
+        entry = {"method": method, "eval_type": eval_type, "task": task}
+
+        # Per-site metrics
+        entry["per_site"] = compute_per_site_metrics(
+            pinfo["y_true"], pinfo["all_preds"], pinfo["sites"], valid
+        )
+
+        # Confusion matrix
+        labels = sorted(np.unique(y_true_v))
+        cm = confusion_matrix(y_true_v, y_pred_v, labels=labels)
+        entry["confusion_matrix"] = cm.tolist()
+        entry["cm_labels"] = [int(l) for l in labels]
+
+        # Top-k accuracy (multiclass only)
+        if len(labels) > 2 and probs_v is not None and probs_v.ndim == 2:
+            entry["top2_acc"] = compute_topk_accuracy(y_true_v, probs_v, k=2)
+            entry["top3_acc"] = compute_topk_accuracy(y_true_v, probs_v, k=3)
+
+        detailed_analyses.append(entry)
+
+    if detailed_analyses:
+        detail_path = detail_dir / "detailed_analysis.json"
+        with open(detail_path, "w") as f:
+            json.dump(detailed_analyses, f, indent=2, default=str)
+        logger.info(f"Detailed analysis saved: {detail_path} ({len(detailed_analyses)} entries)")
+
+    # ── Pairwise statistical significance tests ──
+    logger.info("\n" + "=" * 70)
+    logger.info("STEP 4: Statistical significance tests (Wilcoxon signed-rank)")
+    logger.info("=" * 70)
+
+    stat_results = []
+    # Group per-site bAcc by (eval_type, task)
+    from itertools import combinations
+    task_eval_groups = {}
+    for (method, eval_type, task), pinfo in all_preds_store.items():
+        valid = pinfo["valid_mask"]
+        if valid.sum() == 0:
+            continue
+        per_site = compute_per_site_metrics(
+            pinfo["y_true"], pinfo["all_preds"], pinfo["sites"], valid
+        )
+        # Collect per-site bAcc as a dict {site: bacc}
+        site_baccs = {s: v["bacc"] for s, v in per_site.items()
+                      if not (isinstance(v["bacc"], float) and np.isnan(v["bacc"]))}
+        key = (eval_type, task)
+        if key not in task_eval_groups:
+            task_eval_groups[key] = {}
+        task_eval_groups[key][method] = site_baccs
+
+    for (eval_type, task), method_site_baccs in task_eval_groups.items():
+        methods_list = sorted(method_site_baccs.keys())
+        if len(methods_list) < 2:
+            continue
+        for m1, m2 in combinations(methods_list, 2):
+            # Align on shared sites
+            shared = sorted(set(method_site_baccs[m1].keys()) & set(method_site_baccs[m2].keys()))
+            if len(shared) < 5:
+                continue
+            vals1 = [method_site_baccs[m1][s] for s in shared]
+            vals2 = [method_site_baccs[m2][s] for s in shared]
+            try:
+                stat, pval = wilcoxon(vals1, vals2)
+            except ValueError:
+                continue
+            mean_diff = np.mean(vals1) - np.mean(vals2)
+            entry = {
+                "eval_type": eval_type, "task": task,
+                "method_1": m1, "method_2": m2,
+                "mean_diff": round(float(mean_diff), 4),
+                "n_sites": len(shared),
+                "wilcoxon_stat": round(float(stat), 4),
+                "p_value": round(float(pval), 6),
+                "significant_005": pval < 0.05,
+                "significant_001": pval < 0.01,
+            }
+            stat_results.append(entry)
+            if pval < 0.05:
+                logger.info(
+                    f"  {eval_type:15s} | {task:25s} | "
+                    f"{m1} vs {m2}: Δ={mean_diff:+.3f}, p={pval:.4f} *"
+                )
+
+    if stat_results:
+        stat_path = detail_dir / "statistical_tests.json"
+        with open(stat_path, "w") as f:
+            json.dump(stat_results, f, indent=2, default=str)
+        n_sig = sum(1 for s in stat_results if s["significant_005"])
+        logger.info(f"Statistical tests saved: {stat_path} ({len(stat_results)} pairs, {n_sig} significant at p<0.05)")
 
     # ── Print summary table ──
     print_summary_table(all_results, cfg)
@@ -1074,23 +1237,35 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate JEPA models and baselines")
     parser.add_argument("--method", type=str, default="all",
                         help="Specific method name to evaluate (e.g. 'SimCLR Baseline'). Defaults to all.")
+    parser.add_argument("--gpu", type=int, default=None,
+                        help="GPU index to use (also selects method shard for multi-GPU parallel runs).")
+    parser.add_argument("--n-shards", type=int, default=1,
+                        help="Total number of GPU shards (use with --gpu for parallel runs).")
     args = parser.parse_args()
 
-    print("=" * 70)
-    if args.method == "all":
-        print("Comprehensive Evaluation: All Methods × All Tasks")
-    else:
-        print(f"Targeted Evaluation: {args.method} × All Tasks")
-    print("=" * 70)
-
     cfg = EvalConfig()
-    
+
+    # Override device if --gpu is specified
+    if args.gpu is not None:
+        cfg.device = f"cuda:{args.gpu}"
+
     # Filter methods if a specific one was requested
     if args.method != "all":
         cfg.methods = [m for m in cfg.methods if m[0] == args.method]
         if not cfg.methods:
             print(f"Error: Method '{args.method}' not found in EvalConfig.methods list.")
             exit(1)
+    elif args.n_shards > 1 and args.gpu is not None:
+        # Shard methods across GPUs: GPU i gets methods[i::n_shards]
+        cfg.methods = cfg.methods[args.gpu::args.n_shards]
+
+    print("=" * 70)
+    print(f"Device: {cfg.device} | Methods: {len(cfg.methods)} | "
+          f"Shard {args.gpu}/{args.n_shards}" if args.gpu is not None else
+          f"Comprehensive Evaluation: All Methods × All Tasks")
+    for m in cfg.methods:
+        print(f"  • {m[0]}")
+    print("=" * 70)
 
     t_start = time.time()
     evaluate_all(cfg)

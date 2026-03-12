@@ -1,3 +1,8 @@
 preprocessed_data_fir
 raw_data
-license.txt
+checkpoints/
+results/embeddings/
+results/figures/
+**/__pycache__/
+*.pt
+*.pth

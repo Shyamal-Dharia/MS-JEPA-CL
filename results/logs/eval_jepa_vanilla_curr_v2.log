@@ -1,0 +1,38 @@
+nohup: ignoring input
+2026-03-08 12:47:52,116 [INFO] Loaded 1626 subjects
+2026-03-08 12:47:52,533 [INFO] Data: (1626, 93, 400), 13 sites, 9 diagnoses
+2026-03-08 12:47:52,534 [INFO] 
+======================================================================
+2026-03-08 12:47:52,534 [INFO] STEP 1: Extracting embeddings / features for all methods
+2026-03-08 12:47:52,534 [INFO] ======================================================================
+2026-03-08 12:47:52,534 [INFO] 
+  → JEPA Vanilla (With Curriculum)
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+2026-03-08 12:47:53,789 [INFO]     Shape: (1626, 400) (1.3s)
+2026-03-08 12:47:53,792 [INFO] 
+======================================================================
+2026-03-08 12:47:53,792 [INFO] STEP 2: Site classification probing (LOSO)
+2026-03-08 12:47:53,792 [INFO] ======================================================================
+2026-03-08 12:47:53,793 [INFO]   13 sites, chance = 7.7%
+2026-03-08 12:47:53,793 [INFO] 
+  JEPA Vanilla (With Curriculum) | linear probe → site
+2026-03-08 12:49:04,369 [INFO]     bAcc=26.4% (chance=7.7%) | F1=0.267 | Sites=13
+2026-03-08 12:49:04,403 [INFO] 
+  JEPA Vanilla (With Curriculum) | mlp probe → site
+2026-03-08 12:49:18,446 [INFO]     bAcc=11.7% (chance=7.7%) | F1=0.111 | Sites=13
+2026-03-08 12:49:18,446 [INFO] 
+======================================================================
+2026-03-08 12:49:18,446 [INFO] STEP 3: Diagnosis classification (LOSO)
+2026-03-08 12:49:18,446 [INFO] ======================================================================
+2026-03-08 12:49:18,471 [INFO] 
+──────────────────────────────────────────────────────────────────────
+2026-03-08 12:49:18,471 [INFO] TASK: HC vs ALL | N=1626 (HC=950, Disease=676) | chance=50.0%
+2026-03-08 13:08:32,825 [INFO]   JEPA Vanilla (With Curriculum) | linear probe | bAcc=58.8%±1.5% (Δ=+8.8%) | AUC=0.629±0.006 | F1=0.586 | Sites=11.0
+2026-03-08 13:25:09,847 [INFO]   JEPA Vanilla (With Curriculum) | mlp    probe | bAcc=70.1%±1.5% (Δ=+20.1%) | AUC=0.764±0.008 | F1=0.701 | Sites=11.0
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(

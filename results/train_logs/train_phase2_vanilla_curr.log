@@ -1,0 +1,153 @@
+2026-03-07 00:19:01,784 [INFO] Phase 2: Temporal model on cuda
+2026-03-07 00:19:01,832 [INFO] Main dataset: 950 HC subjects
+2026-03-07 00:19:01,832 [INFO] Replay dataset: 141 travelling scans
+2026-03-07 00:19:01,857 [INFO] Batch: 54 main + 10 replay = 64 | 17 batches/epoch
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+/data/s.dharia-ra/multi-site-problem/src/jepa/train_phase2.py:320: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(cfg.phase1_checkpoint, map_location=device)
+2026-03-07 00:19:02,131 [INFO] ✓ Loaded Phase 1 weights from checkpoints/phase1/model_A_phase1.pt
+2026-03-07 00:19:02,131 [INFO] Trainable parameters: 9,862,800
+============================================================
+Phase 2: Temporal JEPA on SRPBS 1600 (HC only)
+============================================================
+HCOnlyDataset: kept 950/1626 (HC only)
+Site-balanced sampler (13 sites):
+  ATT: 31 HC, weight=0.0323
+  ATV: 77 HC, weight=0.0130
+  CIN: 39 HC, weight=0.0256
+  COI: 124 HC, weight=0.0081
+  HKH: 29 HC, weight=0.0345
+  HRC: 49 HC, weight=0.0204
+  HUH: 67 HC, weight=0.0149
+  KTT: 75 HC, weight=0.0133
+  KUT: 159 HC, weight=0.0063
+  NKN: 2 HC, weight=0.5000
+  OSU: 27 HC, weight=0.0370
+  SWA: 101 HC, weight=0.0099
+  UTO: 170 HC, weight=0.0059
+2026-03-07 00:19:03,953 [INFO] Epoch 1/60 | Batch 10/17 | Loss: 0.7031 (main: 0.7273, replay: 0.5725)
+2026-03-07 00:19:54,771 [INFO] Epoch 1 | Loss: 0.5354 (main: 0.5603, replay: 0.3923) | LR: 0.000010 | Site Probe: 31.2% (chance=9.1%)
+2026-03-07 00:19:58,098 [INFO] Epoch 2/60 | Batch 10/17 | Loss: 0.5709 (main: 0.5997, replay: 0.4150)
+2026-03-07 00:19:59,940 [INFO] Epoch 2 | Loss: 0.5219 (main: 0.5461, replay: 0.3924) | LR: 0.000020
+2026-03-07 00:20:03,165 [INFO] Epoch 3/60 | Batch 10/17 | Loss: 0.4569 (main: 0.4877, replay: 0.2906)
+2026-03-07 00:20:05,083 [INFO] Epoch 3 | Loss: 0.4858 (main: 0.5074, replay: 0.3656) | LR: 0.000030
+2026-03-07 00:20:08,196 [INFO] Epoch 4/60 | Batch 10/17 | Loss: 0.5920 (main: 0.6297, replay: 0.3880)
+2026-03-07 00:20:10,304 [INFO] Epoch 4 | Loss: 0.5219 (main: 0.5433, replay: 0.3999) | LR: 0.000040
+2026-03-07 00:20:12,070 [INFO] Epoch 5/60 | Batch 10/17 | Loss: 0.5309 (main: 0.5527, replay: 0.4127)
+2026-03-07 00:20:13,111 [INFO] Epoch 5 | Loss: 0.4603 (main: 0.4790, replay: 0.3519) | LR: 0.000050
+2026-03-07 00:20:14,692 [INFO] Epoch 6/60 | Batch 10/17 | Loss: 0.3805 (main: 0.3934, replay: 0.3111)
+2026-03-07 00:20:15,770 [INFO] Epoch 6 | Loss: 0.4853 (main: 0.5004, replay: 0.4015) | LR: 0.000050
+2026-03-07 00:20:17,234 [INFO] Epoch 7/60 | Batch 10/17 | Loss: 0.3569 (main: 0.3675, replay: 0.2997)
+2026-03-07 00:20:18,198 [INFO] Epoch 7 | Loss: 0.4253 (main: 0.4393, replay: 0.3381) | LR: 0.000050
+2026-03-07 00:20:19,549 [INFO] Epoch 8/60 | Batch 10/17 | Loss: 0.5961 (main: 0.6049, replay: 0.5490)
+2026-03-07 00:20:20,061 [INFO] Epoch 8 | Loss: 0.4699 (main: 0.4805, replay: 0.4050) | LR: 0.000050
+2026-03-07 00:20:21,379 [INFO] Epoch 9/60 | Batch 10/17 | Loss: 0.4138 (main: 0.4276, replay: 0.3392)
+2026-03-07 00:20:22,157 [INFO] Epoch 9 | Loss: 0.4733 (main: 0.4891, replay: 0.3773) | LR: 0.000050
+2026-03-07 00:20:23,877 [INFO] Epoch 10/60 | Batch 10/17 | Loss: 0.6479 (main: 0.6742, replay: 0.5061)
+2026-03-07 00:20:24,688 [INFO] Epoch 10 | Loss: 0.4516 (main: 0.4646, replay: 0.3722) | LR: 0.000049
+2026-03-07 00:20:26,373 [INFO] Epoch 11/60 | Batch 10/17 | Loss: 0.6111 (main: 0.6162, replay: 0.3329)
+2026-03-07 00:20:27,059 [INFO] Epoch 11 | Loss: 0.4448 (main: 0.4567, replay: 0.3656) | LR: 0.000049
+2026-03-07 00:20:28,297 [INFO] Epoch 12/60 | Batch 10/17 | Loss: 0.4187 (main: 0.4282, replay: 0.3673)
+2026-03-07 00:20:29,129 [INFO] Epoch 12 | Loss: 0.4246 (main: 0.4351, replay: 0.3574) | LR: 0.000049
+2026-03-07 00:20:30,280 [INFO] Epoch 13/60 | Batch 10/17 | Loss: 0.3794 (main: 0.3904, replay: 0.3202)
+2026-03-07 00:20:31,495 [INFO] Epoch 13 | Loss: 0.4271 (main: 0.4362, replay: 0.3697) | LR: 0.000048
+2026-03-07 00:20:32,689 [INFO] Epoch 14/60 | Batch 10/17 | Loss: 0.3393 (main: 0.3444, replay: 0.3123)
+2026-03-07 00:20:33,851 [INFO] Epoch 14 | Loss: 0.3908 (main: 0.3986, replay: 0.3410) | LR: 0.000047
+2026-03-07 00:20:35,005 [INFO] Epoch 15/60 | Batch 10/17 | Loss: 0.3728 (main: 0.3863, replay: 0.3001)
+2026-03-07 00:20:36,067 [INFO] Epoch 15 | Loss: 0.4475 (main: 0.4552, replay: 0.4072) | LR: 0.000047
+2026-03-07 00:20:37,337 [INFO] Epoch 16/60 | Batch 10/17 | Loss: 0.3481 (main: 0.3564, replay: 0.3032)
+2026-03-07 00:20:38,073 [INFO] Epoch 16 | Loss: 0.4204 (main: 0.4289, replay: 0.3728) | LR: 0.000046
+2026-03-07 00:20:39,271 [INFO] Epoch 17/60 | Batch 10/17 | Loss: 0.6232 (main: 0.6330, replay: 0.5703)
+2026-03-07 00:20:40,099 [INFO] Epoch 17 | Loss: 0.4595 (main: 0.4648, replay: 0.4207) | LR: 0.000045
+2026-03-07 00:20:41,244 [INFO] Epoch 18/60 | Batch 10/17 | Loss: 0.3460 (main: 0.3531, replay: 0.3078)
+2026-03-07 00:20:42,020 [INFO] Epoch 18 | Loss: 0.4242 (main: 0.4343, replay: 0.3698) | LR: 0.000044
+2026-03-07 00:20:43,083 [INFO] Epoch 19/60 | Batch 10/17 | Loss: 0.3865 (main: 0.3978, replay: 0.3257)
+2026-03-07 00:20:43,963 [INFO] Epoch 19 | Loss: 0.4303 (main: 0.4369, replay: 0.3948) | LR: 0.000043
+2026-03-07 00:20:45,122 [INFO] Epoch 20/60 | Batch 10/17 | Loss: 0.4836 (main: 0.4977, replay: 0.4075)
+2026-03-07 00:20:45,751 [INFO] Epoch 20 | Loss: 0.3829 (main: 0.3912, replay: 0.3315) | LR: 0.000042
+2026-03-07 00:20:45,903 [INFO] Checkpoint saved: checkpoints/phase2/model_A_phase2_ep20.pt
+2026-03-07 00:20:47,081 [INFO] Epoch 21/60 | Batch 10/17 | Loss: 0.3441 (main: 0.3480, replay: 0.3232)
+2026-03-07 00:20:47,710 [INFO] Epoch 21 | Loss: 0.4258 (main: 0.4312, replay: 0.3894) | LR: 0.000041
+2026-03-07 00:20:48,987 [INFO] Epoch 22/60 | Batch 10/17 | Loss: 0.5100 (main: 0.5158, replay: 0.4788)
+2026-03-07 00:20:49,448 [INFO] Epoch 22 | Loss: 0.4209 (main: 0.4282, replay: 0.3889) | LR: 0.000040
+2026-03-07 00:20:50,892 [INFO] Epoch 23/60 | Batch 10/17 | Loss: 0.4119 (main: 0.4150, replay: 0.3952)
+2026-03-07 00:20:51,712 [INFO] Epoch 23 | Loss: 0.4021 (main: 0.4097, replay: 0.3461) | LR: 0.000039
+2026-03-07 00:20:52,577 [INFO] Epoch 24/60 | Batch 10/17 | Loss: 0.3585 (main: 0.3646, replay: 0.3258)
+2026-03-07 00:20:53,658 [INFO] Epoch 24 | Loss: 0.4033 (main: 0.4119, replay: 0.3770) | LR: 0.000038
+2026-03-07 00:20:54,726 [INFO] Epoch 25/60 | Batch 10/17 | Loss: 0.3221 (main: 0.3276, replay: 0.2923)
+2026-03-07 00:20:55,506 [INFO] Epoch 25 | Loss: 0.3882 (main: 0.3962, replay: 0.3402) | LR: 0.000037
+2026-03-07 00:20:56,932 [INFO] Epoch 26/60 | Batch 10/17 | Loss: 0.3649 (main: 0.3683, replay: 0.1816)
+2026-03-07 00:20:57,674 [INFO] Epoch 26 | Loss: 0.3872 (main: 0.3959, replay: 0.3303) | LR: 0.000035
+2026-03-07 00:20:59,060 [INFO] Epoch 27/60 | Batch 10/17 | Loss: 0.4826 (main: 0.4979, replay: 0.4001)
+2026-03-07 00:20:59,858 [INFO] Epoch 27 | Loss: 0.4102 (main: 0.4163, replay: 0.3635) | LR: 0.000034
+2026-03-07 00:21:01,183 [INFO] Epoch 28/60 | Batch 10/17 | Loss: 0.4287 (main: 0.4384, replay: 0.3766)
+2026-03-07 00:21:02,002 [INFO] Epoch 28 | Loss: 0.4072 (main: 0.4165, replay: 0.3528) | LR: 0.000033
+2026-03-07 00:21:02,887 [INFO] Epoch 29/60 | Batch 10/17 | Loss: 0.4188 (main: 0.4321, replay: 0.3467)
+2026-03-07 00:21:04,106 [INFO] Epoch 29 | Loss: 0.4186 (main: 0.4244, replay: 0.3841) | LR: 0.000031
+2026-03-07 00:21:05,136 [INFO] Epoch 30/60 | Batch 10/17 | Loss: 0.4829 (main: 0.4864, replay: 0.4640)
+2026-03-07 00:21:05,732 [INFO] Epoch 30 | Loss: 0.3940 (main: 0.4015, replay: 0.3498) | LR: 0.000030
+2026-03-07 00:21:07,271 [INFO] Epoch 31/60 | Batch 10/17 | Loss: 0.5361 (main: 0.5371, replay: 0.5304)
+2026-03-07 00:21:07,946 [INFO] Epoch 31 | Loss: 0.3942 (main: 0.4012, replay: 0.3520) | LR: 0.000029
+2026-03-07 00:21:09,521 [INFO] Epoch 32/60 | Batch 10/17 | Loss: 0.3661 (main: 0.3753, replay: 0.3164)
+2026-03-07 00:21:10,229 [INFO] Epoch 32 | Loss: 0.4039 (main: 0.4111, replay: 0.3574) | LR: 0.000027
+2026-03-07 00:21:11,344 [INFO] Epoch 33/60 | Batch 10/17 | Loss: 0.3448 (main: 0.3496, replay: 0.3191)
+2026-03-07 00:21:12,050 [INFO] Epoch 33 | Loss: 0.3850 (main: 0.3905, replay: 0.3460) | LR: 0.000026
+2026-03-07 00:21:12,810 [INFO] Epoch 34/60 | Batch 10/17 | Loss: 0.5487 (main: 0.5500, replay: 0.5420)
+2026-03-07 00:21:13,968 [INFO] Epoch 34 | Loss: 0.4108 (main: 0.4147, replay: 0.3797) | LR: 0.000024
+2026-03-07 00:21:15,131 [INFO] Epoch 35/60 | Batch 10/17 | Loss: 0.4171 (main: 0.4248, replay: 0.3751)
+2026-03-07 00:21:16,324 [INFO] Epoch 35 | Loss: 0.3573 (main: 0.3637, replay: 0.3310) | LR: 0.000023
+2026-03-07 00:21:17,682 [INFO] Epoch 36/60 | Batch 10/17 | Loss: 0.4694 (main: 0.4716, replay: 0.4575)
+2026-03-07 00:21:18,421 [INFO] Epoch 36 | Loss: 0.3755 (main: 0.3793, replay: 0.3553) | LR: 0.000021
+2026-03-07 00:21:19,860 [INFO] Epoch 37/60 | Batch 10/17 | Loss: 0.3652 (main: 0.3735, replay: 0.3204)
+2026-03-07 00:21:20,625 [INFO] Epoch 37 | Loss: 0.4042 (main: 0.4089, replay: 0.3718) | LR: 0.000020
+2026-03-07 00:21:21,994 [INFO] Epoch 38/60 | Batch 10/17 | Loss: 0.3181 (main: 0.3157, replay: 0.3311)
+2026-03-07 00:21:22,955 [INFO] Epoch 38 | Loss: 0.3751 (main: 0.3809, replay: 0.3485) | LR: 0.000019
+2026-03-07 00:21:24,176 [INFO] Epoch 39/60 | Batch 10/17 | Loss: 0.4535 (main: 0.4570, replay: 0.4347)
+2026-03-07 00:21:25,158 [INFO] Epoch 39 | Loss: 0.4228 (main: 0.4271, replay: 0.3980) | LR: 0.000017
+2026-03-07 00:21:26,158 [INFO] Epoch 40/60 | Batch 10/17 | Loss: 0.3187 (main: 0.3290, replay: 0.2630)
+2026-03-07 00:21:27,005 [INFO] Epoch 40 | Loss: 0.4079 (main: 0.4126, replay: 0.3976) | LR: 0.000016
+2026-03-07 00:21:27,157 [INFO] Checkpoint saved: checkpoints/phase2/model_A_phase2_ep40.pt
+2026-03-07 00:21:28,294 [INFO] Epoch 41/60 | Batch 10/17 | Loss: 0.4318 (main: 0.4320, replay: 0.4212)
+2026-03-07 00:21:28,987 [INFO] Epoch 41 | Loss: 0.4016 (main: 0.4089, replay: 0.3614) | LR: 0.000015
+2026-03-07 00:21:30,146 [INFO] Epoch 42/60 | Batch 10/17 | Loss: 0.2953 (main: 0.2956, replay: 0.2939)
+2026-03-07 00:21:30,768 [INFO] Epoch 42 | Loss: 0.4100 (main: 0.4174, replay: 0.3615) | LR: 0.000013
+2026-03-07 00:21:31,686 [INFO] Epoch 43/60 | Batch 10/17 | Loss: 0.3487 (main: 0.3568, replay: 0.3049)
+2026-03-07 00:21:32,798 [INFO] Epoch 43 | Loss: 0.3672 (main: 0.3736, replay: 0.3276) | LR: 0.000012
+2026-03-07 00:21:34,061 [INFO] Epoch 44/60 | Batch 10/17 | Loss: 0.3332 (main: 0.3410, replay: 0.2912)
+2026-03-07 00:21:34,961 [INFO] Epoch 44 | Loss: 0.3929 (main: 0.4005, replay: 0.3421) | LR: 0.000011
+2026-03-07 00:21:36,065 [INFO] Epoch 45/60 | Batch 10/17 | Loss: 0.3367 (main: 0.3490, replay: 0.2701)
+2026-03-07 00:21:36,461 [INFO] Epoch 45 | Loss: 0.3764 (main: 0.3802, replay: 0.3436) | LR: 0.000010
+2026-03-07 00:21:37,675 [INFO] Epoch 46/60 | Batch 10/17 | Loss: 0.3862 (main: 0.3934, replay: 0.3470)
+2026-03-07 00:21:38,253 [INFO] Epoch 46 | Loss: 0.3825 (main: 0.3876, replay: 0.3488) | LR: 0.000009
+2026-03-07 00:21:39,911 [INFO] Epoch 47/60 | Batch 10/17 | Loss: 0.3604 (main: 0.3632, replay: 0.3453)
+2026-03-07 00:21:40,416 [INFO] Epoch 47 | Loss: 0.3816 (main: 0.3848, replay: 0.3607) | LR: 0.000008
+2026-03-07 00:21:41,750 [INFO] Epoch 48/60 | Batch 10/17 | Loss: 0.3604 (main: 0.3612, replay: 0.3559)
+2026-03-07 00:21:42,398 [INFO] Epoch 48 | Loss: 0.3892 (main: 0.3948, replay: 0.3606) | LR: 0.000007
+2026-03-07 00:21:43,671 [INFO] Epoch 49/60 | Batch 10/17 | Loss: 0.4974 (main: 0.4971, replay: 0.4995)
+2026-03-07 00:21:44,476 [INFO] Epoch 49 | Loss: 0.4214 (main: 0.4281, replay: 0.3800) | LR: 0.000006
+2026-03-07 00:21:45,366 [INFO] Epoch 50/60 | Batch 10/17 | Loss: 0.3111 (main: 0.3110, replay: 0.3113)
+2026-03-07 00:21:46,083 [INFO] Epoch 50 | Loss: 0.3744 (main: 0.3784, replay: 0.3463) | LR: 0.000005
+2026-03-07 00:21:47,427 [INFO] Epoch 51/60 | Batch 10/17 | Loss: 0.3161 (main: 0.3212, replay: 0.2888)
+2026-03-07 00:21:48,324 [INFO] Epoch 51 | Loss: 0.3924 (main: 0.4008, replay: 0.3450) | LR: 0.000004
+2026-03-07 00:21:49,632 [INFO] Epoch 52/60 | Batch 10/17 | Loss: 0.5509 (main: 0.5434, replay: 0.5915)
+2026-03-07 00:21:50,144 [INFO] Epoch 52 | Loss: 0.4212 (main: 0.4257, replay: 0.3922) | LR: 0.000003
+2026-03-07 00:21:51,671 [INFO] Epoch 53/60 | Batch 10/17 | Loss: 0.3401 (main: 0.3405, replay: 0.3379)
+2026-03-07 00:21:52,354 [INFO] Epoch 53 | Loss: 0.3832 (main: 0.3869, replay: 0.3618) | LR: 0.000003
+2026-03-07 00:21:53,578 [INFO] Epoch 54/60 | Batch 10/17 | Loss: 0.3692 (main: 0.3758, replay: 0.3337)
+2026-03-07 00:21:54,232 [INFO] Epoch 54 | Loss: 0.3916 (main: 0.3981, replay: 0.3565) | LR: 0.000002
+2026-03-07 00:21:55,689 [INFO] Epoch 55/60 | Batch 10/17 | Loss: 0.2977 (main: 0.3040, replay: 0.2635)
+2026-03-07 00:21:56,709 [INFO] Epoch 55 | Loss: 0.3622 (main: 0.3667, replay: 0.3381) | LR: 0.000001
+2026-03-07 00:21:58,173 [INFO] Epoch 56/60 | Batch 10/17 | Loss: 0.3577 (main: 0.3560, replay: 0.4489)
+2026-03-07 00:21:59,138 [INFO] Epoch 56 | Loss: 0.3866 (main: 0.3940, replay: 0.3514) | LR: 0.000001
+2026-03-07 00:22:00,521 [INFO] Epoch 57/60 | Batch 10/17 | Loss: 0.3391 (main: 0.3499, replay: 0.2806)
+2026-03-07 00:22:01,160 [INFO] Epoch 57 | Loss: 0.3751 (main: 0.3793, replay: 0.3527) | LR: 0.000001
+2026-03-07 00:22:02,599 [INFO] Epoch 58/60 | Batch 10/17 | Loss: 0.4397 (main: 0.4503, replay: 0.3827)
+2026-03-07 00:22:03,293 [INFO] Epoch 58 | Loss: 0.4044 (main: 0.4115, replay: 0.3652) | LR: 0.000000
+2026-03-07 00:22:04,496 [INFO] Epoch 59/60 | Batch 10/17 | Loss: 0.3129 (main: 0.3138, replay: 0.3082)
+2026-03-07 00:22:05,379 [INFO] Epoch 59 | Loss: 0.3754 (main: 0.3817, replay: 0.3439) | LR: 0.000000
+2026-03-07 00:22:06,538 [INFO] Epoch 60/60 | Batch 10/17 | Loss: 0.3651 (main: 0.3737, replay: 0.3184)
+2026-03-07 00:22:07,154 [INFO] Epoch 60 | Loss: 0.3694 (main: 0.3742, replay: 0.3492) | LR: 0.000000
+2026-03-07 00:22:07,305 [INFO] Checkpoint saved: checkpoints/phase2/model_A_phase2_ep60.pt
+2026-03-07 00:22:07,372 [INFO] Final model saved: checkpoints/phase2/model_A_phase2_final.pt
+2026-03-07 00:22:07,440 [INFO] Saved evaluation-ready checkpoint: checkpoints/phase2/model_final.pt

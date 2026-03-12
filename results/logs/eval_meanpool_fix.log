@@ -1,0 +1,109 @@
+nohup: ignoring input
+2026-03-08 12:33:38,558 [INFO] Loaded 1626 subjects
+2026-03-08 12:33:39,490 [INFO] Data: (1626, 93, 400), 13 sites, 9 diagnoses
+2026-03-08 12:33:39,491 [INFO] 
+======================================================================
+2026-03-08 12:33:39,491 [INFO] STEP 1: Extracting embeddings / features for all methods
+2026-03-08 12:33:39,491 [INFO] ======================================================================
+2026-03-08 12:33:39,491 [INFO] 
+  → Raw (Transformer from scratch)
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+2026-03-08 12:33:39,927 [INFO]     Shape: (1626, 400) (0.4s)
+2026-03-08 12:33:39,927 [INFO] 
+  → ComBat (Transformer from scratch)
+2026-03-08 12:33:39,927 [ERROR] neuroCombat not installed! Run: pip install neuroCombat
+2026-03-08 12:33:39,927 [ERROR] Falling back to raw features for ComBat baseline.
+2026-03-08 12:33:40,150 [INFO]     Shape: (1626, 400) (0.2s)
+2026-03-08 12:33:40,150 [INFO] 
+  → SimCLR Baseline
+2026-03-08 12:33:40,385 [INFO]     Shape: (1626, 400) (0.2s)
+2026-03-08 12:33:40,385 [INFO] 
+  → Transformer-VAE
+2026-03-08 12:33:40,617 [INFO]     Shape: (1626, 400) (0.2s)
+2026-03-08 12:33:40,617 [INFO] 
+  → JEPA Vanilla (No Curriculum)
+2026-03-08 12:33:40,862 [INFO]     Shape: (1626, 400) (0.2s)
+2026-03-08 12:33:40,862 [INFO] 
+  → JEPA Vanilla (With Curriculum)
+2026-03-08 12:33:41,108 [INFO]     Shape: (1626, 400) (0.2s)
+2026-03-08 12:33:41,108 [INFO] 
+  → JEPA + Contrastive (No Curriculum)
+2026-03-08 12:33:41,353 [INFO]     Shape: (1626, 400) (0.2s)
+2026-03-08 12:33:41,353 [INFO] 
+  → JEPA + Contrastive (With Curriculum)
+2026-03-08 12:33:41,598 [INFO]     Shape: (1626, 400) (0.2s)
+2026-03-08 12:33:41,598 [INFO] 
+======================================================================
+2026-03-08 12:33:41,598 [INFO] STEP 2: Site classification probing (LOSO)
+2026-03-08 12:33:41,598 [INFO] ======================================================================
+2026-03-08 12:33:41,598 [INFO]   13 sites, chance = 7.7%
+2026-03-08 12:33:41,598 [INFO] 
+  Raw (Transformer from scratch) | linear probe → site
+2026-03-08 12:33:42,548 [INFO]     bAcc=34.2% (chance=7.7%) | F1=0.350 | Sites=13
+2026-03-08 12:33:42,548 [INFO] 
+  Raw (Transformer from scratch) | mlp probe → site
+2026-03-08 12:33:43,416 [INFO]     bAcc=23.6% (chance=7.7%) | F1=0.237 | Sites=13
+2026-03-08 12:33:43,416 [INFO] 
+  ComBat (Transformer from scratch) | linear probe → site
+2026-03-08 12:33:46,020 [INFO]     bAcc=31.6% (chance=7.7%) | F1=0.321 | Sites=13
+2026-03-08 12:33:46,020 [INFO] 
+  ComBat (Transformer from scratch) | mlp probe → site
+2026-03-08 12:33:46,821 [INFO]     bAcc=21.4% (chance=7.7%) | F1=0.214 | Sites=13
+2026-03-08 12:33:46,821 [INFO] 
+  SimCLR Baseline | linear probe → site
+2026-03-08 12:33:50,919 [INFO]     bAcc=35.0% (chance=7.7%) | F1=0.352 | Sites=13
+2026-03-08 12:33:50,919 [INFO] 
+  SimCLR Baseline | mlp probe → site
+2026-03-08 12:33:51,670 [INFO]     bAcc=27.1% (chance=7.7%) | F1=0.268 | Sites=13
+2026-03-08 12:33:51,670 [INFO] 
+  Transformer-VAE | linear probe → site
+2026-03-08 12:34:09,566 [INFO]     bAcc=18.1% (chance=7.7%) | F1=0.181 | Sites=13
+2026-03-08 12:34:09,566 [INFO] 
+  Transformer-VAE | mlp probe → site
+2026-03-08 12:34:10,318 [INFO]     bAcc=8.9% (chance=7.7%) | F1=0.064 | Sites=13
+2026-03-08 12:34:10,318 [INFO] 
+  JEPA Vanilla (No Curriculum) | linear probe → site
+2026-03-08 12:34:12,396 [INFO]     bAcc=21.9% (chance=7.7%) | F1=0.221 | Sites=13
+2026-03-08 12:34:12,396 [INFO] 
+  JEPA Vanilla (No Curriculum) | mlp probe → site
+2026-03-08 12:34:13,169 [INFO]     bAcc=15.3% (chance=7.7%) | F1=0.153 | Sites=13
+2026-03-08 12:34:13,169 [INFO] 
+  JEPA Vanilla (With Curriculum) | linear probe → site
+2026-03-08 12:34:17,233 [INFO]     bAcc=26.4% (chance=7.7%) | F1=0.267 | Sites=13
+2026-03-08 12:34:17,233 [INFO] 
+  JEPA Vanilla (With Curriculum) | mlp probe → site
+2026-03-08 12:34:18,154 [INFO]     bAcc=11.7% (chance=7.7%) | F1=0.111 | Sites=13
+2026-03-08 12:34:18,154 [INFO] 
+  JEPA + Contrastive (No Curriculum) | linear probe → site
+2026-03-08 12:34:20,979 [INFO]     bAcc=22.3% (chance=7.7%) | F1=0.224 | Sites=13
+2026-03-08 12:34:20,979 [INFO] 
+  JEPA + Contrastive (No Curriculum) | mlp probe → site
+2026-03-08 12:34:21,733 [INFO]     bAcc=13.2% (chance=7.7%) | F1=0.128 | Sites=13
+2026-03-08 12:34:21,733 [INFO] 
+  JEPA + Contrastive (With Curriculum) | linear probe → site
+2026-03-08 12:34:25,049 [INFO]     bAcc=27.5% (chance=7.7%) | F1=0.282 | Sites=13
+2026-03-08 12:34:25,049 [INFO] 
+  JEPA + Contrastive (With Curriculum) | mlp probe → site
+2026-03-08 12:34:25,876 [INFO]     bAcc=15.9% (chance=7.7%) | F1=0.154 | Sites=13
+2026-03-08 12:34:25,876 [INFO] 
+======================================================================
+2026-03-08 12:34:25,876 [INFO] STEP 3: Diagnosis classification (LOSO)
+2026-03-08 12:34:25,876 [INFO] ======================================================================
+2026-03-08 12:34:25,899 [INFO] 
+──────────────────────────────────────────────────────────────────────
+2026-03-08 12:34:25,899 [INFO] TASK: HC vs ALL | N=1626 (HC=950, Disease=676) | chance=50.0%
+2026-03-08 12:34:43,705 [INFO]   Raw (Transformer from scratch) | linear probe | bAcc=53.5%±1.8% (Δ=+3.5%) | AUC=0.562±0.004 | F1=0.533 | Sites=11.0
+2026-03-08 12:34:51,078 [INFO]   Raw (Transformer from scratch) | mlp    probe | bAcc=53.7%±1.9% (Δ=+3.7%) | AUC=0.539±0.023 | F1=0.533 | Sites=11.0
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(

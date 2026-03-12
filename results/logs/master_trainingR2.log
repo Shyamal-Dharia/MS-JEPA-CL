@@ -1,0 +1,10 @@
+nohup: ignoring input
+=======================================================================
+Starting Massive Multi-GPU Training Suite (Round 2: Phase 2 Models)
+=======================================================================
+Launching GPU 2 jobs...
+Launching GPU 1 jobs...
+=======================================================================
+Round 2 training jobs have been dispatched to the background.
+Check progress in results/train_logs/
+=======================================================================

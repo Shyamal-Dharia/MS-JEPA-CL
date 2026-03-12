@@ -1,0 +1,198 @@
+2026-03-07 06:43:04,484 [INFO] Phase 2 + Contrastive: Temporal model on cuda
+2026-03-07 06:43:04,484 [INFO] Loading Main Dataset (Multi-view Augmentation on ALL 1626 subjects)...
+2026-03-07 06:43:04,494 [INFO] Main dataset size: 1626 subjects, batch_size: 64
+2026-03-07 06:43:04,494 [INFO] 25 batches/epoch
+/home/s.dharia-ra/miniconda3/lib/python3.12/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  warnings.warn(
+/data/s.dharia-ra/multi-site-problem/src/jepa/train_phase2_contrastive.py:277: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(cfg.phase1_checkpoint, map_location=device)
+2026-03-07 06:43:10,597 [INFO] Loaded Phase 1 weights from checkpoints/phase1/model_A_phase1.pt
+2026-03-07 06:43:10,598 [INFO] Trainable parameters: 9,862,800
+============================================================
+Phase 2 + Contrastive: Temporal JEPA on SRPBS 1600 (HC)
+============================================================
+2026-03-07 06:43:20,342 [INFO] Epoch 1/60 | Batch 10/25 | Total: 2.1079 (JEPA: 0.4846, CL: 3.2465, pairs: 128)
+2026-03-07 06:43:22,168 [INFO] Epoch 1/60 | Batch 20/25 | Total: 2.4954 (JEPA: 0.8547, CL: 3.2814, pairs: 128)
+2026-03-07 06:49:21,541 [INFO] Epoch 1 | Total: 2.2261 (JEPA: 0.6555, CL: 3.1411) | Pairs: 128 | Site Probe: 21.8% (chance=7.7%)
+2026-03-07 06:49:24,069 [INFO] Epoch 2/60 | Batch 10/25 | Total: 2.0548 (JEPA: 0.4933, CL: 3.1230, pairs: 128)
+2026-03-07 06:49:25,068 [INFO] Epoch 2/60 | Batch 20/25 | Total: 1.9871 (JEPA: 0.5471, CL: 2.8801, pairs: 128)
+2026-03-07 06:49:25,873 [INFO] Epoch 2 | Total: 2.1568 (JEPA: 0.6270, CL: 3.0595) | Pairs: 128
+2026-03-07 06:49:27,440 [INFO] Epoch 3/60 | Batch 10/25 | Total: 2.3558 (JEPA: 0.6837, CL: 3.3441, pairs: 128)
+2026-03-07 06:49:28,456 [INFO] Epoch 3/60 | Batch 20/25 | Total: 2.0369 (JEPA: 0.5677, CL: 2.9386, pairs: 128)
+2026-03-07 06:49:29,161 [INFO] Epoch 3 | Total: 2.1995 (JEPA: 0.6163, CL: 3.1664) | Pairs: 128
+2026-03-07 06:49:32,036 [INFO] Epoch 4/60 | Batch 10/25 | Total: 2.2033 (JEPA: 0.6836, CL: 3.0393, pairs: 128)
+2026-03-07 06:49:33,487 [INFO] Epoch 4/60 | Batch 20/25 | Total: 2.0292 (JEPA: 0.5327, CL: 2.9930, pairs: 128)
+2026-03-07 06:49:34,298 [INFO] Epoch 4 | Total: 2.1000 (JEPA: 0.5717, CL: 3.0567) | Pairs: 128
+2026-03-07 06:49:37,912 [INFO] Epoch 5/60 | Batch 10/25 | Total: 2.2657 (JEPA: 0.5136, CL: 3.5042, pairs: 128)
+2026-03-07 06:49:39,174 [INFO] Epoch 5/60 | Batch 20/25 | Total: 2.3266 (JEPA: 0.8490, CL: 2.9552, pairs: 128)
+2026-03-07 06:49:39,908 [INFO] Epoch 5 | Total: 2.1596 (JEPA: 0.5866, CL: 3.1460) | Pairs: 128
+2026-03-07 06:49:41,967 [INFO] Epoch 6/60 | Batch 10/25 | Total: 2.0658 (JEPA: 0.5248, CL: 3.0819, pairs: 128)
+2026-03-07 06:49:42,951 [INFO] Epoch 6/60 | Batch 20/25 | Total: 2.2054 (JEPA: 0.4436, CL: 3.5236, pairs: 128)
+2026-03-07 06:49:43,810 [INFO] Epoch 6 | Total: 2.2088 (JEPA: 0.5604, CL: 3.2968) | Pairs: 128
+2026-03-07 06:49:45,787 [INFO] Epoch 7/60 | Batch 10/25 | Total: 1.9333 (JEPA: 0.4370, CL: 2.9927, pairs: 128)
+2026-03-07 06:49:47,048 [INFO] Epoch 7/60 | Batch 20/25 | Total: 2.4664 (JEPA: 0.8171, CL: 3.2986, pairs: 128)
+2026-03-07 06:49:47,950 [INFO] Epoch 7 | Total: 2.1727 (JEPA: 0.5480, CL: 3.2495) | Pairs: 128
+2026-03-07 06:49:50,097 [INFO] Epoch 8/60 | Batch 10/25 | Total: 1.6690 (JEPA: 0.4746, CL: 2.3888, pairs: 128)
+2026-03-07 06:49:51,400 [INFO] Epoch 8/60 | Batch 20/25 | Total: 2.2593 (JEPA: 0.4280, CL: 3.6626, pairs: 128)
+2026-03-07 06:49:52,366 [INFO] Epoch 8 | Total: 2.1786 (JEPA: 0.5475, CL: 3.2621) | Pairs: 128
+2026-03-07 06:49:55,861 [INFO] Epoch 9/60 | Batch 10/25 | Total: 2.2224 (JEPA: 0.6940, CL: 3.0568, pairs: 128)
+2026-03-07 06:49:57,336 [INFO] Epoch 9/60 | Batch 20/25 | Total: 2.4319 (JEPA: 0.5671, CL: 3.7295, pairs: 128)
+2026-03-07 06:49:58,383 [INFO] Epoch 9 | Total: 2.1754 (JEPA: 0.5649, CL: 3.2211) | Pairs: 128
+2026-03-07 06:50:01,913 [INFO] Epoch 10/60 | Batch 10/25 | Total: 2.5698 (JEPA: 0.7855, CL: 3.5686, pairs: 128)
+2026-03-07 06:50:03,609 [INFO] Epoch 10/60 | Batch 20/25 | Total: 2.2349 (JEPA: 0.5665, CL: 3.3368, pairs: 128)
+2026-03-07 06:50:04,300 [INFO] Epoch 10 | Total: 2.2229 (JEPA: 0.5514, CL: 3.3431) | Pairs: 128
+2026-03-07 06:50:06,489 [INFO] Epoch 11/60 | Batch 10/25 | Total: 2.1758 (JEPA: 0.6360, CL: 3.0794, pairs: 128)
+2026-03-07 06:50:07,800 [INFO] Epoch 11/60 | Batch 20/25 | Total: 2.1271 (JEPA: 0.4668, CL: 3.3205, pairs: 128)
+2026-03-07 06:50:08,670 [INFO] Epoch 11 | Total: 2.1833 (JEPA: 0.5385, CL: 3.2895) | Pairs: 128
+2026-03-07 06:50:11,136 [INFO] Epoch 12/60 | Batch 10/25 | Total: 1.9683 (JEPA: 0.4752, CL: 2.9864, pairs: 128)
+2026-03-07 06:50:12,532 [INFO] Epoch 12/60 | Batch 20/25 | Total: 2.0071 (JEPA: 0.5446, CL: 2.9251, pairs: 128)
+2026-03-07 06:50:13,643 [INFO] Epoch 12 | Total: 2.1981 (JEPA: 0.5605, CL: 3.2752) | Pairs: 128
+2026-03-07 06:50:15,871 [INFO] Epoch 13/60 | Batch 10/25 | Total: 2.1500 (JEPA: 0.4760, CL: 3.3478, pairs: 128)
+2026-03-07 06:50:17,609 [INFO] Epoch 13/60 | Batch 20/25 | Total: 2.0490 (JEPA: 0.4243, CL: 3.2493, pairs: 128)
+2026-03-07 06:50:18,256 [INFO] Epoch 13 | Total: 2.1300 (JEPA: 0.5053, CL: 3.2496) | Pairs: 128
+2026-03-07 06:50:20,886 [INFO] Epoch 14/60 | Batch 10/25 | Total: 1.7957 (JEPA: 0.5425, CL: 2.5063, pairs: 128)
+2026-03-07 06:50:21,856 [INFO] Epoch 14/60 | Batch 20/25 | Total: 1.9794 (JEPA: 0.4187, CL: 3.1214, pairs: 128)
+2026-03-07 06:50:23,140 [INFO] Epoch 14 | Total: 2.1077 (JEPA: 0.5192, CL: 3.1770) | Pairs: 128
+2026-03-07 06:50:25,388 [INFO] Epoch 15/60 | Batch 10/25 | Total: 2.2238 (JEPA: 0.5130, CL: 3.4218, pairs: 128)
+2026-03-07 06:50:27,365 [INFO] Epoch 15/60 | Batch 20/25 | Total: 2.2194 (JEPA: 0.4478, CL: 3.5432, pairs: 128)
+2026-03-07 06:50:28,572 [INFO] Epoch 15 | Total: 2.1925 (JEPA: 0.5265, CL: 3.3321) | Pairs: 128
+2026-03-07 06:50:31,910 [INFO] Epoch 16/60 | Batch 10/25 | Total: 2.0824 (JEPA: 0.5644, CL: 3.0360, pairs: 128)
+2026-03-07 06:50:33,355 [INFO] Epoch 16/60 | Batch 20/25 | Total: 2.2265 (JEPA: 0.7005, CL: 3.0520, pairs: 128)
+2026-03-07 06:50:34,113 [INFO] Epoch 16 | Total: 2.1741 (JEPA: 0.5377, CL: 3.2728) | Pairs: 128
+2026-03-07 06:50:36,311 [INFO] Epoch 17/60 | Batch 10/25 | Total: 2.3246 (JEPA: 0.7356, CL: 3.1780, pairs: 128)
+2026-03-07 06:50:37,343 [INFO] Epoch 17/60 | Batch 20/25 | Total: 2.2040 (JEPA: 0.4734, CL: 3.4612, pairs: 128)
+2026-03-07 06:50:37,993 [INFO] Epoch 17 | Total: 2.2187 (JEPA: 0.5224, CL: 3.3926) | Pairs: 128
+2026-03-07 06:50:40,409 [INFO] Epoch 18/60 | Batch 10/25 | Total: 2.1753 (JEPA: 0.4502, CL: 3.4502, pairs: 128)
+2026-03-07 06:50:41,208 [INFO] Epoch 18/60 | Batch 20/25 | Total: 2.1126 (JEPA: 0.5000, CL: 3.2251, pairs: 128)
+2026-03-07 06:50:41,705 [INFO] Epoch 18 | Total: 2.1556 (JEPA: 0.4971, CL: 3.3170) | Pairs: 128
+2026-03-07 06:50:43,640 [INFO] Epoch 19/60 | Batch 10/25 | Total: 2.2136 (JEPA: 0.4877, CL: 3.4517, pairs: 128)
+2026-03-07 06:50:45,159 [INFO] Epoch 19/60 | Batch 20/25 | Total: 2.1280 (JEPA: 0.3844, CL: 3.4873, pairs: 128)
+2026-03-07 06:50:46,111 [INFO] Epoch 19 | Total: 2.2138 (JEPA: 0.5137, CL: 3.4002) | Pairs: 128
+2026-03-07 06:50:48,025 [INFO] Epoch 20/60 | Batch 10/25 | Total: 2.0293 (JEPA: 0.5022, CL: 3.0540, pairs: 128)
+2026-03-07 06:50:49,690 [INFO] Epoch 20/60 | Batch 20/25 | Total: 2.0902 (JEPA: 0.4474, CL: 3.2856, pairs: 128)
+2026-03-07 06:50:50,474 [INFO] Epoch 20 | Total: 2.1672 (JEPA: 0.5125, CL: 3.3093) | Pairs: 128
+2026-03-07 06:50:51,088 [INFO] Checkpoint saved: checkpoints/phase2_contrastive/model_A_phase2cl_ep20.pt
+2026-03-07 06:50:53,813 [INFO] Epoch 21/60 | Batch 10/25 | Total: 2.3004 (JEPA: 0.4244, CL: 3.7520, pairs: 128)
+2026-03-07 06:50:55,795 [INFO] Epoch 21/60 | Batch 20/25 | Total: 2.4005 (JEPA: 0.4810, CL: 3.8391, pairs: 128)
+2026-03-07 06:50:56,476 [INFO] Epoch 21 | Total: 2.1896 (JEPA: 0.5124, CL: 3.3545) | Pairs: 128
+2026-03-07 06:50:59,096 [INFO] Epoch 22/60 | Batch 10/25 | Total: 2.5011 (JEPA: 0.4332, CL: 4.1359, pairs: 128)
+2026-03-07 06:51:00,637 [INFO] Epoch 22/60 | Batch 20/25 | Total: 2.0284 (JEPA: 0.4321, CL: 3.1925, pairs: 128)
+2026-03-07 06:51:01,811 [INFO] Epoch 22 | Total: 2.2079 (JEPA: 0.5139, CL: 3.3881) | Pairs: 128
+2026-03-07 06:51:04,686 [INFO] Epoch 23/60 | Batch 10/25 | Total: 2.3963 (JEPA: 0.6042, CL: 3.5842, pairs: 128)
+2026-03-07 06:51:06,341 [INFO] Epoch 23/60 | Batch 20/25 | Total: 2.1927 (JEPA: 0.4226, CL: 3.5403, pairs: 128)
+2026-03-07 06:51:07,347 [INFO] Epoch 23 | Total: 2.2313 (JEPA: 0.5255, CL: 3.4116) | Pairs: 128
+2026-03-07 06:51:10,577 [INFO] Epoch 24/60 | Batch 10/25 | Total: 2.0023 (JEPA: 0.4837, CL: 3.0372, pairs: 128)
+2026-03-07 06:51:12,500 [INFO] Epoch 24/60 | Batch 20/25 | Total: 2.0130 (JEPA: 0.4631, CL: 3.0997, pairs: 128)
+2026-03-07 06:51:13,774 [INFO] Epoch 24 | Total: 2.1918 (JEPA: 0.5147, CL: 3.3541) | Pairs: 128
+2026-03-07 06:51:16,427 [INFO] Epoch 25/60 | Batch 10/25 | Total: 2.5974 (JEPA: 0.7472, CL: 3.7005, pairs: 128)
+2026-03-07 06:51:17,516 [INFO] Epoch 25/60 | Batch 20/25 | Total: 2.1393 (JEPA: 0.4610, CL: 3.3566, pairs: 128)
+2026-03-07 06:51:18,381 [INFO] Epoch 25 | Total: 2.1961 (JEPA: 0.5231, CL: 3.3460) | Pairs: 128
+2026-03-07 06:51:19,909 [INFO] Epoch 26/60 | Batch 10/25 | Total: 2.0735 (JEPA: 0.4905, CL: 3.1659, pairs: 128)
+2026-03-07 06:51:20,833 [INFO] Epoch 26/60 | Batch 20/25 | Total: 2.2288 (JEPA: 0.4594, CL: 3.5387, pairs: 128)
+2026-03-07 06:51:21,763 [INFO] Epoch 26 | Total: 2.1854 (JEPA: 0.5151, CL: 3.3406) | Pairs: 128
+2026-03-07 06:51:23,348 [INFO] Epoch 27/60 | Batch 10/25 | Total: 2.2199 (JEPA: 0.5527, CL: 3.3345, pairs: 128)
+2026-03-07 06:51:24,138 [INFO] Epoch 27/60 | Batch 20/25 | Total: 2.1976 (JEPA: 0.3975, CL: 3.6000, pairs: 128)
+2026-03-07 06:51:24,578 [INFO] Epoch 27 | Total: 2.2082 (JEPA: 0.4868, CL: 3.4429) | Pairs: 128
+2026-03-07 06:51:26,749 [INFO] Epoch 28/60 | Batch 10/25 | Total: 2.0072 (JEPA: 0.5229, CL: 2.9686, pairs: 128)
+2026-03-07 06:51:27,795 [INFO] Epoch 28/60 | Batch 20/25 | Total: 2.1469 (JEPA: 0.4721, CL: 3.3496, pairs: 128)
+2026-03-07 06:51:28,728 [INFO] Epoch 28 | Total: 2.1558 (JEPA: 0.4968, CL: 3.3180) | Pairs: 128
+2026-03-07 06:51:30,714 [INFO] Epoch 29/60 | Batch 10/25 | Total: 2.3030 (JEPA: 0.4726, CL: 3.6608, pairs: 128)
+2026-03-07 06:51:32,194 [INFO] Epoch 29/60 | Batch 20/25 | Total: 1.8433 (JEPA: 0.4116, CL: 2.8634, pairs: 128)
+2026-03-07 06:51:33,144 [INFO] Epoch 29 | Total: 2.1146 (JEPA: 0.4837, CL: 3.2618) | Pairs: 128
+2026-03-07 06:51:35,176 [INFO] Epoch 30/60 | Batch 10/25 | Total: 1.8667 (JEPA: 0.4335, CL: 2.8664, pairs: 128)
+2026-03-07 06:51:36,550 [INFO] Epoch 30/60 | Batch 20/25 | Total: 2.3926 (JEPA: 0.4557, CL: 3.8738, pairs: 128)
+2026-03-07 06:51:37,377 [INFO] Epoch 30 | Total: 2.2085 (JEPA: 0.4991, CL: 3.4188) | Pairs: 128
+2026-03-07 06:51:39,787 [INFO] Epoch 31/60 | Batch 10/25 | Total: 2.3024 (JEPA: 0.6591, CL: 3.2866, pairs: 128)
+2026-03-07 06:51:41,379 [INFO] Epoch 31/60 | Batch 20/25 | Total: 2.3788 (JEPA: 0.5046, CL: 3.7485, pairs: 128)
+2026-03-07 06:51:42,203 [INFO] Epoch 31 | Total: 2.2132 (JEPA: 0.5153, CL: 3.3958) | Pairs: 128
+2026-03-07 06:51:44,444 [INFO] Epoch 32/60 | Batch 10/25 | Total: 1.8355 (JEPA: 0.3988, CL: 2.8732, pairs: 128)
+2026-03-07 06:51:45,348 [INFO] Epoch 32/60 | Batch 20/25 | Total: 2.1597 (JEPA: 0.4103, CL: 3.4987, pairs: 128)
+2026-03-07 06:51:46,104 [INFO] Epoch 32 | Total: 2.1442 (JEPA: 0.4942, CL: 3.3001) | Pairs: 128
+2026-03-07 06:51:48,416 [INFO] Epoch 33/60 | Batch 10/25 | Total: 1.9478 (JEPA: 0.4783, CL: 2.9390, pairs: 128)
+2026-03-07 06:51:49,785 [INFO] Epoch 33/60 | Batch 20/25 | Total: 2.2380 (JEPA: 0.4717, CL: 3.5324, pairs: 128)
+2026-03-07 06:51:50,485 [INFO] Epoch 33 | Total: 2.1106 (JEPA: 0.4964, CL: 3.2284) | Pairs: 128
+2026-03-07 06:51:52,792 [INFO] Epoch 34/60 | Batch 10/25 | Total: 2.3338 (JEPA: 0.4343, CL: 3.7989, pairs: 128)
+2026-03-07 06:51:54,471 [INFO] Epoch 34/60 | Batch 20/25 | Total: 2.3609 (JEPA: 0.6033, CL: 3.5153, pairs: 128)
+2026-03-07 06:51:55,565 [INFO] Epoch 34 | Total: 2.2117 (JEPA: 0.4900, CL: 3.4434) | Pairs: 128
+2026-03-07 06:51:57,308 [INFO] Epoch 35/60 | Batch 10/25 | Total: 1.9584 (JEPA: 0.4465, CL: 3.0236, pairs: 128)
+2026-03-07 06:51:58,450 [INFO] Epoch 35/60 | Batch 20/25 | Total: 1.8158 (JEPA: 0.3947, CL: 2.8423, pairs: 128)
+2026-03-07 06:51:59,111 [INFO] Epoch 35 | Total: 2.1392 (JEPA: 0.4680, CL: 3.3423) | Pairs: 128
+2026-03-07 06:52:01,376 [INFO] Epoch 36/60 | Batch 10/25 | Total: 2.4097 (JEPA: 0.4224, CL: 3.9747, pairs: 128)
+2026-03-07 06:52:02,735 [INFO] Epoch 36/60 | Batch 20/25 | Total: 2.0329 (JEPA: 0.5272, CL: 3.0113, pairs: 128)
+2026-03-07 06:52:03,812 [INFO] Epoch 36 | Total: 2.2357 (JEPA: 0.4690, CL: 3.5333) | Pairs: 128
+2026-03-07 06:52:06,498 [INFO] Epoch 37/60 | Batch 10/25 | Total: 2.2162 (JEPA: 0.5097, CL: 3.4129, pairs: 128)
+2026-03-07 06:52:07,945 [INFO] Epoch 37/60 | Batch 20/25 | Total: 2.1475 (JEPA: 0.4717, CL: 3.3516, pairs: 128)
+2026-03-07 06:52:08,473 [INFO] Epoch 37 | Total: 2.1507 (JEPA: 0.4528, CL: 3.3957) | Pairs: 128
+2026-03-07 06:52:11,661 [INFO] Epoch 38/60 | Batch 10/25 | Total: 2.5066 (JEPA: 0.4617, CL: 4.0899, pairs: 128)
+2026-03-07 06:52:12,761 [INFO] Epoch 38/60 | Batch 20/25 | Total: 2.2579 (JEPA: 0.4250, CL: 3.6659, pairs: 128)
+2026-03-07 06:52:13,291 [INFO] Epoch 38 | Total: 2.2493 (JEPA: 0.4725, CL: 3.5535) | Pairs: 128
+2026-03-07 06:52:15,219 [INFO] Epoch 39/60 | Batch 10/25 | Total: 1.9433 (JEPA: 0.4234, CL: 3.0399, pairs: 128)
+2026-03-07 06:52:16,206 [INFO] Epoch 39/60 | Batch 20/25 | Total: 2.2544 (JEPA: 0.4010, CL: 3.7069, pairs: 128)
+2026-03-07 06:52:17,082 [INFO] Epoch 39 | Total: 2.1794 (JEPA: 0.4653, CL: 3.4282) | Pairs: 128
+2026-03-07 06:52:19,591 [INFO] Epoch 40/60 | Batch 10/25 | Total: 2.1886 (JEPA: 0.4332, CL: 3.5107, pairs: 128)
+2026-03-07 06:52:20,891 [INFO] Epoch 40/60 | Batch 20/25 | Total: 2.5608 (JEPA: 0.6621, CL: 3.7974, pairs: 128)
+2026-03-07 06:52:21,793 [INFO] Epoch 40 | Total: 2.2334 (JEPA: 0.4912, CL: 3.4845) | Pairs: 128
+2026-03-07 06:52:22,835 [INFO] Checkpoint saved: checkpoints/phase2_contrastive/model_A_phase2cl_ep40.pt
+2026-03-07 06:52:26,243 [INFO] Epoch 41/60 | Batch 10/25 | Total: 2.3382 (JEPA: 0.4248, CL: 3.8269, pairs: 128)
+2026-03-07 06:52:27,367 [INFO] Epoch 41/60 | Batch 20/25 | Total: 2.1874 (JEPA: 0.6041, CL: 3.1668, pairs: 128)
+2026-03-07 06:52:28,052 [INFO] Epoch 41 | Total: 2.1832 (JEPA: 0.4893, CL: 3.3878) | Pairs: 128
+2026-03-07 06:52:30,941 [INFO] Epoch 42/60 | Batch 10/25 | Total: 2.1259 (JEPA: 0.4884, CL: 3.2751, pairs: 128)
+2026-03-07 06:52:32,497 [INFO] Epoch 42/60 | Batch 20/25 | Total: 2.3524 (JEPA: 0.5458, CL: 3.6132, pairs: 128)
+2026-03-07 06:52:33,263 [INFO] Epoch 42 | Total: 2.1729 (JEPA: 0.4763, CL: 3.3932) | Pairs: 128
+2026-03-07 06:52:35,869 [INFO] Epoch 43/60 | Batch 10/25 | Total: 2.4576 (JEPA: 0.7395, CL: 3.4361, pairs: 128)
+2026-03-07 06:52:37,646 [INFO] Epoch 43/60 | Batch 20/25 | Total: 1.9375 (JEPA: 0.4266, CL: 3.0219, pairs: 128)
+2026-03-07 06:52:38,557 [INFO] Epoch 43 | Total: 2.2046 (JEPA: 0.4737, CL: 3.4617) | Pairs: 128
+2026-03-07 06:52:40,867 [INFO] Epoch 44/60 | Batch 10/25 | Total: 2.0262 (JEPA: 0.4570, CL: 3.1385, pairs: 128)
+2026-03-07 06:52:41,983 [INFO] Epoch 44/60 | Batch 20/25 | Total: 2.1840 (JEPA: 0.4676, CL: 3.4328, pairs: 128)
+2026-03-07 06:52:42,561 [INFO] Epoch 44 | Total: 2.1594 (JEPA: 0.4771, CL: 3.3647) | Pairs: 128
+2026-03-07 06:52:44,861 [INFO] Epoch 45/60 | Batch 10/25 | Total: 2.1622 (JEPA: 0.5259, CL: 3.2726, pairs: 128)
+2026-03-07 06:52:45,923 [INFO] Epoch 45/60 | Batch 20/25 | Total: 2.2299 (JEPA: 0.4600, CL: 3.5397, pairs: 128)
+2026-03-07 06:52:46,891 [INFO] Epoch 45 | Total: 2.1803 (JEPA: 0.4708, CL: 3.4191) | Pairs: 128
+2026-03-07 06:52:50,056 [INFO] Epoch 46/60 | Batch 10/25 | Total: 2.0560 (JEPA: 0.4102, CL: 3.2915, pairs: 128)
+2026-03-07 06:52:51,873 [INFO] Epoch 46/60 | Batch 20/25 | Total: 2.4834 (JEPA: 0.5739, CL: 3.8190, pairs: 128)
+2026-03-07 06:52:52,560 [INFO] Epoch 46 | Total: 2.1769 (JEPA: 0.4709, CL: 3.4120) | Pairs: 128
+2026-03-07 06:52:55,486 [INFO] Epoch 47/60 | Batch 10/25 | Total: 2.2479 (JEPA: 0.3627, CL: 3.7705, pairs: 128)
+2026-03-07 06:52:57,184 [INFO] Epoch 47/60 | Batch 20/25 | Total: 2.4700 (JEPA: 0.4705, CL: 3.9990, pairs: 128)
+2026-03-07 06:52:58,761 [INFO] Epoch 47 | Total: 2.2212 (JEPA: 0.4990, CL: 3.4443) | Pairs: 128
+2026-03-07 06:53:02,190 [INFO] Epoch 48/60 | Batch 10/25 | Total: 2.3692 (JEPA: 0.5654, CL: 3.6077, pairs: 128)
+2026-03-07 06:53:04,450 [INFO] Epoch 48/60 | Batch 20/25 | Total: 2.4526 (JEPA: 0.6363, CL: 3.6327, pairs: 128)
+2026-03-07 06:53:05,883 [INFO] Epoch 48 | Total: 2.2156 (JEPA: 0.5048, CL: 3.4217) | Pairs: 128
+2026-03-07 06:53:09,094 [INFO] Epoch 49/60 | Batch 10/25 | Total: 2.0655 (JEPA: 0.4987, CL: 3.1335, pairs: 128)
+2026-03-07 06:53:10,890 [INFO] Epoch 49/60 | Batch 20/25 | Total: 2.4314 (JEPA: 0.6353, CL: 3.5922, pairs: 128)
+2026-03-07 06:53:12,049 [INFO] Epoch 49 | Total: 2.2401 (JEPA: 0.5143, CL: 3.4516) | Pairs: 128
+2026-03-07 06:53:14,389 [INFO] Epoch 50/60 | Batch 10/25 | Total: 2.2059 (JEPA: 0.6691, CL: 3.0736, pairs: 128)
+2026-03-07 06:53:15,913 [INFO] Epoch 50/60 | Batch 20/25 | Total: 2.2666 (JEPA: 0.4497, CL: 3.6338, pairs: 128)
+2026-03-07 06:53:16,614 [INFO] Epoch 50 | Total: 2.2016 (JEPA: 0.5135, CL: 3.3761) | Pairs: 128
+2026-03-07 06:53:19,267 [INFO] Epoch 51/60 | Batch 10/25 | Total: 2.3230 (JEPA: 0.5589, CL: 3.5284, pairs: 128)
+2026-03-07 06:53:20,563 [INFO] Epoch 51/60 | Batch 20/25 | Total: 2.4257 (JEPA: 0.6397, CL: 3.5720, pairs: 128)
+2026-03-07 06:53:21,656 [INFO] Epoch 51 | Total: 2.1698 (JEPA: 0.4839, CL: 3.3717) | Pairs: 128
+2026-03-07 06:53:24,627 [INFO] Epoch 52/60 | Batch 10/25 | Total: 2.5270 (JEPA: 0.6411, CL: 3.7717, pairs: 128)
+2026-03-07 06:53:25,543 [INFO] Epoch 52/60 | Batch 20/25 | Total: 2.4333 (JEPA: 0.4418, CL: 3.9830, pairs: 128)
+2026-03-07 06:53:26,251 [INFO] Epoch 52 | Total: 2.2500 (JEPA: 0.4814, CL: 3.5372) | Pairs: 128
+2026-03-07 06:53:29,001 [INFO] Epoch 53/60 | Batch 10/25 | Total: 2.6369 (JEPA: 0.4501, CL: 4.3737, pairs: 128)
+2026-03-07 06:53:30,467 [INFO] Epoch 53/60 | Batch 20/25 | Total: 2.3703 (JEPA: 0.4876, CL: 3.7653, pairs: 128)
+2026-03-07 06:53:31,635 [INFO] Epoch 53 | Total: 2.2030 (JEPA: 0.4861, CL: 3.4338) | Pairs: 128
+2026-03-07 06:53:33,771 [INFO] Epoch 54/60 | Batch 10/25 | Total: 2.1670 (JEPA: 0.4779, CL: 3.3782, pairs: 128)
+2026-03-07 06:53:34,847 [INFO] Epoch 54/60 | Batch 20/25 | Total: 2.3702 (JEPA: 0.4209, CL: 3.8986, pairs: 128)
+2026-03-07 06:53:35,719 [INFO] Epoch 54 | Total: 2.1632 (JEPA: 0.4656, CL: 3.3952) | Pairs: 128
+2026-03-07 06:53:37,876 [INFO] Epoch 55/60 | Batch 10/25 | Total: 2.2329 (JEPA: 0.7160, CL: 3.0337, pairs: 128)
+2026-03-07 06:53:38,741 [INFO] Epoch 55/60 | Batch 20/25 | Total: 2.3085 (JEPA: 0.6397, CL: 3.3375, pairs: 128)
+2026-03-07 06:53:39,499 [INFO] Epoch 55 | Total: 2.2372 (JEPA: 0.4928, CL: 3.4888) | Pairs: 128
+2026-03-07 06:53:41,387 [INFO] Epoch 56/60 | Batch 10/25 | Total: 2.0412 (JEPA: 0.4062, CL: 3.2700, pairs: 128)
+2026-03-07 06:53:42,412 [INFO] Epoch 56/60 | Batch 20/25 | Total: 2.3247 (JEPA: 0.5623, CL: 3.5248, pairs: 128)
+2026-03-07 06:53:43,498 [INFO] Epoch 56 | Total: 2.1949 (JEPA: 0.4806, CL: 3.4287) | Pairs: 128
+2026-03-07 06:53:46,219 [INFO] Epoch 57/60 | Batch 10/25 | Total: 2.1588 (JEPA: 0.4324, CL: 3.4528, pairs: 128)
+2026-03-07 06:53:47,700 [INFO] Epoch 57/60 | Batch 20/25 | Total: 2.0167 (JEPA: 0.4752, CL: 3.0828, pairs: 128)
+2026-03-07 06:53:48,507 [INFO] Epoch 57 | Total: 2.2089 (JEPA: 0.4839, CL: 3.4501) | Pairs: 128
+2026-03-07 06:53:50,640 [INFO] Epoch 58/60 | Batch 10/25 | Total: 2.4267 (JEPA: 0.5582, CL: 3.7371, pairs: 128)
+2026-03-07 06:53:51,717 [INFO] Epoch 58/60 | Batch 20/25 | Total: 2.4722 (JEPA: 0.4939, CL: 3.9567, pairs: 128)
+2026-03-07 06:53:52,434 [INFO] Epoch 58 | Total: 2.2118 (JEPA: 0.4902, CL: 3.4433) | Pairs: 128
+2026-03-07 06:53:55,420 [INFO] Epoch 59/60 | Batch 10/25 | Total: 2.1873 (JEPA: 0.4112, CL: 3.5522, pairs: 128)
+2026-03-07 06:53:56,664 [INFO] Epoch 59/60 | Batch 20/25 | Total: 2.2814 (JEPA: 0.6439, CL: 3.2750, pairs: 128)
+2026-03-07 06:53:57,303 [INFO] Epoch 59 | Total: 2.1816 (JEPA: 0.4881, CL: 3.3871) | Pairs: 128
+2026-03-07 06:53:58,781 [INFO] Epoch 60/60 | Batch 10/25 | Total: 2.1195 (JEPA: 0.4849, CL: 3.2692, pairs: 128)
+2026-03-07 06:53:59,874 [INFO] Epoch 60/60 | Batch 20/25 | Total: 2.4744 (JEPA: 0.5291, CL: 3.8905, pairs: 128)
+2026-03-07 06:54:00,623 [INFO] Epoch 60 | Total: 2.1313 (JEPA: 0.4630, CL: 3.3365) | Pairs: 128
+2026-03-07 06:54:01,970 [INFO] Checkpoint saved: checkpoints/phase2_contrastive/model_A_phase2cl_ep60.pt
+2026-03-07 06:54:02,213 [INFO] Final model saved: checkpoints/phase2_contrastive/model_A_phase2cl_final.pt
+2026-03-07 06:54:02,659 [INFO] Saved evaluation-ready checkpoint: checkpoints/phase2_contrastive/model_final.pt

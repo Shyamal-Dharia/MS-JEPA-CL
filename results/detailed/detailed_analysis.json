@@ -1,0 +1,6170 @@
+[
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs ALL",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.37402452619843923,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.5347569286687869,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5177638453500523,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5452806122448979,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.4362398533647552,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.4690780141843972,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5218579234972678,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.6785714285714286,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.499194847020934,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.5752918575439634,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.5543061423464414,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        500,
+        342
+      ],
+      [
+        352,
+        324
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs ALL",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.60479375696767,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.49829622898682413,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.416405433646813,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.454719387755102,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.4409531290913852,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.49560283687943263,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.6204247860604186,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.4642857142857143,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.5120772946859903,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.5150731491059554,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.5050861228469288,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        379,
+        463
+      ],
+      [
+        291,
+        385
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs ALL",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5261984392419174,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.5439572921399364,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5569487983281087,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5580357142857143,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.533516627389369,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.5415602836879433,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.49051448602948755,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.35714285714285715,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.6223832528180354,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.5547879414807153,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.571351966200845,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        461,
+        381
+      ],
+      [
+        308,
+        368
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_linear",
+    "task": "HC vs ALL",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5451505016722409,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.48301908223534756,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.41431556948798326,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.4528061224489796,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.492930086410055,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.5184397163120568,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.4862872461078462,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.39285714285714285,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.5471014492753623,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.4964164326880449,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.538446538836529,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        514,
+        328
+      ],
+      [
+        406,
+        270
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs ALL",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5529542920847268,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.5108473421172194,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5815047021943573,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.4190051020408163,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.49515579994763026,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.4597163120567376,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5065986184142696,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.5,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.5301932367149759,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.5137062213684055,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.5072310692232694,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        548,
+        294
+      ],
+      [
+        413,
+        263
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "finetune_loso",
+    "task": "HC vs ALL",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5178372352285395,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.5481599273057701,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.43678160919540227,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.517219387755102,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.48219429169939776,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.5580141843971631,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5329415403649861,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.39285714285714285,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.5547504025764896,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.485924338702527,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.5116509587260318,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        456,
+        386
+      ],
+      [
+        333,
+        343
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs ALL",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5624303232998885,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.5340186278964107,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.4670846394984326,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5573979591836735,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.4685781618224666,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.5434042553191489,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.49463862253840607,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.6785714285714286,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.6843800322061191,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.525011083197872,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.490315242118947,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        392,
+        450
+      ],
+      [
+        277,
+        399
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs ALL",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.427536231884058,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.5073830077237619,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5088819226750261,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5255102040816326,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.5638910709609846,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.5790070921985815,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5577894628312197,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.4642857142857143,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.5809178743961352,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.5599970444805674,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.5333766655833605,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        487,
+        355
+      ],
+      [
+        355,
+        321
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs ALL",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5457079152731327,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.5901294865970014,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5350052246603971,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5682397959183674,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.5472636815920398,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.6056737588652482,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5930508299824724,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.42857142857142855,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.6582125603864735,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.5786537608984779,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.5697432564185896,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        563,
+        279
+      ],
+      [
+        359,
+        317
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs ALL",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5635451505016722,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.610290776919582,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5266457680250785,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5248724489795918,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.5743650170201624,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.5534751773049645,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.6360449530879472,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.6071428571428572,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.5929951690821256,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.6111644746564209,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.5762430939226519,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        506,
+        336
+      ],
+      [
+        300,
+        376
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs ALL",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5919732441471572,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.5671285779191277,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5663265306122449,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.49332285938727416,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.6021276595744681,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.582276523352923,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.39285714285714285,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.5789049919484701,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.48041968375942073,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.5342053948651284,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        639,
+        203
+      ],
+      [
+        465,
+        211
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs ALL",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5406911928651059,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.609041344843253,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5266457680250785,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.6721938775510204,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.6090599633411888,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.6659574468085107,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5999072069285494,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.5357142857142857,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.5897745571658615,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.6250184719964533,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.527396815079623,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        518,
+        324
+      ],
+      [
+        293,
+        383
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs MDD",
+    "per_site": {
+      "COI": {
+        "bacc": 0.422819173103135,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5188087774294671,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.45153061224489793,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.4349306101073579,
+        "n": 124
+      },
+      "KUT": {
+        "bacc": 0.5992531446540881,
+        "n": 175
+      },
+      "UTO": {
+        "bacc": 0.5103415559772296,
+        "n": 232
+      }
+    },
+    "confusion_matrix": [
+      [
+        334,
+        264
+      ],
+      [
+        138,
+        117
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs MDD",
+    "per_site": {
+      "COI": {
+        "bacc": 0.4511017719218537,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.49425287356321834,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.48660714285714285,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.42210002618486514,
+        "n": 124
+      },
+      "KUT": {
+        "bacc": 0.48840408805031443,
+        "n": 175
+      },
+      "UTO": {
+        "bacc": 0.5178368121442125,
+        "n": 232
+      }
+    },
+    "confusion_matrix": [
+      [
+        182,
+        416
+      ],
+      [
+        106,
+        149
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs MDD",
+    "per_site": {
+      "COI": {
+        "bacc": 0.5075533848250795,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5287356321839081,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5886479591836735,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.49764336213668503,
+        "n": 124
+      },
+      "KUT": {
+        "bacc": 0.48624213836477986,
+        "n": 175
+      },
+      "UTO": {
+        "bacc": 0.5362428842504744,
+        "n": 232
+      }
+    },
+    "confusion_matrix": [
+      [
+        367,
+        231
+      ],
+      [
+        148,
+        107
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_linear",
+    "task": "HC vs MDD",
+    "per_site": {
+      "COI": {
+        "bacc": 0.45831440254429806,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.49634273772204807,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.485969387755102,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.48088504844200053,
+        "n": 124
+      },
+      "KUT": {
+        "bacc": 0.4740566037735849,
+        "n": 175
+      },
+      "UTO": {
+        "bacc": 0.47058823529411764,
+        "n": 232
+      }
+    },
+    "confusion_matrix": [
+      [
+        321,
+        277
+      ],
+      [
+        144,
+        111
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs MDD",
+    "per_site": {
+      "COI": {
+        "bacc": 0.5106769650159019,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5214211076280042,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.5195077245352187,
+        "n": 124
+      },
+      "KUT": {
+        "bacc": 0.5094339622641509,
+        "n": 175
+      },
+      "UTO": {
+        "bacc": 0.4963946869070209,
+        "n": 232
+      }
+    },
+    "confusion_matrix": [
+      [
+        170,
+        428
+      ],
+      [
+        88,
+        167
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "finetune_loso",
+    "task": "HC vs MDD",
+    "per_site": {
+      "COI": {
+        "bacc": 0.48205361199454794,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5141065830721003,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5778061224489797,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.4917517674783975,
+        "n": 124
+      },
+      "KUT": {
+        "bacc": 0.5015723270440251,
+        "n": 175
+      },
+      "UTO": {
+        "bacc": 0.49411764705882355,
+        "n": 232
+      }
+    },
+    "confusion_matrix": [
+      [
+        236,
+        362
+      ],
+      [
+        86,
+        169
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs MDD",
+    "per_site": {
+      "COI": {
+        "bacc": 0.4896069968196274,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5350052246603971,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.6071428571428572,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.5081173081958628,
+        "n": 124
+      },
+      "KUT": {
+        "bacc": 0.45184748427672955,
+        "n": 175
+      },
+      "UTO": {
+        "bacc": 0.5852941176470587,
+        "n": 232
+      }
+    },
+    "confusion_matrix": [
+      [
+        384,
+        214
+      ],
+      [
+        152,
+        103
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs MDD",
+    "per_site": {
+      "COI": {
+        "bacc": 0.46240345297592,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.3500522466039707,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.511783189316575,
+        "n": 124
+      },
+      "KUT": {
+        "bacc": 0.6114386792452831,
+        "n": 175
+      },
+      "UTO": {
+        "bacc": 0.5138519924098671,
+        "n": 232
+      }
+    },
+    "confusion_matrix": [
+      [
+        459,
+        139
+      ],
+      [
+        197,
+        58
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs MDD",
+    "per_site": {
+      "COI": {
+        "bacc": 0.5127214902317129,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.6624869383490073,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5446428571428572,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.49685781618224667,
+        "n": 124
+      },
+      "KUT": {
+        "bacc": 0.4716981132075472,
+        "n": 175
+      },
+      "UTO": {
+        "bacc": 0.5548387096774193,
+        "n": 232
+      }
+    },
+    "confusion_matrix": [
+      [
+        501,
+        97
+      ],
+      [
+        187,
+        68
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs MDD",
+    "per_site": {
+      "COI": {
+        "bacc": 0.5299295774647887,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5261233019853709,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.4968112244897959,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.5840534171249018,
+        "n": 124
+      },
+      "KUT": {
+        "bacc": 0.5577830188679245,
+        "n": 175
+      },
+      "UTO": {
+        "bacc": 0.5364326375711574,
+        "n": 232
+      }
+    },
+    "confusion_matrix": [
+      [
+        400,
+        198
+      ],
+      [
+        164,
+        91
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs MDD",
+    "per_site": {
+      "COI": {
+        "bacc": 0.497955474784189,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.49164054336468127,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.5039277297721917,
+        "n": 124
+      },
+      "KUT": {
+        "bacc": 0.48427672955974843,
+        "n": 175
+      },
+      "UTO": {
+        "bacc": 0.49544592030360535,
+        "n": 232
+      }
+    },
+    "confusion_matrix": [
+      [
+        564,
+        34
+      ],
+      [
+        240,
+        15
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs MDD",
+    "per_site": {
+      "COI": {
+        "bacc": 0.5500340754202635,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5721003134796239,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5363520408163265,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.5489656978266562,
+        "n": 124
+      },
+      "KUT": {
+        "bacc": 0.6183176100628931,
+        "n": 175
+      },
+      "UTO": {
+        "bacc": 0.577988614800759,
+        "n": 232
+      }
+    },
+    "confusion_matrix": [
+      [
+        433,
+        165
+      ],
+      [
+        144,
+        111
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs SCZ",
+    "per_site": {
+      "KTT": {
+        "bacc": 0.48496453900709224,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5918238993710692,
+        "n": 204
+      },
+      "SWA": {
+        "bacc": 0.5852006253256905,
+        "n": 120
+      },
+      "UTO": {
+        "bacc": 0.5436274509803921,
+        "n": 206
+      }
+    },
+    "confusion_matrix": [
+      [
+        361,
+        144
+      ],
+      [
+        91,
+        56
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs SCZ",
+    "per_site": {
+      "KTT": {
+        "bacc": 0.47432624113475175,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5916142557651992,
+        "n": 204
+      },
+      "SWA": {
+        "bacc": 0.6042209484106305,
+        "n": 120
+      },
+      "UTO": {
+        "bacc": 0.5124183006535947,
+        "n": 206
+      }
+    },
+    "confusion_matrix": [
+      [
+        337,
+        168
+      ],
+      [
+        90,
+        57
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs SCZ",
+    "per_site": {
+      "KTT": {
+        "bacc": 0.6127659574468085,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5461215932914045,
+        "n": 204
+      },
+      "SWA": {
+        "bacc": 0.6774361646690985,
+        "n": 120
+      },
+      "UTO": {
+        "bacc": 0.5392156862745098,
+        "n": 206
+      }
+    },
+    "confusion_matrix": [
+      [
+        407,
+        98
+      ],
+      [
+        92,
+        55
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_linear",
+    "task": "HC vs SCZ",
+    "per_site": {
+      "KTT": {
+        "bacc": 0.5163120567375886,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5129979035639413,
+        "n": 204
+      },
+      "SWA": {
+        "bacc": 0.5745179781136008,
+        "n": 120
+      },
+      "UTO": {
+        "bacc": 0.5619281045751634,
+        "n": 206
+      }
+    },
+    "confusion_matrix": [
+      [
+        220,
+        285
+      ],
+      [
+        51,
+        96
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs SCZ",
+    "per_site": {
+      "KTT": {
+        "bacc": 0.5499290780141843,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.4939203354297694,
+        "n": 204
+      },
+      "SWA": {
+        "bacc": 0.5,
+        "n": 120
+      },
+      "UTO": {
+        "bacc": 0.48496732026143785,
+        "n": 206
+      }
+    },
+    "confusion_matrix": [
+      [
+        438,
+        67
+      ],
+      [
+        115,
+        32
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "finetune_loso",
+    "task": "HC vs SCZ",
+    "per_site": {
+      "KTT": {
+        "bacc": 0.5556028368794326,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.46561844863731655,
+        "n": 204
+      },
+      "SWA": {
+        "bacc": 0.4726420010422095,
+        "n": 120
+      },
+      "UTO": {
+        "bacc": 0.5158496732026143,
+        "n": 206
+      }
+    },
+    "confusion_matrix": [
+      [
+        300,
+        205
+      ],
+      [
+        92,
+        55
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs SCZ",
+    "per_site": {
+      "KTT": {
+        "bacc": 0.4890780141843971,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5566037735849056,
+        "n": 204
+      },
+      "SWA": {
+        "bacc": 0.568264721208963,
+        "n": 120
+      },
+      "UTO": {
+        "bacc": 0.5166666666666666,
+        "n": 206
+      }
+    },
+    "confusion_matrix": [
+      [
+        353,
+        152
+      ],
+      [
+        99,
+        48
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs SCZ",
+    "per_site": {
+      "KTT": {
+        "bacc": 0.4866666666666667,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5,
+        "n": 204
+      },
+      "SWA": {
+        "bacc": 0.5,
+        "n": 120
+      },
+      "UTO": {
+        "bacc": 0.5088235294117647,
+        "n": 206
+      }
+    },
+    "confusion_matrix": [
+      [
+        76,
+        429
+      ],
+      [
+        47,
+        100
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs SCZ",
+    "per_site": {
+      "KTT": {
+        "bacc": 0.6502127659574468,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5002096436058701,
+        "n": 204
+      },
+      "SWA": {
+        "bacc": 0.5640958832725378,
+        "n": 120
+      },
+      "UTO": {
+        "bacc": 0.5429738562091503,
+        "n": 206
+      }
+    },
+    "confusion_matrix": [
+      [
+        483,
+        22
+      ],
+      [
+        121,
+        26
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs SCZ",
+    "per_site": {
+      "KTT": {
+        "bacc": 0.5656737588652482,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5899371069182391,
+        "n": 204
+      },
+      "SWA": {
+        "bacc": 0.46977592496091714,
+        "n": 120
+      },
+      "UTO": {
+        "bacc": 0.522875816993464,
+        "n": 206
+      }
+    },
+    "confusion_matrix": [
+      [
+        356,
+        149
+      ],
+      [
+        80,
+        67
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs SCZ",
+    "per_site": {
+      "KTT": {
+        "bacc": 0.43730496453900713,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5,
+        "n": 204
+      },
+      "SWA": {
+        "bacc": 0.5,
+        "n": 120
+      },
+      "UTO": {
+        "bacc": 0.47875816993464054,
+        "n": 206
+      }
+    },
+    "confusion_matrix": [
+      [
+        348,
+        157
+      ],
+      [
+        119,
+        28
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs SCZ",
+    "per_site": {
+      "KTT": {
+        "bacc": 0.6446808510638298,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.5192872117400419,
+        "n": 204
+      },
+      "SWA": {
+        "bacc": 0.5291818655549765,
+        "n": 120
+      },
+      "UTO": {
+        "bacc": 0.546078431372549,
+        "n": 206
+      }
+    },
+    "confusion_matrix": [
+      [
+        415,
+        90
+      ],
+      [
+        102,
+        45
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs ASD",
+    "per_site": {
+      "SWA": {
+        "bacc": 0.5,
+        "n": 216
+      },
+      "UTO": {
+        "bacc": 0.43529411764705883,
+        "n": 180
+      }
+    },
+    "confusion_matrix": [
+      [
+        232,
+        39
+      ],
+      [
+        124,
+        1
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs ASD",
+    "per_site": {
+      "SWA": {
+        "bacc": 0.48381403357727076,
+        "n": 216
+      },
+      "UTO": {
+        "bacc": 0.5264705882352941,
+        "n": 180
+      }
+    },
+    "confusion_matrix": [
+      [
+        45,
+        226
+      ],
+      [
+        8,
+        117
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs ASD",
+    "per_site": {
+      "SWA": {
+        "bacc": 0.5,
+        "n": 216
+      },
+      "UTO": {
+        "bacc": 0.5441176470588235,
+        "n": 180
+      }
+    },
+    "confusion_matrix": [
+      [
+        235,
+        36
+      ],
+      [
+        122,
+        3
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_linear",
+    "task": "HC vs ASD",
+    "per_site": {
+      "SWA": {
+        "bacc": 0.5141627206198881,
+        "n": 216
+      },
+      "UTO": {
+        "bacc": 0.5852941176470587,
+        "n": 180
+      }
+    },
+    "confusion_matrix": [
+      [
+        188,
+        83
+      ],
+      [
+        86,
+        39
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs ASD",
+    "per_site": {
+      "SWA": {
+        "bacc": 0.5189840723202755,
+        "n": 216
+      },
+      "UTO": {
+        "bacc": 0.47058823529411764,
+        "n": 180
+      }
+    },
+    "confusion_matrix": [
+      [
+        225,
+        46
+      ],
+      [
+        98,
+        27
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "finetune_loso",
+    "task": "HC vs ASD",
+    "per_site": {
+      "SWA": {
+        "bacc": 0.5,
+        "n": 216
+      },
+      "UTO": {
+        "bacc": 0.5647058823529412,
+        "n": 180
+      }
+    },
+    "confusion_matrix": [
+      [
+        259,
+        12
+      ],
+      [
+        123,
+        2
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs ASD",
+    "per_site": {
+      "SWA": {
+        "bacc": 0.5118381403357727,
+        "n": 216
+      },
+      "UTO": {
+        "bacc": 0.47058823529411764,
+        "n": 180
+      }
+    },
+    "confusion_matrix": [
+      [
+        191,
+        80
+      ],
+      [
+        116,
+        9
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs ASD",
+    "per_site": {
+      "SWA": {
+        "bacc": 0.45066724063710717,
+        "n": 216
+      },
+      "UTO": {
+        "bacc": 0.6176470588235294,
+        "n": 180
+      }
+    },
+    "confusion_matrix": [
+      [
+        122,
+        149
+      ],
+      [
+        68,
+        57
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs ASD",
+    "per_site": {
+      "SWA": {
+        "bacc": 0.49504950495049505,
+        "n": 216
+      },
+      "UTO": {
+        "bacc": 0.4911764705882353,
+        "n": 180
+      }
+    },
+    "confusion_matrix": [
+      [
+        233,
+        38
+      ],
+      [
+        123,
+        2
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs ASD",
+    "per_site": {
+      "SWA": {
+        "bacc": 0.5410675850193715,
+        "n": 216
+      },
+      "UTO": {
+        "bacc": 0.6647058823529411,
+        "n": 180
+      }
+    },
+    "confusion_matrix": [
+      [
+        204,
+        67
+      ],
+      [
+        104,
+        21
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs ASD",
+    "per_site": {
+      "SWA": {
+        "bacc": 0.5170469220835127,
+        "n": 216
+      },
+      "UTO": {
+        "bacc": 0.5088235294117647,
+        "n": 180
+      }
+    },
+    "confusion_matrix": [
+      [
+        89,
+        182
+      ],
+      [
+        94,
+        31
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs ASD",
+    "per_site": {
+      "SWA": {
+        "bacc": 0.5,
+        "n": 216
+      },
+      "UTO": {
+        "bacc": 0.6294117647058823,
+        "n": 180
+      }
+    },
+    "confusion_matrix": [
+      [
+        247,
+        24
+      ],
+      [
+        121,
+        4
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs Pain",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5061315496098104,
+        "n": 62
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 8
+      },
+      "OSU": {
+        "bacc": 0.5305305305305306,
+        "n": 64
+      }
+    },
+    "confusion_matrix": [
+      [
+        57,
+        11
+      ],
+      [
+        55,
+        11
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs Pain",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.37402452619843923,
+        "n": 62
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 8
+      },
+      "OSU": {
+        "bacc": 0.575075075075075,
+        "n": 64
+      }
+    },
+    "confusion_matrix": [
+      [
+        35,
+        33
+      ],
+      [
+        37,
+        29
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs Pain",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5178372352285395,
+        "n": 62
+      },
+      "NKN": {
+        "bacc": 0.41666666666666663,
+        "n": 8
+      },
+      "OSU": {
+        "bacc": 0.5425425425425425,
+        "n": 64
+      }
+    },
+    "confusion_matrix": [
+      [
+        60,
+        8
+      ],
+      [
+        52,
+        14
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_linear",
+    "task": "HC vs Pain",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5306577480490524,
+        "n": 62
+      },
+      "NKN": {
+        "bacc": 0.5,
+        "n": 8
+      },
+      "OSU": {
+        "bacc": 0.5,
+        "n": 64
+      }
+    },
+    "confusion_matrix": [
+      [
+        65,
+        3
+      ],
+      [
+        58,
+        8
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs Pain",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.48327759197324416,
+        "n": 62
+      },
+      "NKN": {
+        "bacc": 0.16666666666666666,
+        "n": 8
+      },
+      "OSU": {
+        "bacc": 0.47147147147147145,
+        "n": 64
+      }
+    },
+    "confusion_matrix": [
+      [
+        60,
+        8
+      ],
+      [
+        61,
+        5
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "finetune_loso",
+    "task": "HC vs Pain",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.4241917502787068,
+        "n": 62
+      },
+      "NKN": {
+        "bacc": 0.4166666666666667,
+        "n": 8
+      },
+      "OSU": {
+        "bacc": 0.494994994994995,
+        "n": 64
+      }
+    },
+    "confusion_matrix": [
+      [
+        54,
+        14
+      ],
+      [
+        57,
+        9
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs Pain",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5267558528428093,
+        "n": 62
+      },
+      "NKN": {
+        "bacc": 0.8333333333333333,
+        "n": 8
+      },
+      "OSU": {
+        "bacc": 0.539039039039039,
+        "n": 64
+      }
+    },
+    "confusion_matrix": [
+      [
+        62,
+        6
+      ],
+      [
+        52,
+        14
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs Pain",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.391304347826087,
+        "n": 62
+      },
+      "NKN": {
+        "bacc": 0.4166666666666667,
+        "n": 8
+      },
+      "OSU": {
+        "bacc": 0.47147147147147145,
+        "n": 64
+      }
+    },
+    "confusion_matrix": [
+      [
+        24,
+        44
+      ],
+      [
+        41,
+        25
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs Pain",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5217391304347826,
+        "n": 62
+      },
+      "NKN": {
+        "bacc": 0.5,
+        "n": 8
+      },
+      "OSU": {
+        "bacc": 0.517017017017017,
+        "n": 64
+      }
+    },
+    "confusion_matrix": [
+      [
+        66,
+        2
+      ],
+      [
+        61,
+        5
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs Pain",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5785953177257526,
+        "n": 62
+      },
+      "NKN": {
+        "bacc": 0.9166666666666667,
+        "n": 8
+      },
+      "OSU": {
+        "bacc": 0.546046046046046,
+        "n": 64
+      }
+    },
+    "confusion_matrix": [
+      [
+        40,
+        28
+      ],
+      [
+        32,
+        34
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs Pain",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5089186176142698,
+        "n": 62
+      },
+      "NKN": {
+        "bacc": 0.5833333333333334,
+        "n": 8
+      },
+      "OSU": {
+        "bacc": 0.5540540540540541,
+        "n": 64
+      }
+    },
+    "confusion_matrix": [
+      [
+        67,
+        1
+      ],
+      [
+        60,
+        6
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs Pain",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5741360089186176,
+        "n": 62
+      },
+      "NKN": {
+        "bacc": 0.5833333333333334,
+        "n": 8
+      },
+      "OSU": {
+        "bacc": 0.527027027027027,
+        "n": 64
+      }
+    },
+    "confusion_matrix": [
+      [
+        67,
+        1
+      ],
+      [
+        59,
+        7
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs Stroke",
+    "per_site": {
+      "NKN": {
+        "bacc": 0.5,
+        "n": 3
+      },
+      "OSU": {
+        "bacc": 0.5,
+        "n": 36
+      }
+    },
+    "confusion_matrix": [
+      [
+        29,
+        0
+      ],
+      [
+        10,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs Stroke",
+    "per_site": {
+      "NKN": {
+        "bacc": 0.5,
+        "n": 3
+      },
+      "OSU": {
+        "bacc": 0.5,
+        "n": 36
+      }
+    },
+    "confusion_matrix": [
+      [
+        27,
+        2
+      ],
+      [
+        9,
+        1
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs Stroke",
+    "per_site": {
+      "NKN": {
+        "bacc": 0.5,
+        "n": 3
+      },
+      "OSU": {
+        "bacc": 0.5,
+        "n": 36
+      }
+    },
+    "confusion_matrix": [
+      [
+        29,
+        0
+      ],
+      [
+        10,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_linear",
+    "task": "HC vs Stroke",
+    "per_site": {
+      "NKN": {
+        "bacc": 0.25,
+        "n": 3
+      },
+      "OSU": {
+        "bacc": 0.5,
+        "n": 36
+      }
+    },
+    "confusion_matrix": [
+      [
+        28,
+        1
+      ],
+      [
+        10,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs Stroke",
+    "per_site": {
+      "NKN": {
+        "bacc": 0.0,
+        "n": 3
+      },
+      "OSU": {
+        "bacc": 0.5,
+        "n": 36
+      }
+    },
+    "confusion_matrix": [
+      [
+        27,
+        2
+      ],
+      [
+        10,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "finetune_loso",
+    "task": "HC vs Stroke",
+    "per_site": {
+      "NKN": {
+        "bacc": 0.5,
+        "n": 3
+      },
+      "OSU": {
+        "bacc": 0.5,
+        "n": 36
+      }
+    },
+    "confusion_matrix": [
+      [
+        29,
+        0
+      ],
+      [
+        10,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs Stroke",
+    "per_site": {
+      "NKN": {
+        "bacc": 0.5,
+        "n": 3
+      },
+      "OSU": {
+        "bacc": 0.5,
+        "n": 36
+      }
+    },
+    "confusion_matrix": [
+      [
+        29,
+        0
+      ],
+      [
+        10,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs Stroke",
+    "per_site": {
+      "NKN": {
+        "bacc": 0.25,
+        "n": 3
+      },
+      "OSU": {
+        "bacc": 0.4444444444444444,
+        "n": 36
+      }
+    },
+    "confusion_matrix": [
+      [
+        25,
+        4
+      ],
+      [
+        10,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs Stroke",
+    "per_site": {
+      "NKN": {
+        "bacc": 0.5,
+        "n": 3
+      },
+      "OSU": {
+        "bacc": 0.5,
+        "n": 36
+      }
+    },
+    "confusion_matrix": [
+      [
+        29,
+        0
+      ],
+      [
+        10,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "HC vs Stroke",
+    "per_site": {
+      "NKN": {
+        "bacc": 0.5,
+        "n": 3
+      },
+      "OSU": {
+        "bacc": 0.5,
+        "n": 36
+      }
+    },
+    "confusion_matrix": [
+      [
+        29,
+        0
+      ],
+      [
+        10,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "HC vs Stroke",
+    "per_site": {
+      "NKN": {
+        "bacc": 0.25,
+        "n": 3
+      },
+      "OSU": {
+        "bacc": 0.5,
+        "n": 36
+      }
+    },
+    "confusion_matrix": [
+      [
+        28,
+        1
+      ],
+      [
+        10,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "HC vs Stroke",
+    "per_site": {
+      "NKN": {
+        "bacc": 0.5,
+        "n": 3
+      },
+      "OSU": {
+        "bacc": 0.5,
+        "n": 36
+      }
+    },
+    "confusion_matrix": [
+      [
+        29,
+        0
+      ],
+      [
+        10,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1
+    ]
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_linear",
+    "task": "Multiclass (ALL)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.28205128205128205,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.330474784189005,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.46394984326018807,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.3086734693877551,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.31382560879811466,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.2598581560283688,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.31659678546471,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.0,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.16950283616950282,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.27705402119159284,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.12979428330471973,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        442,
+        68,
+        156,
+        84,
+        53,
+        0,
+        27,
+        0,
+        12
+      ],
+      [
+        74,
+        0,
+        22,
+        18,
+        8,
+        0,
+        1,
+        0,
+        2
+      ],
+      [
+        117,
+        36,
+        44,
+        24,
+        21,
+        1,
+        7,
+        0,
+        5
+      ],
+      [
+        62,
+        17,
+        28,
+        24,
+        6,
+        1,
+        7,
+        0,
+        2
+      ],
+      [
+        31,
+        8,
+        14,
+        11,
+        1,
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        3,
+        5,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        20,
+        5,
+        13,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        11,
+        6,
+        7,
+        1,
+        3,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "top2_acc": 0.5461133069828722,
+    "top3_acc": 0.6785243741765481
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_mlp",
+    "task": "Multiclass (ALL)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.46153846153846156,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.49091322126306225,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.4827586206896552,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5631377551020409,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.5,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.4866666666666667,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.3249475890985325,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.19419419419419418,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.32673267326732675,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.1411764705882353,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        809,
+        4,
+        24,
+        5,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        119,
+        0,
+        6,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        248,
+        1,
+        4,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        143,
+        1,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        52,
+        3,
+        7,
+        3,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        5,
+        2,
+        1,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        41,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        27,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "top2_acc": 0.6482213438735178,
+    "top3_acc": 0.7180500658761528
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "finetune_loso",
+    "task": "Multiclass (ALL)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.3333333333333333,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.4221376646978646,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.46394984326018807,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.39158163265306123,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.3713013877978528,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.42907801418439717,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.3644042627533193,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.3888888888888889,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.19419419419419418,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.32928382083059565,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.1632616487455197,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        558,
+        31,
+        98,
+        89,
+        38,
+        4,
+        15,
+        1,
+        8
+      ],
+      [
+        71,
+        2,
+        10,
+        22,
+        14,
+        1,
+        3,
+        0,
+        2
+      ],
+      [
+        131,
+        5,
+        50,
+        34,
+        29,
+        1,
+        3,
+        0,
+        2
+      ],
+      [
+        68,
+        7,
+        24,
+        26,
+        10,
+        3,
+        7,
+        1,
+        1
+      ],
+      [
+        38,
+        5,
+        4,
+        12,
+        2,
+        0,
+        4,
+        0,
+        1
+      ],
+      [
+        1,
+        2,
+        2,
+        5,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        30,
+        0,
+        2,
+        4,
+        5,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        2,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        19,
+        2,
+        2,
+        4,
+        1,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "top2_acc": 0.6324110671936759,
+    "top3_acc": 0.7147562582345192
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_linear",
+    "task": "Multiclass (ALL)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.21404682274247494,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.20337346660608813,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.20741901776384536,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.26913265306122447,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.2619795758051846,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.1851063829787234,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.21877183787561147,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.12245578912245579,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.21997115043312113,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.13519924098671726,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        207,
+        108,
+        182,
+        120,
+        115,
+        21,
+        45,
+        1,
+        43
+      ],
+      [
+        38,
+        4,
+        19,
+        19,
+        25,
+        4,
+        10,
+        0,
+        6
+      ],
+      [
+        67,
+        31,
+        63,
+        41,
+        28,
+        6,
+        5,
+        1,
+        13
+      ],
+      [
+        44,
+        9,
+        30,
+        28,
+        20,
+        2,
+        7,
+        0,
+        7
+      ],
+      [
+        12,
+        18,
+        8,
+        7,
+        8,
+        0,
+        10,
+        0,
+        3
+      ],
+      [
+        0,
+        2,
+        3,
+        4,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        12,
+        8,
+        7,
+        6,
+        6,
+        2,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        1,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        9,
+        2,
+        8,
+        8,
+        1,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "top2_acc": 0.44861660079051385,
+    "top3_acc": 0.6337285902503293
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_mlp",
+    "task": "Multiclass (ALL)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.5,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.5,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.49333333333333335,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.3333333333333333,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.23456790123456792,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.3333333333333333,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.1403361344537815,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        830,
+        0,
+        6,
+        1,
+        3,
+        0,
+        1,
+        0,
+        1
+      ],
+      [
+        125,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        255,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        142,
+        1,
+        3,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        55,
+        1,
+        5,
+        4,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        10,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        40,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        2,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        28,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "top2_acc": 0.6884057971014492,
+    "top3_acc": 0.7476943346508564
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "finetune_loso",
+    "task": "Multiclass (ALL)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.14102564102564102,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.27890731485688325,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.23145245559038663,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.17538265306122447,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.05263157894736842,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.1373049645390071,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.16187106918238994,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.1111111111111111,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.10777444110777444,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.07590759075907591,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.11971627360621669,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        144,
+        183,
+        152,
+        160,
+        56,
+        0,
+        103,
+        0,
+        44
+      ],
+      [
+        28,
+        2,
+        40,
+        3,
+        34,
+        0,
+        18,
+        0,
+        0
+      ],
+      [
+        39,
+        52,
+        63,
+        53,
+        10,
+        0,
+        26,
+        0,
+        12
+      ],
+      [
+        29,
+        48,
+        21,
+        19,
+        7,
+        0,
+        21,
+        0,
+        2
+      ],
+      [
+        11,
+        21,
+        4,
+        14,
+        3,
+        0,
+        10,
+        0,
+        3
+      ],
+      [
+        2,
+        2,
+        0,
+        5,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        11,
+        15,
+        8,
+        7,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        1,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        5,
+        11,
+        3,
+        9,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "top2_acc": 0.34782608695652173,
+    "top3_acc": 0.530961791831357
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "Multiclass (ALL)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.28205128205128205,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.3384825079509314,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.39028213166144204,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.35969387755102045,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.30544645195077247,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.3025531914893617,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.23481830887491265,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.2032032032032032,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.3160825006985824,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.11936989849703325,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        439,
+        70,
+        167,
+        79,
+        55,
+        1,
+        16,
+        0,
+        15
+      ],
+      [
+        60,
+        1,
+        26,
+        15,
+        13,
+        0,
+        6,
+        0,
+        4
+      ],
+      [
+        129,
+        23,
+        47,
+        24,
+        17,
+        0,
+        7,
+        0,
+        8
+      ],
+      [
+        58,
+        19,
+        30,
+        18,
+        11,
+        0,
+        8,
+        1,
+        2
+      ],
+      [
+        20,
+        12,
+        15,
+        13,
+        2,
+        0,
+        0,
+        0,
+        4
+      ],
+      [
+        4,
+        2,
+        2,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        20,
+        8,
+        6,
+        5,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        16,
+        2,
+        5,
+        3,
+        2,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "top2_acc": 0.5520421607378129,
+    "top3_acc": 0.686429512516469
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "Multiclass (ALL)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.5251022262607906,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5282131661442007,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.46938775510204084,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.4876931133804661,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.47063829787234046,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.34244409503843465,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.30864197530864196,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.3135313531353135,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.1488855757356706,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        771,
+        8,
+        50,
+        11,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        119,
+        0,
+        5,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        227,
+        2,
+        21,
+        5,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        123,
+        1,
+        20,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        56,
+        4,
+        4,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        7,
+        0,
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        36,
+        0,
+        3,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        3,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        25,
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "top2_acc": 0.658102766798419,
+    "top3_acc": 0.7536231884057971
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "Multiclass (ALL)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.4230769230769231,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.37568150840527037,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.4702194357366771,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.43239795918367346,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.4564021995286724,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.3465248226950355,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.2964535290006988,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.2896229562896229,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.35174570088587803,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.16243787837715734,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        592,
+        45,
+        131,
+        49,
+        20,
+        0,
+        3,
+        1,
+        1
+      ],
+      [
+        94,
+        0,
+        10,
+        12,
+        8,
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        152,
+        15,
+        59,
+        22,
+        6,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        81,
+        11,
+        31,
+        17,
+        4,
+        0,
+        2,
+        0,
+        1
+      ],
+      [
+        48,
+        4,
+        10,
+        2,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        9,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        35,
+        4,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        2,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        25,
+        0,
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "top2_acc": 0.6837944664031621,
+    "top3_acc": 0.7608695652173914
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "Multiclass (ALL)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.2909698996655518,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.26096092685143113,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.40334378265412746,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.267219387755102,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.2567426027755957,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.2676595744680851,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.26208071278825995,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.2222222222222222,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.22022022022022023,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.19085423416483524,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.1938661486099816,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        382,
+        77,
+        154,
+        104,
+        53,
+        8,
+        38,
+        1,
+        25
+      ],
+      [
+        34,
+        8,
+        33,
+        20,
+        15,
+        4,
+        5,
+        0,
+        6
+      ],
+      [
+        94,
+        33,
+        41,
+        42,
+        26,
+        2,
+        13,
+        0,
+        4
+      ],
+      [
+        45,
+        15,
+        31,
+        26,
+        17,
+        2,
+        7,
+        1,
+        3
+      ],
+      [
+        15,
+        15,
+        10,
+        13,
+        10,
+        0,
+        2,
+        0,
+        1
+      ],
+      [
+        0,
+        3,
+        3,
+        3,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        18,
+        4,
+        6,
+        8,
+        5,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        1,
+        3,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        13,
+        4,
+        5,
+        5,
+        1,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "top2_acc": 0.5500658761528326,
+    "top3_acc": 0.6844532279314888
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "Multiclass (ALL)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.48717948717948717,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.5,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5151515151515151,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.49043367346938777,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.5026184865147945,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.5,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.32914046121593293,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.23123123123123124,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.3376758728504429,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.14410409325020332,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        816,
+        3,
+        11,
+        11,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        123,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        247,
+        1,
+        6,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        141,
+        1,
+        4,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        52,
+        2,
+        5,
+        5,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        6,
+        0,
+        2,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        40,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        27,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "top2_acc": 0.6620553359683794,
+    "top3_acc": 0.7397891963109354
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "Multiclass (ALL)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.14604236343366778,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.17014993184915947,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.15987460815047022,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.15497448979591838,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.19520816967792615,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.26354609929078016,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.13124563242487772,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.05555555555555555,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.11911911911911911,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.09908542341648352,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.12562573416463357,
+        "n": 351
+      }
+    },
+    "confusion_matrix": [
+      [
+        166,
+        214,
+        170,
+        132,
+        111,
+        12,
+        24,
+        3,
+        10
+      ],
+      [
+        16,
+        7,
+        36,
+        28,
+        32,
+        3,
+        3,
+        0,
+        0
+      ],
+      [
+        32,
+        70,
+        54,
+        47,
+        38,
+        2,
+        8,
+        1,
+        3
+      ],
+      [
+        21,
+        40,
+        26,
+        29,
+        24,
+        4,
+        2,
+        1,
+        0
+      ],
+      [
+        8,
+        26,
+        9,
+        12,
+        8,
+        0,
+        2,
+        0,
+        1
+      ],
+      [
+        0,
+        4,
+        1,
+        4,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        17,
+        5,
+        5,
+        7,
+        7,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        1,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        7,
+        2,
+        5,
+        10,
+        4,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "top2_acc": 0.4776021080368906,
+    "top3_acc": 0.6963109354413702
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_linear",
+    "task": "Multiclass (Multi-Site)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.2948717948717949,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.35160154475238525,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.4832810867293626,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.32908163265306123,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.3401413982717989,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.27858156028368797,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.31757512229210344,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.0,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.16950283616950282,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.30779920097272884,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.22713999578325952,
+        "n": 278
+      }
+    },
+    "confusion_matrix": [
+      [
+        461,
+        70,
+        163,
+        91,
+        56,
+        1
+      ],
+      [
+        76,
+        0,
+        23,
+        17,
+        9,
+        0
+      ],
+      [
+        125,
+        34,
+        49,
+        26,
+        20,
+        1
+      ],
+      [
+        65,
+        17,
+        34,
+        22,
+        8,
+        1
+      ],
+      [
+        34,
+        7,
+        14,
+        10,
+        1,
+        0
+      ],
+      [
+        3,
+        4,
+        1,
+        1,
+        1,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "top2_acc": 0.6062283737024221,
+    "top3_acc": 0.744636678200692
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "frozen_mlp",
+    "task": "Multiclass (Multi-Site)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.46153846153846156,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.4949454793275784,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.46551724137931033,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.53125,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.47761194029850745,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.48,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.36451781970649894,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.1728395061728395,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.3201320132013201,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.24705882352941178,
+        "n": 278
+      }
+    },
+    "confusion_matrix": [
+      [
+        804,
+        3,
+        29,
+        5,
+        1,
+        0
+      ],
+      [
+        121,
+        0,
+        4,
+        0,
+        0,
+        0
+      ],
+      [
+        246,
+        3,
+        4,
+        1,
+        0,
+        1
+      ],
+      [
+        142,
+        3,
+        2,
+        0,
+        0,
+        0
+      ],
+      [
+        53,
+        2,
+        7,
+        4,
+        0,
+        0
+      ],
+      [
+        4,
+        3,
+        1,
+        2,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "top2_acc": 0.6768166089965398,
+    "top3_acc": 0.7522491349480969
+  },
+  {
+    "method": "Raw (Transformer from scratch)",
+    "eval_type": "finetune_loso",
+    "task": "Multiclass (Multi-Site)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.2909698996655518,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.4241821899136756,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.45506792058516193,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.3807397959183674,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.40992406389107094,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.3478014184397163,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.3846610761705101,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.19419419419419418,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.35898679112762527,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.31137202192705044,
+        "n": 278
+      }
+    },
+    "confusion_matrix": [
+      [
+        559,
+        30,
+        129,
+        84,
+        36,
+        4
+      ],
+      [
+        78,
+        3,
+        12,
+        19,
+        10,
+        3
+      ],
+      [
+        144,
+        2,
+        49,
+        34,
+        26,
+        0
+      ],
+      [
+        78,
+        5,
+        21,
+        27,
+        13,
+        3
+      ],
+      [
+        33,
+        5,
+        7,
+        19,
+        2,
+        0
+      ],
+      [
+        1,
+        2,
+        2,
+        5,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "top2_acc": 0.6851211072664359,
+    "top3_acc": 0.7847750865051903
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_linear",
+    "task": "Multiclass (Multi-Site)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.2012263099219621,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.2527260336210813,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.22884012539184953,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.27869897959183676,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.29798376538360827,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.21843971631205672,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.2671296296296296,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.16850183516850184,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.22304340273844314,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.23659867172675522,
+        "n": 278
+      }
+    },
+    "confusion_matrix": [
+      [
+        266,
+        124,
+        192,
+        129,
+        107,
+        24
+      ],
+      [
+        56,
+        5,
+        22,
+        16,
+        22,
+        4
+      ],
+      [
+        74,
+        33,
+        62,
+        52,
+        27,
+        7
+      ],
+      [
+        55,
+        13,
+        32,
+        27,
+        18,
+        2
+      ],
+      [
+        18,
+        17,
+        14,
+        7,
+        9,
+        1
+      ],
+      [
+        1,
+        1,
+        4,
+        3,
+        1,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "top2_acc": 0.5307958477508651,
+    "top3_acc": 0.7176470588235294
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "frozen_mlp",
+    "task": "Multiclass (Multi-Site)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.48717948717948717,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.4959677419354839,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.5,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.5,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.3312368972746331,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.25592258925592254,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.32673267326732675,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.24558823529411763,
+        "n": 278
+      }
+    },
+    "confusion_matrix": [
+      [
+        827,
+        3,
+        8,
+        1,
+        3,
+        0
+      ],
+      [
+        121,
+        0,
+        4,
+        0,
+        0,
+        0
+      ],
+      [
+        255,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        141,
+        0,
+        5,
+        0,
+        1,
+        0
+      ],
+      [
+        53,
+        6,
+        4,
+        2,
+        1,
+        0
+      ],
+      [
+        9,
+        0,
+        0,
+        1,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "top2_acc": 0.7356401384083044,
+    "top3_acc": 0.797923875432526
+  },
+  {
+    "method": "Transformer-VAE",
+    "eval_type": "finetune_loso",
+    "task": "Multiclass (Multi-Site)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.11538461538461539,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.3273512039981826,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.09717868338557994,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.392219387755102,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.15658549358470802,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.1797163120567376,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.22366352201257858,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.05555555555555555,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.09209209209209208,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.18342886920270973,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.19846352519502425,
+        "n": 278
+      }
+    },
+    "confusion_matrix": [
+      [
+        141,
+        232,
+        167,
+        262,
+        40,
+        0
+      ],
+      [
+        36,
+        1,
+        39,
+        49,
+        0,
+        0
+      ],
+      [
+        43,
+        59,
+        60,
+        83,
+        10,
+        0
+      ],
+      [
+        17,
+        47,
+        25,
+        47,
+        11,
+        0
+      ],
+      [
+        10,
+        15,
+        13,
+        25,
+        3,
+        0
+      ],
+      [
+        2,
+        4,
+        0,
+        4,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "top2_acc": 0.4643598615916955,
+    "top3_acc": 0.6622837370242215
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "Multiclass (Multi-Site)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.2948717948717949,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.3596660608814175,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.4399164054336468,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.4630102040816326,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.30544645195077247,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.30921985815602837,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.29437456324248773,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.22789456122789456,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.32928382083059565,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.20889732236980818,
+        "n": 278
+      }
+    },
+    "confusion_matrix": [
+      [
+        465,
+        73,
+        171,
+        79,
+        52,
+        2
+      ],
+      [
+        71,
+        1,
+        28,
+        13,
+        12,
+        0
+      ],
+      [
+        138,
+        24,
+        51,
+        26,
+        16,
+        0
+      ],
+      [
+        70,
+        16,
+        34,
+        19,
+        8,
+        0
+      ],
+      [
+        25,
+        9,
+        17,
+        13,
+        2,
+        0
+      ],
+      [
+        4,
+        1,
+        2,
+        2,
+        1,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "top2_acc": 0.6096885813148789,
+    "top3_acc": 0.7605536332179931
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "Multiclass (Multi-Site)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.48717948717948717,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.4928441617446615,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.49791013584117033,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5631377551020409,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.4802304268133019,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.46,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.3081761006289308,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.32999666332999666,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.31683168316831684,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.26054975753742354,
+        "n": 278
+      }
+    },
+    "confusion_matrix": [
+      [
+        780,
+        7,
+        41,
+        9,
+        4,
+        1
+      ],
+      [
+        110,
+        0,
+        12,
+        1,
+        1,
+        1
+      ],
+      [
+        226,
+        4,
+        19,
+        6,
+        0,
+        0
+      ],
+      [
+        140,
+        0,
+        6,
+        1,
+        0,
+        0
+      ],
+      [
+        54,
+        2,
+        5,
+        4,
+        1,
+        0
+      ],
+      [
+        9,
+        0,
+        1,
+        0,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "top2_acc": 0.6837370242214533,
+    "top3_acc": 0.7764705882352941
+  },
+  {
+    "method": "JEPA + Contrastive (No Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "Multiclass (Multi-Site)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.4230769230769231,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.4615515674693321,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5240334378265413,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.5025510204081632,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.4556166535742341,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.3973049645390071,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.31768867924528305,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.3333333333333333,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.2682682682682683,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.35956227201667534,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.2692573265865486,
+        "n": 278
+      }
+    },
+    "confusion_matrix": [
+      [
+        706,
+        18,
+        85,
+        21,
+        12,
+        0
+      ],
+      [
+        114,
+        0,
+        1,
+        7,
+        3,
+        0
+      ],
+      [
+        193,
+        4,
+        28,
+        25,
+        5,
+        0
+      ],
+      [
+        102,
+        3,
+        26,
+        12,
+        4,
+        0
+      ],
+      [
+        47,
+        5,
+        6,
+        7,
+        1,
+        0
+      ],
+      [
+        10,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "top2_acc": 0.7211072664359861,
+    "top3_acc": 0.8034602076124567
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_linear",
+    "task": "Multiclass (Multi-Site)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.2525083612040134,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.3012267151294866,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.4378265412748171,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.29719387755102045,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.2953652788688138,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.37829787234042556,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.31967155835080363,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.5555555555555555,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.24491157824491158,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.2399468322118253,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.33926576006746784,
+        "n": 278
+      }
+    },
+    "confusion_matrix": [
+      [
+        431,
+        80,
+        157,
+        105,
+        61,
+        8
+      ],
+      [
+        38,
+        6,
+        39,
+        21,
+        19,
+        2
+      ],
+      [
+        97,
+        38,
+        46,
+        47,
+        25,
+        2
+      ],
+      [
+        52,
+        15,
+        32,
+        30,
+        16,
+        2
+      ],
+      [
+        18,
+        15,
+        10,
+        13,
+        10,
+        0
+      ],
+      [
+        0,
+        3,
+        3,
+        3,
+        0,
+        1
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "top2_acc": 0.6269896193771626,
+    "top3_acc": 0.7570934256055364
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "frozen_mlp",
+    "task": "Multiclass (Multi-Site)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.5,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.497955474784189,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.5303030303030303,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.4897959183673469,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.5,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.4906382978723404,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.3582285115303983,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.16666666666666666,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.25925925925925924,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.33003300330033003,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.2521821631878558,
+        "n": 278
+      }
+    },
+    "confusion_matrix": [
+      [
+        814,
+        3,
+        17,
+        7,
+        1,
+        0
+      ],
+      [
+        124,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        243,
+        1,
+        8,
+        3,
+        0,
+        0
+      ],
+      [
+        136,
+        0,
+        10,
+        1,
+        0,
+        0
+      ],
+      [
+        54,
+        1,
+        6,
+        5,
+        0,
+        0
+      ],
+      [
+        5,
+        1,
+        2,
+        2,
+        0,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "top2_acc": 0.7051903114186852,
+    "top3_acc": 0.7993079584775087
+  },
+  {
+    "method": "JEPA + Adversarial (With Curriculum)",
+    "eval_type": "finetune_loso",
+    "task": "Multiclass (Multi-Site)",
+    "per_site": {
+      "CIN": {
+        "bacc": 0.28205128205128205,
+        "n": 62
+      },
+      "COI": {
+        "bacc": 0.27992957746478875,
+        "n": 195
+      },
+      "HKH": {
+        "bacc": 0.3908045977011494,
+        "n": 62
+      },
+      "HRC": {
+        "bacc": 0.3207908163265306,
+        "n": 65
+      },
+      "HUH": {
+        "bacc": 0.2847604084838963,
+        "n": 124
+      },
+      "KTT": {
+        "bacc": 0.21304964539007093,
+        "n": 122
+      },
+      "KUT": {
+        "bacc": 0.280966107617051,
+        "n": 220
+      },
+      "NKN": {
+        "bacc": 0.2222222222222222,
+        "n": 9
+      },
+      "OSU": {
+        "bacc": 0.14814814814814814,
+        "n": 73
+      },
+      "SWA": {
+        "bacc": 0.15495238311016457,
+        "n": 235
+      },
+      "UTO": {
+        "bacc": 0.26061300864431797,
+        "n": 278
+      }
+    },
+    "confusion_matrix": [
+      [
+        273,
+        109,
+        235,
+        129,
+        92,
+        4
+      ],
+      [
+        25,
+        6,
+        51,
+        20,
+        21,
+        2
+      ],
+      [
+        57,
+        32,
+        74,
+        50,
+        37,
+        5
+      ],
+      [
+        29,
+        27,
+        40,
+        28,
+        20,
+        3
+      ],
+      [
+        27,
+        11,
+        12,
+        15,
+        1,
+        0
+      ],
+      [
+        2,
+        1,
+        1,
+        5,
+        1,
+        0
+      ]
+    ],
+    "cm_labels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "top2_acc": 0.6262975778546713,
+    "top3_acc": 0.7757785467128028
+  }
+]

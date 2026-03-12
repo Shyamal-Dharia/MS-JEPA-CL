@@ -1,0 +1,455 @@
+# src/jepa/train_phase2_contrastive.py
+"""
+Phase 2 + Contrastive: JEPA training with NT-Xent loss on travelling subjects.
+
+The JEPA loss alone didn't push site probe below 34%.
+Adding contrastive learning explicitly teaches:
+  "same subject at different sites → SAME embedding"
+  "different subjects → DIFFERENT embeddings"
+
+This only applies to the replay buffer (travelling subjects),
+where we know subject identity across scanner sites.
+"""
+
+import sys
+import os
+import json
+import logging
+import argparse
+from pathlib import Path
+from collections import Counter
+
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import DataLoader, WeightedRandomSampler
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import LabelEncoder
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from jepa.dataset import FMRIDataset
+from jepa.masking import generate_temporal_mask
+from jepa.model import JEPA
+
+
+# ─────────────────────────── Config ───────────────────────────
+
+class Phase2ContrastiveConfig:
+    """Phase 2 config with contrastive loss additions."""
+
+    # Data
+    main_data_dir = "preprocessed_data_fir/roi_timeseries_1600"
+    phase1_checkpoint = "checkpoints/phase1/model_A_phase1.pt"
+
+    # Model (must match Phase 1)
+    embed_dim = 400
+    encoder_depth = 3
+    predictor_depth = 2
+    num_heads = 4
+    mlp_ratio = 4.0
+    dropout = 0.1
+    ema_decay = 0.996
+
+    # Training
+    epochs = 60
+    batch_size = 64
+    learning_rate = 5e-5
+    weight_decay = 0.05
+    warmup_epochs = 5
+
+    # Contrastive loss (NEW)
+    contrastive_weight = 0.5     # λ: how much contrastive loss contributes
+    temperature = 0.1            # τ: sharpness of similarity distribution
+
+    # Masking
+    temporal_num_blocks = 2
+    temporal_block_size = (10, 15)
+
+    # Output
+    save_dir = "checkpoints/phase2_contrastive"
+    log_every = 10
+    probe_every = 100
+    save_every = 20
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+# ──────────── HC-Only Dataset ─────────────────────────────────
+# Deleted: We now use all 1626 subjects
+
+# ──────────── Site-Balanced Sampler ───────────────────────────
+# Deleted: We now use standard shuffle on all subjects
+
+# ─────────── Replay Buffer ───────────────────────────────────
+# Deleted: We now use the multi-view data augmentation pipeline
+
+
+# ──────────────────── Collate Function ────────────────────────
+
+def collate_fn(batch):
+    tensors, labels_list = zip(*batch)
+    tensors = torch.stack(tensors, dim=0)
+    return tensors, list(labels_list)
+
+
+# ──────────── NT-Xent Contrastive Loss (NEW) ─────────────────
+
+def contrastive_loss_ntxent(embeddings, subject_ids, temperature=0.1):
+    """
+    NT-Xent (Normalized Temperature-scaled Cross Entropy) loss.
+
+    For each scan in the batch, finds another scan of the SAME subject
+    (scanned at a different site) as the positive. All other subjects
+    are negatives.
+
+    Parameters
+    ----------
+    embeddings : Tensor (N, embed_dim)
+        L2-normalized mean-pooled encoder outputs for replay batch.
+    subject_ids : list of str, length N
+        Subject identifier for each scan.
+    temperature : float
+        Controls sharpness. Lower = harder contrasts.
+
+    Returns
+    -------
+    loss : scalar Tensor
+        Mean NT-Xent loss over all valid anchors.
+    n_valid : int
+        Number of anchors that had at least one positive pair.
+    """
+    N = embeddings.size(0)
+    if N < 2:
+        return torch.tensor(0.0, device=embeddings.device), 0
+
+    # L2 normalize embeddings (cosine similarity via dot product)
+    embeddings = F.normalize(embeddings, dim=1)
+
+    # Pairwise cosine similarity matrix: (N, N)
+    sim_matrix = torch.mm(embeddings, embeddings.T) / temperature
+
+    # Build positive mask: same subject, different index
+    # positive_mask[i, j] = 1 if subject_ids[i] == subject_ids[j] and i != j
+    positive_mask = torch.zeros(N, N, dtype=torch.bool, device=embeddings.device)
+    for i in range(N):
+        for j in range(N):
+            if i != j and subject_ids[i] == subject_ids[j]:
+                positive_mask[i, j] = True
+
+    # Only compute loss for anchors that have at least one positive
+    valid_anchors = positive_mask.any(dim=1)  # (N,)
+    n_valid = valid_anchors.sum().item()
+
+    if n_valid == 0:
+        return torch.tensor(0.0, device=embeddings.device), 0
+
+    # For each valid anchor: loss = -log( sum(exp(sim_pos)) / sum(exp(sim_all_except_self)) )
+    # Mask out self-similarity
+    self_mask = torch.eye(N, dtype=torch.bool, device=embeddings.device)
+
+    # Denominator: sum over all j != i
+    sim_matrix_no_self = sim_matrix.masked_fill(self_mask, float('-inf'))
+    log_denom = torch.logsumexp(sim_matrix_no_self, dim=1)  # (N,)
+
+    # Numerator: log-sum-exp over positive pairs
+    sim_positives = sim_matrix.masked_fill(~positive_mask, float('-inf'))
+    log_numer = torch.logsumexp(sim_positives, dim=1)  # (N,)
+
+    # Loss per anchor: -log(sum_pos / sum_all) = -(log_numer - log_denom)
+    losses = -(log_numer - log_denom)
+
+    # Average over valid anchors only
+    loss = losses[valid_anchors].mean()
+
+    return loss, n_valid
+
+
+# ─────────────── Embedding Extraction ─────────────────────────
+
+@torch.no_grad()
+def get_pooled_embedding(model, x, device):
+    """
+    Get mean-pooled encoder embedding for a batch.
+    Uses ALL tokens (no masking) for a full representation.
+
+    Parameters
+    ----------
+    model : JEPA
+    x : Tensor (batch, seq_len, input_dim)
+    device : str
+
+    Returns
+    -------
+    Tensor (batch, embed_dim)
+    """
+    seq_len = x.size(1)
+    all_indices = torch.arange(seq_len).to(device)
+    embedded = model.token_embed(x, all_indices)
+    repr = model.context_encoder(embedded)
+    return repr.flatten(start_dim=1)  # (batch, 93 * embed_dim)
+
+
+# ─────────── Site Classification Probe ────────────────────────
+
+@torch.no_grad()
+def extract_embeddings(model, dataset, device):
+    model.eval()
+    embeddings, sites = [], []
+    for i in range(len(dataset)):
+        x, labels = dataset[i]
+        x = x.unsqueeze(0).to(device)
+        pooled = get_pooled_embedding(model, x, device)
+        embeddings.append(pooled.cpu().numpy())
+        sites.append(labels['site'])
+    return np.concatenate(embeddings, axis=0), sites
+
+
+def run_site_probe(model, dataset, device):
+    embeddings, sites = extract_embeddings(model, dataset, device)
+    le = LabelEncoder()
+    y = le.fit_transform(sites)
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.pipeline import make_pipeline
+    from sklearn.model_selection import KFold, cross_val_score
+    
+    clf = make_pipeline(StandardScaler(), LogisticRegression(C=0.1, max_iter=1000, random_state=42))
+    cv = KFold(n_splits=5, shuffle=True, random_state=42)
+    scores = cross_val_score(clf, embeddings, y, cv=cv, scoring='accuracy')
+    return scores.mean(), len(le.classes_)
+
+
+# ─────────────── Learning Rate Schedule ───────────────────────
+
+def get_lr(epoch, warmup_epochs, total_epochs, base_lr):
+    if epoch < warmup_epochs:
+        return base_lr * (epoch + 1) / warmup_epochs
+    else:
+        progress = (epoch - warmup_epochs) / (total_epochs - warmup_epochs)
+        return base_lr * 0.5 * (1 + np.cos(np.pi * progress))
+
+
+# ──────────────────── Main Training Function ──────────────────
+
+def train_phase2_contrastive(cfg: Phase2ContrastiveConfig):
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s"
+    )
+    logger = logging.getLogger("JEPA-Phase2-CL")
+    device = cfg.device
+    logger.info(f"Phase 2 + Contrastive: Temporal model on {device}")
+
+    # ── 1. Main Data ──
+    logger.info("Loading Main Dataset (Multi-view Augmentation on ALL 1626 subjects)...")
+    main_dataset = FMRIDataset(cfg.main_data_dir, tokenization_mode='temporal', augment=True, num_views=2)
+    probe_dataset = FMRIDataset(cfg.main_data_dir, tokenization_mode='temporal') # For logging site probe
+
+    main_loader = DataLoader(
+        main_dataset,
+        batch_size=cfg.batch_size,
+        shuffle=True,
+        drop_last=True,
+        num_workers=4,
+        pin_memory=(device == "cuda"),
+    )
+
+    logger.info(f"Main dataset size: {len(main_dataset)} subjects, batch_size: {cfg.batch_size}")
+    logger.info(f"{len(main_loader)} batches/epoch")
+
+    # ── 4. Model + load Phase 1 weights ──
+
+    # ── 4. Model + load Phase 1 weights ──
+    model = JEPA(
+        input_dim=400,
+        max_seq_len=93,
+        embed_dim=cfg.embed_dim,
+        encoder_depth=cfg.encoder_depth,
+        predictor_depth=cfg.predictor_depth,
+        num_heads=cfg.num_heads,
+        mlp_ratio=cfg.mlp_ratio,
+        dropout=cfg.dropout,
+        ema_decay=cfg.ema_decay,
+    ).to(device)
+
+    checkpoint = torch.load(cfg.phase1_checkpoint, map_location=device)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    logger.info(f"Loaded Phase 1 weights from {cfg.phase1_checkpoint}")
+
+    trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    logger.info(f"Trainable parameters: {trainable:,}")
+
+    # ── 5. Optimizer ──
+    optimizer = torch.optim.AdamW(
+        model.parameters(),
+        lr=cfg.learning_rate,
+        weight_decay=cfg.weight_decay,
+    )
+
+    # ── 6. Save directory ──
+    save_dir = Path(cfg.save_dir)
+    save_dir.mkdir(parents=True, exist_ok=True)
+
+    # ── 7. History ──
+    history = {
+        'epoch': [],
+        'train_loss': [],
+        'jepa_loss': [],
+        'contrastive_loss': [],
+        'main_loss': [],
+        'replay_loss': [],
+        'site_probe_accuracy': [],
+        'learning_rate': [],
+        'n_valid_pairs': [],
+    }
+
+    # ── 8. Training loop ──
+    for epoch in range(cfg.epochs):
+        model.train()
+        epoch_losses, epoch_jepa, epoch_cl = [], [], []
+        epoch_pairs = []
+
+        lr = get_lr(epoch, cfg.warmup_epochs, cfg.epochs, cfg.learning_rate)
+        for pg in optimizer.param_groups:
+            pg['lr'] = lr
+
+        for batch_idx, (views, labels) in enumerate(main_loader):
+            # views is a list [view1, view2]
+            view1 = views[0].to(device)
+            view2 = views[1].to(device)
+            B = view1.size(0)
+
+            # ── Generate mask ──
+            ctx_idx, tgt_idx = generate_temporal_mask(
+                seq_len=93,
+                num_blocks=cfg.temporal_num_blocks,
+                block_size_range=cfg.temporal_block_size,
+            )
+            ctx_idx = ctx_idx.to(device)
+            tgt_idx = tgt_idx.to(device)
+
+            # ── 1. Phase 1 Predictive JEPA Loss (on View 1) ──
+            predicted, target_repr = model(view1, ctx_idx, tgt_idx)
+            jepa_loss = F.mse_loss(predicted, target_repr)
+
+            # ── 2. Phase 2 Contrastive NT-Xent Loss (View 1 & View 2) ──
+            z1 = get_pooled_embedding(model, view1, device)
+            z2 = get_pooled_embedding(model, view2, device)
+
+            # Combine into single batch (2B, embed_dim)
+            z_combined = torch.cat([z1, z2], dim=0)
+
+            # Pseudo subject IDs: match view1 and view2
+            pseudo_ids = list(range(B)) * 2
+
+            cl_loss, n_valid = contrastive_loss_ntxent(
+                z_combined, pseudo_ids, cfg.temperature
+            )
+
+            # ── Total loss ──
+            total_loss = jepa_loss + cfg.contrastive_weight * cl_loss
+
+            # ── Backward ──
+            optimizer.zero_grad()
+            total_loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            optimizer.step()
+            model.update_target_encoder()
+
+            epoch_losses.append(total_loss.item())
+            epoch_jepa.append(jepa_loss.item())
+            epoch_cl.append(cl_loss.item())
+            epoch_pairs.append(n_valid)
+
+            if (batch_idx + 1) % cfg.log_every == 0:
+                logger.info(
+                    f"Epoch {epoch+1}/{cfg.epochs} | "
+                    f"Batch {batch_idx+1}/{len(main_loader)} | "
+                    f"Total: {total_loss.item():.4f} "
+                    f"(JEPA: {jepa_loss.item():.4f}, CL: {cl_loss.item():.4f}, "
+                    f"pairs: {n_valid})"
+                )
+
+        # ── Epoch summary ──
+        avg_loss = np.mean(epoch_losses)
+        avg_jepa = np.mean(epoch_jepa)
+        avg_cl = np.mean(epoch_cl)
+        avg_pairs = np.mean(epoch_pairs)
+
+        site_acc = None
+        if (epoch + 1) % cfg.probe_every == 0 or epoch == 0:
+            site_acc, n_sites = run_site_probe(model, probe_dataset, device)
+            logger.info(
+                f"Epoch {epoch+1} | "
+                f"Total: {avg_loss:.4f} (JEPA: {avg_jepa:.4f}, CL: {avg_cl:.4f}) | "
+                f"Pairs: {avg_pairs:.0f} | "
+                f"Site Probe: {site_acc:.1%} (chance={1/n_sites:.1%})"
+            )
+        else:
+            logger.info(
+                f"Epoch {epoch+1} | "
+                f"Total: {avg_loss:.4f} (JEPA: {avg_jepa:.4f}, CL: {avg_cl:.4f}) | "
+                f"Pairs: {avg_pairs:.0f}"
+            )
+
+        if (epoch + 1) % cfg.save_every == 0:
+            ckpt_path = save_dir / f"model_A_phase2cl_ep{epoch+1}.pt"
+            torch.save({
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'epoch': epoch + 1,
+                'config': vars(cfg),
+            }, ckpt_path)
+            logger.info(f"Checkpoint saved: {ckpt_path}")
+
+        history['epoch'].append(epoch + 1)
+        history['train_loss'].append(avg_loss)
+        history['jepa_loss'].append(avg_jepa)
+        history['contrastive_loss'].append(avg_cl)
+        history['site_probe_accuracy'].append(site_acc)
+        history['learning_rate'].append(lr)
+        history['n_valid_pairs'].append(avg_pairs)
+
+    # ── Save final ──
+    final_path = save_dir / "model_A_phase2cl_final.pt"
+    torch.save({
+        'model_state_dict': model.state_dict(),
+        'config': vars(cfg),
+        'history': history,
+    }, final_path)
+    logger.info(f"Final model saved: {final_path}")
+
+    # Standardized name for evaluator
+    eval_final_path = save_dir / "model_final.pt"
+    torch.save({
+        'model_state_dict': model.state_dict(),
+        'config': vars(cfg),
+    }, eval_final_path)
+    logger.info(f"Saved evaluation-ready checkpoint: {eval_final_path}")
+
+    hist_path = save_dir / "history_phase2cl.json"
+    with open(hist_path, 'w') as f:
+        json.dump(history, f, indent=2)
+
+    return model, history
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--no_curriculum", action="store_true")
+    args = parser.parse_args()
+
+    cfg = Phase2ContrastiveConfig()
+    
+    if args.no_curriculum:
+        cfg.save_dir = "checkpoints/phase2_contrastive_nocurr"
+        # Since it's no curriculum, phase1 is also no curriculum
+        cfg.phase1_checkpoint = "checkpoints/phase1_nocurr/model_final.pt"
+        print("\n--- WARNING: RUNNING Phase 2 CL WITHOUT CURRICULUM (ALL SUBJECTS) ---\n")
+
+    print("=" * 60)
+    print("Phase 2 + Contrastive: Temporal JEPA on SRPBS 1600 (HC)")
+    print("=" * 60)
+    train_phase2_contrastive(cfg)
