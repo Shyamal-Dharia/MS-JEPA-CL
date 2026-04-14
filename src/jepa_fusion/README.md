@@ -6,6 +6,35 @@ This package is the clean workspace for the next branch:
 - treat JEPA embeddings as complementary temporal features
 - optimize for a defensible fusion result, not a forced "JEPA beats ComBat" claim
 
+## Current Paper Workflow
+
+The active paper plan is now tracked in [`plan.md`](../../plan.md).
+
+That plan follows the exact methods sequence from `plan.docx`:
+
+- baseline tables on `ABIDE-I`, `ABIDE-II`, and `SRPBS` with `Static FC`, `Static FC + ComBat`, `Static FC + CovBat`, and `ROI time series`
+- JEPA architecture sweeps with the same `StandardScaler -> PCA -> LogisticRegression` probe family, selected with `5` seeds
+- curriculum and invariance-loss refinements
+- low-`K` statistical harmonization stress tests
+- cross-dataset zero-shot transfer
+
+Evaluation rule:
+
+- diagnosis comparisons should use `LOSO`
+- site leakage should use a separate grouped subject-level site probe
+- do not treat grouped-CV diagnosis as equivalent to LOSO
+
+For the runnable subset of that plan, use:
+
+- `python -m src.jepa_fusion.run_methods_plan --dry-run`
+- `python -m src.jepa_fusion.run_methods_plan --device cuda --cuda-visible-devices 0 --skip-existing`
+
+Important:
+
+- the older fusion-specific sections below still describe useful branch artifacts
+- they are no longer the only paper roadmap
+- `plan.md` is now the source of truth for stage order
+
 ## Main Claim
 
 Primary paper claim for this branch:
