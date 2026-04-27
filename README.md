@@ -198,6 +198,16 @@ python -m src.jepa_fusion.evaluate_baselines_lowk_newbaseline \
   --k-values 10,20,30,40,50
 ```
 
+Run demographic probes for sex classification and age regression:
+
+```bash
+python -m src.jepa_fusion.evaluate_demographics \
+  --dataset all \
+  --checkpoint checkpoints/jepa_fusion/final_run_v1/<run_name>/phase2_final.pt \
+  --seeds 0,8,16,32,128 \
+  --device cuda
+```
+
 ## Key Modules
 
 | Module | Purpose |
@@ -210,6 +220,7 @@ python -m src.jepa_fusion.evaluate_baselines_lowk_newbaseline \
 | `src/jepa_fusion/evaluate_baselines.py` | Static FC, ComBat/CovBat, and ROI baseline evaluation |
 | `src/jepa_fusion/evaluate_jepa.py` | Grouped-CV JEPA embedding evaluation |
 | `src/jepa_fusion/evaluate_jepa_subject_vote.py` | LOSO subject-vote JEPA evaluation |
+| `src/jepa_fusion/evaluate_demographics.py` | Sex and age prediction from FC variants and JEPA embeddings |
 | `src/jepa_fusion/evaluate_fusion_subject_vote.py` | FC + JEPA subject-vote fusion evaluation |
 | `src/jepa_fusion/build_final_run_tables.py` | Final JSON/Markdown-to-LaTeX table builder |
 | `src/jepa_clean/data.py` | Windowed fMRI dataset helpers and ABIDE site normalization |
