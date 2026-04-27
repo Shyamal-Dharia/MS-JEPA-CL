@@ -15,13 +15,13 @@ DEFAULT_STAGES = [
     "pilot_pooled",
     "pilot_curriculum",
     "groupedcv_confirmation",
+    "transfer_srpbs_to_abide_both",
     "transfer_abide2",
     "transfer_abide1",
 ]
 
 BASELINE_OUTPUTS = {
-    "abide1": "abide1_hc_asd_mixedsites_baseline_table",
-    "abide2": "abide2_hc_asd_mixedsites_baseline_table",
+    "abide": "abide_hc_asd_mixedsites_baseline_table",
     "srpbs": "srpbs_hc_disorder_mixedsites_baseline_table",
 }
 
@@ -123,6 +123,7 @@ def parse_args():
         help="JEPA configuration used for the cross-dataset transfer stages.",
     )
     parser.add_argument("--train-seed", type=int, default=42)
+    parser.add_argument("--pilot-pretrain-seeds", default="0,1,2,3,4")
     parser.add_argument("--eval-seeds", default="0,1,2,3,4")
     parser.add_argument("--groupedcv-pretrain-seeds", default="42,0,1,2,3")
     parser.add_argument("--groupedcv-eval-seeds", default="42")
@@ -155,7 +156,7 @@ def maybe_add_shared_flags(cmd: list[str], args):
 def baseline_stage(args, env: dict[str, str]):
     results_dir = Path(args.results_dir)
     results_dir.mkdir(parents=True, exist_ok=True)
-    for dataset_key in ("abide1", "abide2", "srpbs"):
+    for dataset_key in ("abide", "srpbs"):
         stem = BASELINE_OUTPUTS[dataset_key]
         cmd = [
             sys.executable,
@@ -186,8 +187,8 @@ def pilot_stage(args, env: dict[str, str], *, training_mode: str):
         args.checkpoints_dir,
         "--results-dir",
         args.results_dir,
-        "--train-seed",
-        str(args.train_seed),
+        "--train-seeds",
+        args.pilot_pretrain_seeds,
         "--eval-seeds",
         args.eval_seeds,
     ]
@@ -221,16 +222,17 @@ def groupedcv_confirmation_stage(args, env: dict[str, str]):
     run_command(cmd, env, dry_run=args.dry_run)
 
 
-def transfer_stage(args, env: dict[str, str], *, train_datasets: str, eval_dataset: str):
-    results_dir = Path(args.results_dir)
+def transfer_train(
+    args,
+    env: dict[str, str],
+    *,
+    train_datasets: str,
+    train_run_name: str,
+):
     checkpoints_dir = Path(args.checkpoints_dir)
     profile = TRANSFER_PROFILES[args.transfer_profile]
-    stage_name = f"transfer_{train_datasets.replace(',', '_')}_to_{eval_dataset}_{args.transfer_profile}"
-    save_dir = checkpoints_dir / stage_name
+    save_dir = checkpoints_dir / train_run_name
     checkpoint = save_dir / profile["checkpoint_name"]
-    output_json = results_dir / f"{stage_name}_groupedcv.json"
-    output_md = results_dir / f"{stage_name}_groupedcv.md"
-
     train_cmd = [
         sys.executable,
         "-m",
@@ -254,6 +256,20 @@ def transfer_stage(args, env: dict[str, str], *, train_datasets: str, eval_datas
         print(f"Skipping transfer train: {checkpoint} exists", flush=True)
     else:
         run_command(train_cmd, env, dry_run=args.dry_run)
+    return checkpoint
+
+
+def transfer_eval(
+    args,
+    env: dict[str, str],
+    *,
+    checkpoint: Path,
+    eval_dataset: str,
+    eval_run_name: str,
+):
+    results_dir = Path(args.results_dir)
+    output_json = results_dir / f"{eval_run_name}_groupedcv.json"
+    output_md = results_dir / f"{eval_run_name}_groupedcv.md"
 
     eval_cmd = [
         sys.executable,
@@ -278,6 +294,47 @@ def transfer_stage(args, env: dict[str, str], *, train_datasets: str, eval_datas
         run_command(eval_cmd, env, dry_run=args.dry_run)
 
 
+def transfer_stage(args, env: dict[str, str], *, train_datasets: str, eval_dataset: str):
+    stage_name = f"transfer_{train_datasets.replace(',', '_')}_to_{eval_dataset}_{args.transfer_profile}"
+    checkpoint = transfer_train(
+        args,
+        env,
+        train_datasets=train_datasets,
+        train_run_name=stage_name,
+    )
+    transfer_eval(
+        args,
+        env,
+        checkpoint=checkpoint,
+        eval_dataset=eval_dataset,
+        eval_run_name=stage_name,
+    )
+
+
+def transfer_srpbs_to_abide_both_stage(args, env: dict[str, str]):
+    train_run_name = f"transfer_srpbs_to_abide_both_{args.transfer_profile}"
+    checkpoint = transfer_train(
+        args,
+        env,
+        train_datasets="srpbs",
+        train_run_name=train_run_name,
+    )
+    transfer_eval(
+        args,
+        env,
+        checkpoint=checkpoint,
+        eval_dataset="abide1",
+        eval_run_name=f"transfer_srpbs_to_abide1_{args.transfer_profile}",
+    )
+    transfer_eval(
+        args,
+        env,
+        checkpoint=checkpoint,
+        eval_dataset="abide2",
+        eval_run_name=f"transfer_srpbs_to_abide2_{args.transfer_profile}",
+    )
+
+
 def main():
     args = parse_args()
     env = os.environ.copy()
@@ -293,6 +350,8 @@ def main():
             pilot_stage(args, env, training_mode="curriculum")
         elif stage == "groupedcv_confirmation":
             groupedcv_confirmation_stage(args, env)
+        elif stage == "transfer_srpbs_to_abide_both":
+            transfer_srpbs_to_abide_both_stage(args, env)
         elif stage == "transfer_abide2":
             transfer_stage(args, env, train_datasets="srpbs,abide1", eval_dataset="abide2")
         elif stage == "transfer_abide1":

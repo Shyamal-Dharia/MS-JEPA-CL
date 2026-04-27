@@ -21,7 +21,10 @@ try:
     from .protocol import (
         AUTISM_LABEL,
         HEALTHY_CONTROL_LABEL,
+        batch_site_label,
+        center_site_label,
         class_counts,
+        dataset_order_for_choice,
         filter_records_for_task,
         get_dataset_preset,
     )
@@ -33,7 +36,10 @@ except ImportError:
     from src.jepa_fusion.protocol import (
         AUTISM_LABEL,
         HEALTHY_CONTROL_LABEL,
+        batch_site_label,
+        center_site_label,
         class_counts,
+        dataset_order_for_choice,
         filter_records_for_task,
         get_dataset_preset,
     )
@@ -57,9 +63,10 @@ class EvalRecord:
 def parse_args():
     parser = argparse.ArgumentParser(description="Evaluate jepa_fusion checkpoints with grouped CV.")
     parser.add_argument("--checkpoint", required=True)
-    parser.add_argument("--dataset", choices=["abide1", "abide2", "srpbs", "all"], default="all")
+    parser.add_argument("--dataset", choices=["abide", "abide1", "abide2", "srpbs", "all"], default="all")
     parser.add_argument("--task", choices=["default", "hc_asd", "hc_disorder"], default="default")
     parser.add_argument("--all-sites", action="store_true")
+    parser.add_argument("--exclude-sites", default=None, help="Comma-separated center site labels to exclude from eval")
     parser.add_argument("--window-feature", choices=["mean", "mean_std", "mean_cov"], default="mean")
     parser.add_argument("--covariance-dim", type=int, default=32)
     parser.add_argument("--covariance-seed", type=int, default=0)
@@ -331,6 +338,7 @@ def evaluate_dataset(
     covariance_seed: int,
     healthy_control_label: str,
     autism_label: str,
+    exclude_sites: set[str] | None = None,
 ):
     preset = get_dataset_preset(dataset_key)
     task_key = preset.default_task if task_arg == "default" else task_arg
@@ -359,7 +367,7 @@ def evaluate_dataset(
         EvalRecord(
             index=idx,
             subject=str(meta["subject_id"]),
-            site=str(meta["site"]),
+            site=center_site_label(str(meta.get("site_raw", meta["site"]))),
             diagnosis=str(meta["diag_name"]),
         )
         for idx, meta in enumerate(metadata)
@@ -371,14 +379,38 @@ def evaluate_dataset(
         healthy_control_label=healthy_control_label,
         autism_label=autism_label,
     )
-    keep_indices = np.asarray([record.index for record in task_result.records], dtype=np.int64)
+    # Optionally exclude sites (for transfer experiments)
+    if exclude_sites:
+        keep_mask = [record.site not in exclude_sites for record in task_result.records]
+        task_result_records = [r for r, k in zip(task_result.records, keep_mask) if k]
+        task_result_y = task_result.y[keep_mask]
+        n_excluded = sum(1 for k in keep_mask if not k)
+        if n_excluded > 0:
+            print(f"  Excluded {n_excluded} records from sites: {sorted(exclude_sites)}")
+    else:
+        task_result_records = list(task_result.records)
+        task_result_y = task_result.y
+
+    keep_indices = np.asarray([record.index for record in task_result_records], dtype=np.int64)
     task_embeddings = embeddings[keep_indices]
-    task_y = task_result.y
-    subjects = np.asarray([task_result.records[idx].subject for idx in range(len(task_result.records))], dtype=object)
-    sites = np.asarray([task_result.records[idx].site for idx in range(len(task_result.records))], dtype=object)
+    task_y = task_result_y
+    subjects = np.asarray([task_result_records[idx].subject for idx in range(len(task_result_records))], dtype=object)
+    batch_sites = np.asarray(
+        [
+            batch_site_label(
+                str(metadata[idx].get("site_raw", metadata[idx]["site"])),
+                source_dataset=str(metadata[idx].get("dataset", "")),
+            )
+            for idx in keep_indices.tolist()
+        ],
+        dtype=object,
+    )
+
+    # Track exclusion metadata
+    n_excluded_sites = len(exclude_sites) if exclude_sites else 0
 
     site_encoder = LabelEncoder()
-    y_site = site_encoder.fit_transform(sites)
+    y_site = site_encoder.fit_transform(batch_sites)
     site_class_names = [str(name) for name in site_encoder.classes_.tolist()]
 
     site_runs = []
@@ -428,6 +460,7 @@ def evaluate_dataset(
             "n_sites": int(len(site_class_names)),
             "site_classes": list(site_class_names),
             "diagnosis_class_counts": class_counts(task_y, task_result.class_names),
+            "excluded_sites": sorted(exclude_sites) if exclude_sites else [],
         },
         "runs": {
             "site": site_runs,
@@ -448,7 +481,7 @@ def main():
     device = args.device or cfg.get("device") or ("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
 
-    dataset_order = ["abide1", "abide2", "srpbs"] if args.dataset == "all" else [args.dataset]
+    dataset_order = dataset_order_for_choice(args.dataset)
     payload = {
         "checkpoint": {
             "path": str(Path(args.checkpoint)),
@@ -476,6 +509,7 @@ def main():
             covariance_seed=args.covariance_seed,
             healthy_control_label=args.healthy_control_label,
             autism_label=args.autism_label,
+            exclude_sites=set(args.exclude_sites.split(",")) if args.exclude_sites else None,
         )
 
     output_json, output_md = default_output_paths(args.checkpoint)

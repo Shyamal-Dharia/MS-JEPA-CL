@@ -1,19 +1,24 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Complete parallel rsync: all 1627 subjects (sub-0001 to sub-2062)
 # One Duo auth, 5 parallel streams
 
-SRC="shyamal@fir.alliancecan.ca:/scratch/shyamal/final_files/fmriprep_1600/"
-DST="/data/s.dharia-ra/multi-site-problem/preprocessed_data_fir/fmriprep_1600/"
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SRC="${SRC:-shyamal@fir.alliancecan.ca:/scratch/shyamal/final_files/fmriprep_1600/}"
+DST="${DST:-$ROOT/preprocessed_data_fir/fmriprep_1600/}"
 MUX="/tmp/sshmux_fir"
 SSH="ssh -S $MUX -T -o Compression=no -x"
 
-pkill -f "rsync.*fmriprep_1600" 2>/dev/null
+pkill -f "rsync.*fmriprep_1600" 2>/dev/null || true
 rm -f "$MUX"
 sleep 2
 
 echo "=== Authenticate ONCE (password + Duo) ==="
-ssh -fNM -S "$MUX" -T -o Compression=no -o ControlPersist=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3 shyamal@fir.alliancecan.ca
-if [ $? -ne 0 ]; then echo "SSH failed!"; exit 1; fi
+if ! ssh -fNM -S "$MUX" -T -o Compression=no -o ControlPersist=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3 shyamal@fir.alliancecan.ca; then
+    echo "SSH failed!"
+    exit 1
+fi
 echo "=== SSH ready ==="
 mkdir -p "$DST"
 

@@ -216,3 +216,16 @@ Pilot ranking example:
 One-shot pilot launcher:
 
 - `python -m src.jepa_fusion.run_pilot --cuda-visible-devices 0 --device cuda`
+- final-paper multiseed pooled sweep:
+  - `python -m src.jepa_fusion.run_pilot --training-mode pooled --train-seeds 0,1,2,3,4 --eval-seeds 0,1,2,3,4 --cuda-visible-devices 0 --device cuda`
+- final-paper multiseed curriculum sweep:
+  - `python -m src.jepa_fusion.run_pilot --training-mode curriculum --train-seeds 0,1,2,3,4 --eval-seeds 0,1,2,3,4 --cuda-visible-devices 0 --device cuda`
+
+For the final paper, `run_pilot` should be treated as a `5 x 5` protocol:
+
+- `5` JEPA pretraining seeds per candidate
+- `5` downstream probe seeds per checkpoint
+- grouped subject-level site probe for leakage
+- LOSO subject-vote diagnosis for the main task
+
+The generated `pilot_selection*.md/json` files now aggregate across the JEPA pretraining seeds for each candidate.
