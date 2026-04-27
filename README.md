@@ -213,7 +213,3 @@ python -m src.jepa_fusion.evaluate_baselines_lowk_newbaseline \
 | `src/jepa_fusion/evaluate_fusion_subject_vote.py` | FC + JEPA subject-vote fusion evaluation |
 | `src/jepa_fusion/build_final_run_tables.py` | Final JSON/Markdown-to-LaTeX table builder |
 | `src/jepa_clean/data.py` | Windowed fMRI dataset helpers and ABIDE site normalization |
-
-## License
-
-See [license.txt](license.txt).
