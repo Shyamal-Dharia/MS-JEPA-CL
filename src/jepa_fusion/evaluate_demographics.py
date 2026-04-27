@@ -26,8 +26,6 @@ from sklearn.preprocessing import StandardScaler
 try:
     from .dataset_utils import matched_records_for_preset
     from .evaluate_baselines import (
-        CovBatTransformer,
-        CombatTransformer,
         mean_std,
         transductive_transform_features,
     )
@@ -42,8 +40,6 @@ except ImportError:
         sys.path.insert(0, str(repo_root))
     from src.jepa_fusion.dataset_utils import matched_records_for_preset
     from src.jepa_fusion.evaluate_baselines import (
-        CovBatTransformer,
-        CombatTransformer,
         mean_std,
         transductive_transform_features,
     )
@@ -81,6 +77,12 @@ def parse_args():
     parser.add_argument("--device", default=None)
     parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--window-feature", choices=["mean", "mean_std", "mean_cov"], default="mean")
+    parser.add_argument(
+        "--jepa-sampling",
+        choices=["center", "sliding"],
+        default="sliding",
+        help="JEPA window extraction. Default averages embeddings across all sliding windows per subject.",
+    )
     parser.add_argument("--covariance-dim", type=int, default=32)
     parser.add_argument("--covariance-seed", type=int, default=0)
     parser.add_argument("--pca-components", type=int, default=50)
@@ -90,6 +92,11 @@ def parse_args():
     parser.add_argument("--covbat-n-pc", type=int, default=50)
     parser.add_argument("--covbat-pct-var", type=float, default=0.95)
     parser.add_argument("--covbat-max-components", type=int, default=256)
+    parser.add_argument(
+        "--scan-level",
+        action="store_true",
+        help="Evaluate scan/window rows directly instead of averaging features to one row per subject.",
+    )
     parser.add_argument("--output-json", default=None)
     parser.add_argument("--output-md", default=None)
     return parser.parse_args()
@@ -163,6 +170,37 @@ def get_subject_groups(records):
     return np.asarray([str(getattr(record, "subject_id", getattr(record, "subject", ""))) for record in records], dtype=object)
 
 
+def copy_record_with_count(record, n_items: int):
+    class Record:
+        pass
+
+    copied = Record()
+    for key, value in vars(record).items():
+        setattr(copied, key, value)
+    copied.n_items = int(n_items)
+    return copied
+
+
+def aggregate_features_by_subject(features: np.ndarray, records: list):
+    grouped = {}
+    order = []
+    for idx, record in enumerate(records):
+        subject_id = str(getattr(record, "subject_id", getattr(record, "subject", idx)))
+        if subject_id not in grouped:
+            grouped[subject_id] = {"indices": [], "record": record}
+            order.append(subject_id)
+        grouped[subject_id]["indices"].append(idx)
+
+    aggregated_features = []
+    aggregated_records = []
+    for subject_id in order:
+        indices = np.asarray(grouped[subject_id]["indices"], dtype=np.int64)
+        aggregated_features.append(features[indices].mean(axis=0))
+        aggregated_records.append(copy_record_with_count(grouped[subject_id]["record"], len(indices)))
+
+    return np.stack(aggregated_features, axis=0), aggregated_records
+
+
 def _make_classifier(feature_dim: int, train_count: int, seed: int, pca_components: int):
     n_components = min(int(pca_components), feature_dim, max(1, train_count - 1))
     return make_pipeline(
@@ -198,7 +236,16 @@ def safe_roc_auc(y_true: np.ndarray, scores: np.ndarray):
     return float(roc_auc_score(y_true, scores))
 
 
-def run_sex_cv(features: np.ndarray, y: np.ndarray, groups: np.ndarray, *, seed: int, folds: int, pca_components: int):
+def run_sex_cv(
+    features: np.ndarray,
+    y: np.ndarray,
+    groups: np.ndarray,
+    records: list,
+    *,
+    seed: int,
+    folds: int,
+    pca_components: int,
+):
     effective_folds = effective_stratified_group_folds(y, groups, folds)
     if effective_folds < 2:
         raise RuntimeError(f"Need at least 2 effective folds for sex prediction, got {effective_folds}.")
@@ -206,6 +253,7 @@ def run_sex_cv(features: np.ndarray, y: np.ndarray, groups: np.ndarray, *, seed:
     cv = StratifiedGroupKFold(n_splits=effective_folds, shuffle=True, random_state=seed)
     preds = np.full(len(y), -1, dtype=np.int64)
     scores = np.full(len(y), np.nan, dtype=np.float64)
+    fold_ids = np.full(len(y), -1, dtype=np.int64)
     fold_rows = []
     indices = np.arange(len(y), dtype=np.int64)
 
@@ -214,6 +262,7 @@ def run_sex_cv(features: np.ndarray, y: np.ndarray, groups: np.ndarray, *, seed:
         clf.fit(features[train_idx], y[train_idx])
         fold_pred = clf.predict(features[test_idx])
         preds[test_idx] = fold_pred
+        fold_ids[test_idx] = fold_idx
         probabilities = clf.predict_proba(features[test_idx])
         classes = clf.named_steps["logisticregression"].classes_
         if 1 in classes:
@@ -233,6 +282,22 @@ def run_sex_cv(features: np.ndarray, y: np.ndarray, groups: np.ndarray, *, seed:
             }
         )
 
+    prediction_rows = []
+    for idx, record in enumerate(records):
+        prediction_rows.append(
+            {
+                "subject_id": str(getattr(record, "subject_id", getattr(record, "subject", ""))),
+                "subject": str(getattr(record, "subject", "")),
+                "site": str(getattr(record, "site", "")),
+                "site_batch": str(getattr(record, "site_batch", "")),
+                "n_aggregated_items": int(getattr(record, "n_items", 1)),
+                "fold": int(fold_ids[idx]),
+                "y_true": SEX_CLASS_NAMES[int(y[idx])],
+                "y_pred": SEX_CLASS_NAMES[int(preds[idx])],
+                "female_probability": float(scores[idx]),
+            }
+        )
+
     return {
         "accuracy": float(accuracy_score(y, preds)),
         "balanced_accuracy": float(balanced_accuracy_score(y, preds)),
@@ -240,6 +305,7 @@ def run_sex_cv(features: np.ndarray, y: np.ndarray, groups: np.ndarray, *, seed:
         "f1": float(f1_score(y, preds, zero_division=0)),
         "folds": int(effective_folds),
         "fold_rows": fold_rows,
+        "predictions": prediction_rows,
         "n_samples": int(len(y)),
         "classes": list(SEX_CLASS_NAMES),
     }
@@ -257,6 +323,7 @@ def run_age_cv(
     features: np.ndarray,
     y: np.ndarray,
     groups: np.ndarray,
+    records: list,
     *,
     seed: int,
     folds: int,
@@ -269,6 +336,7 @@ def run_age_cv(
 
     cv = GroupKFold(n_splits=effective_folds)
     preds = np.full(len(y), np.nan, dtype=np.float64)
+    fold_ids = np.full(len(y), -1, dtype=np.int64)
     fold_rows = []
     indices = np.arange(len(y), dtype=np.int64)
 
@@ -277,6 +345,7 @@ def run_age_cv(
         reg.fit(features[train_idx], y[train_idx])
         fold_pred = reg.predict(features[test_idx])
         preds[test_idx] = fold_pred
+        fold_ids[test_idx] = fold_idx
         fold_metrics = compute_age_metrics(y[test_idx], fold_pred)
         fold_metrics.update(
             {
@@ -287,11 +356,28 @@ def run_age_cv(
         )
         fold_rows.append(fold_metrics)
 
+    prediction_rows = []
+    for idx, record in enumerate(records):
+        prediction_rows.append(
+            {
+                "subject_id": str(getattr(record, "subject_id", getattr(record, "subject", ""))),
+                "subject": str(getattr(record, "subject", "")),
+                "site": str(getattr(record, "site", "")),
+                "site_batch": str(getattr(record, "site_batch", "")),
+                "n_aggregated_items": int(getattr(record, "n_items", 1)),
+                "fold": int(fold_ids[idx]),
+                "y_true": float(y[idx]),
+                "y_pred": float(preds[idx]),
+                "absolute_error": float(abs(y[idx] - preds[idx])),
+            }
+        )
+
     metrics = compute_age_metrics(y, preds)
     metrics.update(
         {
             "folds": int(effective_folds),
             "fold_rows": fold_rows,
+            "predictions": prediction_rows,
             "n_samples": int(len(y)),
         }
     )
@@ -336,6 +422,8 @@ def records_from_jepa_metadata(metadata: list[dict]):
         record.source_dataset = str(meta.get("dataset", ""))
         record.sex = meta.get("sex")
         record.age = meta.get("age")
+        record.window_index = meta.get("window_index")
+        record.n_windows = meta.get("n_windows")
         records.append(record)
     return records
 
@@ -377,7 +465,7 @@ def build_jepa_features(model, cfg, preset, args, device):
         window_seconds=float(cfg.get("window_seconds", 90.0)),
         stride_seconds=float(cfg.get("window_stride_seconds", 30.0)),
         target_timepoints=int(cfg.get("target_timepoints", 45)),
-        sampling="center",
+        sampling=args.jepa_sampling,
         max_scans=args.max_scans,
         exclude_unknown_diagnoses=False,
     )
@@ -394,6 +482,9 @@ def build_jepa_features(model, cfg, preset, args, device):
 
 
 def evaluate_method(features: np.ndarray, records: list, seeds: list[int], args):
+    if not args.scan_level:
+        features, records = aggregate_features_by_subject(features, records)
+
     sex_features, sex_y, sex_records = filter_sex(records, features)
     sex_groups = get_subject_groups(sex_records)
     age_features, age_y, age_records = filter_age(records, features)
@@ -404,6 +495,7 @@ def evaluate_method(features: np.ndarray, records: list, seeds: list[int], args)
             sex_features,
             sex_y,
             sex_groups,
+            sex_records,
             seed=seed,
             folds=args.folds,
             pca_components=args.pca_components,
@@ -415,6 +507,7 @@ def evaluate_method(features: np.ndarray, records: list, seeds: list[int], args)
             age_features,
             age_y,
             age_groups,
+            age_records,
             seed=seed,
             folds=args.folds,
             pca_components=args.pca_components,
@@ -434,6 +527,7 @@ def evaluate_method(features: np.ndarray, records: list, seeds: list[int], args)
         "meta": {
             "n_records": int(len(records)),
             "n_subjects": int(len(set(get_subject_groups(records).tolist()))),
+            "subject_level": not bool(args.scan_level),
             "n_sex_labeled": int(len(sex_records)),
             "n_age_labeled": int(len(age_records)),
         },
@@ -455,6 +549,7 @@ def build_markdown(payload: dict):
         (
             "Sex prediction uses subject-grouped stratified CV. "
             "Age prediction uses subject-grouped CV. "
+            "By default, features are averaged to one row per subject; JEPA uses mean pooled sliding-window embeddings. "
             "ComBat/CovBat are applied to static FC using site labels only before the probes."
         ),
         "",
@@ -512,6 +607,7 @@ def main():
             "seeds": list(seeds),
             "pca_components": int(args.pca_components),
             "ridge_alpha": float(args.ridge_alpha),
+            "feature_level": "scan_or_window" if args.scan_level else "subject_mean",
             "harmonization": {
                 "mode": "transductive_site_only",
                 "covariates": [],
@@ -522,6 +618,8 @@ def main():
             "jepa": {
                 "device": device,
                 "window_feature": args.window_feature,
+                "sampling": args.jepa_sampling,
+                "aggregation": "scan_or_window" if args.scan_level else "subject_mean",
                 "covariance_dim": int(args.covariance_dim),
                 "covariance_seed": int(args.covariance_seed),
                 "batch_size": int(args.batch_size),

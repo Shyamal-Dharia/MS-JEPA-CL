@@ -198,7 +198,7 @@ python -m src.jepa_fusion.evaluate_baselines_lowk_newbaseline \
   --k-values 10,20,30,40,50
 ```
 
-Run demographic probes for sex classification and age regression:
+Run subject-level demographic probes for sex classification and age regression. JEPA uses sliding windows by default and averages window embeddings to one subject embedding:
 
 ```bash
 python -m src.jepa_fusion.evaluate_demographics \
