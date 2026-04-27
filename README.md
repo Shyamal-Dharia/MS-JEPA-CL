@@ -214,20 +214,6 @@ python -m src.jepa_fusion.evaluate_baselines_lowk_newbaseline \
 | `src/jepa_fusion/build_final_run_tables.py` | Final JSON/Markdown-to-LaTeX table builder |
 | `src/jepa_clean/data.py` | Windowed fMRI dataset helpers and ABIDE site normalization |
 
-## Git Hygiene
-
-Git tracks source code, scripts, and stable documentation. It does not track:
-
-- raw or preprocessed datasets
-- model checkpoints
-- generated logs
-- generated result tables and figures
-- cached embeddings or arrays
-- local notebooks and scratch files
-
-Use `git status -sb` before committing to confirm that only intended code or
-documentation changes are staged.
-
 ## License
 
 See [license.txt](license.txt).
