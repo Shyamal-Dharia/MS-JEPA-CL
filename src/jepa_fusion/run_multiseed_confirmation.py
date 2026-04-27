@@ -1,133 +1,202 @@
-"""Multi-seed confirmation runner for selected JEPA profiles.
-
-Trains N seeds for each profile and runs both subject-vote and fusion evaluation.
-"""
+from __future__ import annotations
 
 import argparse
-import logging
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 
-CONFIRMATION_PROFILES = {
+ROOT = Path(__file__).resolve().parents[2]
+
+
+PROFILES = {
     "basic_pooled": {
-        "model_family": "temporal",
-        "temporal_variant": "basic",
-        "training_mode": "pooled",
-        "extra_args": [],
+        "save_prefix": "confirm_basic_pooled",
+        "train_args": [
+            "--model-family",
+            "temporal",
+            "--temporal-variant",
+            "basic",
+            "--training-mode",
+            "pooled",
+            "--no-conv-stem",
+            "--no-network-embeddings",
+        ],
+        "checkpoint_name": "pooled_final.pt",
     },
     "rotary_curr_align": {
-        "model_family": "temporal",
-        "temporal_variant": "rotary_conv_net",
-        "training_mode": "curriculum",
-        "extra_args": [
-            "--global-loss-weight", "1.0",
-            "--replay-alignment-weight", "0.1",
+        "save_prefix": "confirm_rotary_curr_align",
+        "train_args": [
+            "--model-family",
+            "temporal",
+            "--temporal-variant",
+            "rotary_conv_net",
+            "--training-mode",
+            "curriculum",
+            "--use-conv-stem",
+            "--use-network-embeddings",
+            "--replay-alignment-weight",
+            "0.1",
             "--replay-pair-sampling",
         ],
+        "checkpoint_name": "phase2_final.pt",
     },
 }
 
 
-def setup_logging():
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", force=True)
-
-
-def run_confirmation_seed(
-    profile_name: str,
-    profile: dict,
-    seed: int,
-    base_dir: str,
-    device: str,
-    dry_run: bool = False,
-):
-    logger = logging.getLogger("Confirm")
-    name = f"confirm_{profile_name}_seed{seed}"
-    save_dir = f"{base_dir}/{name}"
-    log_file = f"{save_dir}/train.log"
-
-    # Training
-    train_cmd = [
-        sys.executable, "-m", "src.jepa_fusion.train_jepa",
-        "--model-family", profile["model_family"],
-        "--temporal-variant", profile["temporal_variant"],
-        "--training-mode", profile["training_mode"],
-        "--device", device,
-        "--save-dir", save_dir,
-        "--log-file", log_file,
-        "--seed", str(seed),
-    ] + profile.get("extra_args", [])
-
-    logger.info("Training %s", name)
-    logger.info("Command: %s", " ".join(train_cmd))
-
-    if dry_run:
-        logger.info("[DRY RUN] Skipping training")
-    else:
-        subprocess.run(train_cmd, check=True)
-
-    # Identify checkpoint
-    if profile["training_mode"] == "curriculum":
-        ckpt = f"{save_dir}/phase2_final.pt"
-    else:
-        ckpt = f"{save_dir}/pooled_final.pt"
-
-    if not Path(ckpt).exists() and not dry_run:
-        logger.warning("Checkpoint not found: %s", ckpt)
-        return
-
-    # Subject-vote evaluation
-    sv_cmd = [
-        sys.executable, "-m", "src.jepa_fusion.evaluate_jepa_subject_vote",
-        "--checkpoint", ckpt,
-        "--device", device,
-    ]
-    logger.info("Subject-vote eval: %s", name)
-    if not dry_run:
-        subprocess.run(sv_cmd, check=True)
-
-    # Fusion evaluation
-    fusion_cmd = [
-        sys.executable, "-m", "src.jepa_fusion.evaluate_fusion_subject_vote",
-        "--checkpoint", ckpt,
-        "--device", device,
-    ]
-    logger.info("Fusion eval: %s", name)
-    if not dry_run:
-        subprocess.run(fusion_cmd, check=True)
-
-
 def parse_args():
-    p = argparse.ArgumentParser(description="Multi-seed JEPA confirmation")
-    p.add_argument("--profiles", nargs="+", default=None, choices=sorted(CONFIRMATION_PROFILES))
-    p.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
-    p.add_argument("--base-dir", default="checkpoints/jepa_fusion")
-    p.add_argument("--device", default="cuda")
-    p.add_argument("--dry-run", action="store_true")
-    return p.parse_args()
+    parser = argparse.ArgumentParser(
+        description=(
+            "Train and evaluate multiple JEPA pretraining seeds for the confirmation "
+            "sweep used in the jepa_fusion paper tables."
+        )
+    )
+    parser.add_argument(
+        "--profile",
+        nargs="+",
+        choices=sorted(PROFILES),
+        default=["rotary_curr_align", "basic_pooled"],
+        help="Which saved JEPA configurations to rerun.",
+    )
+    parser.add_argument(
+        "--seeds",
+        default="0,1,2",
+        help="Comma-separated JEPA pretraining seeds to run.",
+    )
+    parser.add_argument(
+        "--probe-seeds",
+        default="0,1,2,3,4",
+        help="Comma-separated downstream probe seeds for subject-vote and fusion evaluation.",
+    )
+    parser.add_argument(
+        "--dataset",
+        choices=["abide", "abide1", "abide2", "srpbs", "all"],
+        default="all",
+    )
+    parser.add_argument(
+        "--device",
+        default="cuda",
+    )
+    parser.add_argument(
+        "--cuda-visible-devices",
+        default=None,
+        help="Optional CUDA_VISIBLE_DEVICES value for the launched subprocesses.",
+    )
+    parser.add_argument(
+        "--skip-existing",
+        action="store_true",
+        help="Skip train/eval steps whose output files already exist.",
+    )
+    return parser.parse_args()
+
+
+def run_command(cmd: list[str], env: dict[str, str]):
+    print("$", " ".join(cmd), flush=True)
+    subprocess.run(cmd, cwd=ROOT, env=env, check=True)
 
 
 def main():
     args = parse_args()
-    setup_logging()
-    logger = logging.getLogger("Confirm")
+    pretrain_seeds = [int(seed.strip()) for seed in args.seeds.split(",") if seed.strip()]
+    env = os.environ.copy()
+    if args.cuda_visible_devices is not None:
+        env["CUDA_VISIBLE_DEVICES"] = args.cuda_visible_devices
 
-    profiles = args.profiles or sorted(CONFIRMATION_PROFILES)
-    seeds = args.seeds
+    for profile_name in args.profile:
+        profile = PROFILES[profile_name]
+        for seed in pretrain_seeds:
+            run_name = f"{profile['save_prefix']}_seed{seed}"
+            save_dir = ROOT / "checkpoints" / "jepa_fusion" / run_name
+            log_file = save_dir / "train.log"
+            checkpoint = save_dir / profile["checkpoint_name"]
+            subject_vote_json = (
+                ROOT
+                / "results"
+                / "reports"
+                / "tables"
+                / "jepa_fusion"
+                / f"{run_name}_subject_vote.json"
+            )
+            subject_vote_md = subject_vote_json.with_suffix(".md")
+            fusion_json = (
+                ROOT
+                / "results"
+                / "reports"
+                / "tables"
+                / "jepa_fusion"
+                / f"{run_name}_fusion_subject_vote.json"
+            )
+            fusion_md = fusion_json.with_suffix(".md")
 
-    logger.info("Running %d profiles x %d seeds", len(profiles), len(seeds))
-    for profile_name in profiles:
-        profile = CONFIRMATION_PROFILES[profile_name]
-        for seed in seeds:
-            try:
-                run_confirmation_seed(
-                    profile_name, profile, seed=seed,
-                    base_dir=args.base_dir, device=args.device,
-                    dry_run=args.dry_run,
+            if not (args.skip_existing and checkpoint.exists()):
+                run_command(
+                    [
+                        sys.executable,
+                        "-m",
+                        "src.jepa_fusion.train_jepa",
+                        *profile["train_args"],
+                        "--device",
+                        args.device,
+                        "--seed",
+                        str(seed),
+                        "--save-dir",
+                        str(save_dir),
+                        "--log-file",
+                        str(log_file),
+                    ],
+                    env=env,
                 )
-            except subprocess.CalledProcessError as e:
-                logger.error("Failed %s seed=%d: %s", profile_name, seed, e)
+            else:
+                print(f"Skipping train for {run_name}: {checkpoint} exists", flush=True)
+
+            if not (args.skip_existing and subject_vote_json.exists()):
+                run_command(
+                    [
+                        sys.executable,
+                        "-m",
+                        "src.jepa_fusion.evaluate_jepa_subject_vote",
+                        "--checkpoint",
+                        str(checkpoint),
+                        "--dataset",
+                        args.dataset,
+                        "--device",
+                        args.device,
+                        "--seeds",
+                        args.probe_seeds,
+                        "--output-json",
+                        str(subject_vote_json),
+                        "--output-md",
+                        str(subject_vote_md),
+                    ],
+                    env=env,
+                )
+            else:
+                print(f"Skipping subject-vote eval for {run_name}: {subject_vote_json} exists", flush=True)
+
+            if not (args.skip_existing and fusion_json.exists()):
+                run_command(
+                    [
+                        sys.executable,
+                        "-m",
+                        "src.jepa_fusion.evaluate_fusion_subject_vote",
+                        "--checkpoint",
+                        str(checkpoint),
+                        "--dataset",
+                        args.dataset,
+                        "--device",
+                        args.device,
+                        "--seeds",
+                        args.probe_seeds,
+                        "--output-json",
+                        str(fusion_json),
+                        "--output-md",
+                        str(fusion_md),
+                    ],
+                    env=env,
+                )
+            else:
+                print(f"Skipping fusion eval for {run_name}: {fusion_json} exists", flush=True)
 
 
 if __name__ == "__main__":

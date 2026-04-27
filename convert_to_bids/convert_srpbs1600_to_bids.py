@@ -39,10 +39,11 @@ from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # ============================================================================
-# PATHS -- edit if needed
+# PATHS -- override with CLI arguments if needed
 # ============================================================================
-RAW_ROOT = Path("/data/s.dharia-ra/multi-site-problem/raw_data/SRPBS_1600/SRPBS_1600")
-BIDS_ROOT = Path("/data/s.dharia-ra/multi-site-problem/raw_data/SRPBS_1600_BIDS")
+REPO_ROOT = Path(__file__).resolve().parents[1]
+RAW_ROOT = REPO_ROOT / "raw_data" / "SRPBS_1600" / "SRPBS_1600"
+BIDS_ROOT = REPO_ROOT / "raw_data" / "SRPBS_1600_BIDS"
 
 # ============================================================================
 # MRI PROTOCOL PARAMETERS (from MRI_protocols_rsMRI.tsv & MRI_protocols_T1w.tsv)

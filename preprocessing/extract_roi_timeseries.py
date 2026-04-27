@@ -11,14 +11,16 @@ Pipeline per subject/session:
   2. Resolve TR (header -> JSON -> participants.tsv protocol)
   3. Confound regression: 6 motion + WM + CSF
   4. Bandpass filter: 0.01-0.1 Hz
-  5. Trim 7 start + 7 end volumes, truncate to 93 timepoints
-  6. Extract mean signal per Schaefer 400 ROI (7-network)
-  7. Z-score each ROI
-  8. Save .npy (93, 400) + metadata JSON
+  5. Trim 7 start + 7 end volumes
+  6. Keep full post-trim signal for SRPBS-1600
+  7. Keep full post-trim signal for traveling subjects
+  8. Extract mean signal per Schaefer 400 ROI (7-network)
+  9. Z-score each ROI
+ 10. Save .npy + metadata JSON
 
 Outputs:
-  preprocessed_data_fir/roi_timeseries_1600/
-  preprocessed_data_fir/roi_timeseries_traveling/
+  preprocessed_data_fir/roi_timeseries_1600_full/
+  preprocessed_data_fir/roi_timeseries_traveling_full/
   preprocessed_data_fir/subject_metadata.csv
 """
 
@@ -39,9 +41,9 @@ from nilearn.maskers import NiftiLabelsMasker
 # ======================== Config ========================
 TRIM_START = 7
 TRIM_END = 7
-TARGET_VOLS = 93
 N_ROIS = 400
 NETWORKS = 7
+DEFAULT_BASE_DIR = Path(__file__).resolve().parents[1]
 CONFOUNDS = [
     "trans_x", "trans_y", "trans_z",
     "rot_x", "rot_y", "rot_z",
@@ -182,17 +184,26 @@ def resolve_tr(bold_path, sub_id, participants_1600):
     return 0.0, "unknown"
 
 
-def extract_roi_ts(bold_path, confounds_tsv, tr, atlas_maps):
-    """Core extraction: confound regression, bandpass, parcellation, z-score, trim, truncate."""
+def extract_roi_ts(bold_path, confounds_tsv, tr, atlas_maps, target_vols=None):
+    """
+    Core extraction: confound regression, bandpass, parcellation, z-score, trim.
+
+    Parameters
+    ----------
+    target_vols : int | None
+        If set, truncate to this many timepoints after trimming.
+        If None, keep the full post-trim signal.
+    """
     img = nib.load(bold_path)
     n_vols = img.shape[3]
 
-    min_needed = TRIM_START + TRIM_END + TARGET_VOLS
+    min_keep = 1 if target_vols is None else target_vols
+    min_needed = TRIM_START + TRIM_END + min_keep
     if n_vols < min_needed:
-        return None, n_vols, f"too_short_{n_vols}"
+        return None, n_vols, 0, f"too_short_{n_vols}"
 
     if not confounds_tsv.exists():
-        return None, n_vols, "no_confounds"
+        return None, n_vols, 0, "no_confounds"
 
     df = pd.read_csv(confounds_tsv, sep="\t")
     available = [c for c in CONFOUNDS if c in df.columns]
@@ -203,10 +214,19 @@ def extract_roi_ts(bold_path, confounds_tsv, tr, atlas_maps):
     end_idx = n_vols - TRIM_END
     bold_trimmed = img.slicer[..., TRIM_START:end_idx]
     conf_trimmed = conf.iloc[TRIM_START:end_idx].reset_index(drop=True)
+    n_post_trim = end_idx - TRIM_START
 
-    # Truncate to TARGET_VOLS
-    bold_trimmed = bold_trimmed.slicer[..., :TARGET_VOLS]
-    conf_trimmed = conf_trimmed.iloc[:TARGET_VOLS].reset_index(drop=True)
+    if n_post_trim <= 0:
+        return None, n_vols, 0, f"too_short_after_trim_{n_post_trim}"
+
+    if target_vols is not None:
+        bold_proc = bold_trimmed.slicer[..., :target_vols]
+        conf_proc = conf_trimmed.iloc[:target_vols].reset_index(drop=True)
+        expected_timepoints = target_vols
+    else:
+        bold_proc = bold_trimmed
+        conf_proc = conf_trimmed
+        expected_timepoints = n_post_trim
 
     masker = NiftiLabelsMasker(
         labels_img=atlas_maps,
@@ -215,9 +235,9 @@ def extract_roi_ts(bold_path, confounds_tsv, tr, atlas_maps):
         low_pass=LOW_PASS,
         t_r=tr,
     )
-    ts = masker.fit_transform(bold_trimmed, confounds=conf_trimmed)
-    assert ts.shape == (TARGET_VOLS, N_ROIS), f"Unexpected shape {ts.shape}"
-    return ts, n_vols, "ok"
+    ts = masker.fit_transform(bold_proc, confounds=conf_proc)
+    assert ts.shape == (expected_timepoints, N_ROIS), f"Unexpected shape {ts.shape}"
+    return ts, n_vols, n_post_trim, "ok"
 
 
 # ======================= SRPBS-1600 =======================
@@ -230,7 +250,9 @@ def process_1600_subject(bold_path, participants_1600, out_dir, atlas_maps):
             return None
 
         confounds_tsv = bold_path.parent / f"{sub}_task-rest_desc-confounds_timeseries.tsv"
-        ts, n_vols, status = extract_roi_ts(bold_path, confounds_tsv, tr, atlas_maps)
+        ts, n_vols, post_trim_vols, status = extract_roi_ts(
+            bold_path, confounds_tsv, tr, atlas_maps, target_vols=None
+        )
         if ts is None:
             logging.warning(f"[1600] {sub}: {status}")
             return None
@@ -251,7 +273,10 @@ def process_1600_subject(bold_path, participants_1600, out_dir, atlas_maps):
             "tr": tr,
             "tr_source": tr_source,
             "original_vols": n_vols,
-            "n_timepoints": TARGET_VOLS,
+            "post_trim_vols": post_trim_vols,
+            "n_timepoints": int(ts.shape[0]),
+            "target_vols": None,
+            "timepoints_cropped": False,
             "n_rois": N_ROIS,
             "trim_start": TRIM_START,
             "trim_end": TRIM_END,
@@ -296,7 +321,9 @@ def process_ts_session(bold_path, ts_participants, out_dir, atlas_maps):
         # Find confounds -- match same run
         run_part = [p for p in bold_path.name.split("_") if p.startswith("run-")][0]
         confounds_tsv = bold_path.parent / f"{sub}_{ses}_task-rest_{run_part}_desc-confounds_timeseries.tsv"
-        ts, n_vols, status = extract_roi_ts(bold_path, confounds_tsv, tr, atlas_maps)
+        ts, n_vols, post_trim_vols, status = extract_roi_ts(
+            bold_path, confounds_tsv, tr, atlas_maps, target_vols=None
+        )
         if ts is None:
             logging.warning(f"[TS] {out_name}: {status}")
             return None
@@ -319,7 +346,10 @@ def process_ts_session(bold_path, ts_participants, out_dir, atlas_maps):
             "tr": tr,
             "tr_source": tr_source,
             "original_vols": n_vols,
-            "n_timepoints": TARGET_VOLS,
+            "post_trim_vols": post_trim_vols,
+            "n_timepoints": int(ts.shape[0]),
+            "target_vols": None,
+            "timepoints_cropped": False,
             "n_rois": N_ROIS,
             "trim_start": TRIM_START,
             "trim_end": TRIM_END,
@@ -342,11 +372,10 @@ def process_ts_session(bold_path, ts_participants, out_dir, atlas_maps):
 
 def main():
     parser = argparse.ArgumentParser(description="Extract Schaefer 400 ROI time series")
-    parser.add_argument("--base-dir", type=Path,
-                        default=Path("/data/s.dharia-ra/multi-site-problem"))
+    parser.add_argument("--base-dir", type=Path, default=DEFAULT_BASE_DIR)
     parser.add_argument("--n-jobs", type=int, default=8)
     parser.add_argument("--log-file", type=str, default=None)
-    parser.add_argument("--dataset", choices=["1600", "traveling", "both"], default="both",
+    parser.add_argument("--dataset", choices=["1600", "traveling", "both", "metadata"], default="both",
                         help="Which dataset to process")
     parser.add_argument("--subjects", type=str, nargs="*", default=None,
                         help="Process only these subjects")
@@ -360,21 +389,20 @@ def main():
     fmriprep_ts = base / "preprocessed_data_fir" / "fmriprep_TS_persession"
     participants_1600_path = base / "raw_data" / "SRPBS_1600" / "SRPBS_1600" / "participants.tsv"
     participants_ts_path = base / "raw_data" / "SRPBS_Raw_TS_Data" / "SRPBS_TS" / "sourcedata" / "participants.tsv"
-    out_1600 = base / "preprocessed_data_fir" / "roi_timeseries_1600"
-    out_ts = base / "preprocessed_data_fir" / "roi_timeseries_traveling"
+    out_1600 = base / "preprocessed_data_fir" / "roi_timeseries_1600_full"
+    out_ts = base / "preprocessed_data_fir" / "roi_timeseries_traveling_full"
 
     # Atlas
     logging.info(f"Fetching Schaefer {N_ROIS} atlas ({NETWORKS}-network)...")
     atlas = fetch_atlas_schaefer_2018(n_rois=N_ROIS, resolution_mm=2)
     atlas_maps = atlas["maps"]
 
-    all_metadata = []
-
     # ===================== SRPBS-1600 =====================
     if args.dataset in ("1600", "both"):
         out_1600.mkdir(parents=True, exist_ok=True)
         participants_1600 = load_1600_participants(participants_1600_path)
         logging.info(f"[1600] Loaded info for {len(participants_1600)} subjects")
+        logging.info(f"[1600] Writing full post-trim time series to: {out_1600}")
 
         bold_files = sorted(fmriprep_1600.glob("*/func/*MNI152*res-2*preproc_bold.nii.gz"))
         if args.subjects:
@@ -387,29 +415,21 @@ def main():
             results = Parallel(n_jobs=args.n_jobs, verbose=10)(
                 delayed(process_1600_subject)(b, participants_1600, out_1600, atlas_maps) for b in todo
             )
-            all_metadata.extend([r for r in results if r is not None])
             ok = sum(1 for r in results if r is not None)
             logging.info(f"[1600] Done: {ok}/{len(results)} succeeded")
-
-        # Also collect metadata from previously processed subjects
-        for meta_file in sorted(out_1600.glob("*_meta.json")):
-            with open(meta_file) as f:
-                m = json.load(f)
-                if m not in all_metadata:
-                    all_metadata.append(m)
 
     # ================ Traveling Subjects ================
     if args.dataset in ("traveling", "both"):
         out_ts.mkdir(parents=True, exist_ok=True)
         ts_participants = load_ts_participants(participants_ts_path)
         logging.info(f"[TS] Loaded info for {len(ts_participants)} traveling subjects")
+        logging.info(f"[TS] Writing full post-trim time series to: {out_ts}")
 
         # Find run-01 BOLD files for each session
         bold_files = sorted(fmriprep_ts.glob("*/ses-*/func/*run-01*MNI152*res-2*preproc_bold.nii.gz"))
         if args.subjects:
             bold_files = [b for b in bold_files if b.parts[-4] in args.subjects]
         existing = {f.stem.replace("_roi_ts", "") for f in out_ts.glob("*_roi_ts.npy")}
-        todo = [b for b in bold_files if True]  # build name to check
         todo_filtered = []
         for b in bold_files:
             sub = b.parts[-4]
@@ -423,24 +443,26 @@ def main():
             results = Parallel(n_jobs=args.n_jobs, verbose=10)(
                 delayed(process_ts_session)(b, ts_participants, out_ts, atlas_maps) for b in todo_filtered
             )
-            all_metadata.extend([r for r in results if r is not None])
             ok = sum(1 for r in results if r is not None)
             logging.info(f"[TS] Done: {ok}/{len(results)} succeeded")
 
-        for meta_file in sorted(out_ts.glob("*_meta.json")):
-            with open(meta_file) as f:
-                m = json.load(f)
-                if m not in all_metadata:
-                    all_metadata.append(m)
-
     # ================== Save Metadata CSV ==================
+    all_metadata = []
+    for meta_dir in [out_1600, out_ts]:
+        if not meta_dir.exists():
+            continue
+        for meta_file in sorted(meta_dir.glob("*_meta.json")):
+            with open(meta_file) as f:
+                all_metadata.append(json.load(f))
+
     if all_metadata:
         csv_path = base / "preprocessed_data_fir" / "subject_metadata.csv"
         columns = [
             "subject", "session", "dataset", "is_traveling_subject",
             "site", "site_name", "site_session", "protocol",
             "diag", "diag_name", "age", "sex", "hand",
-            "tr", "tr_source", "original_vols", "n_timepoints", "n_rois",
+            "tr", "tr_source", "original_vols", "post_trim_vols",
+            "n_timepoints", "target_vols", "timepoints_cropped", "n_rois",
         ]
         rows = []
         for m in all_metadata:
@@ -450,6 +472,8 @@ def main():
         df = df.sort_values(["dataset", "subject", "session"]).reset_index(drop=True)
         df.to_csv(csv_path, index=False)
         logging.info(f"Saved metadata CSV: {csv_path} ({len(df)} rows)")
+    else:
+        logging.warning("No metadata JSON files found; subject_metadata.csv was not rewritten")
 
     logging.info("All done!")
 

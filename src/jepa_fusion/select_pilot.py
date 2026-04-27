@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import argparse
+from collections import defaultdict
 import json
 from pathlib import Path
 
 CEILINGS = {
     "srpbs": 0.157,
+    "abide": 0.102,
     "abide1": 0.102,
     "abide2": 0.126,
 }
@@ -54,6 +56,24 @@ def diagnosis_summary_for(grouped_payload: dict, grouped_eval_path: str):
     }
 
 
+def mean_std(values: list[float]):
+    if not values:
+        raise ValueError("Cannot aggregate an empty list of values.")
+    mean = float(sum(values) / len(values))
+    if len(values) == 1:
+        return {"mean": mean, "std": 0.0, "n": 1}
+    variance = sum((float(value) - mean) ** 2 for value in values) / (len(values) - 1)
+    return {"mean": mean, "std": variance ** 0.5, "n": len(values)}
+
+
+def train_seed_for(payload: dict):
+    cfg = payload["checkpoint"].get("config", {})
+    seed = cfg.get("seed")
+    if seed is None:
+        return None
+    return int(seed)
+
+
 def score_payload(payload: dict, grouped_eval_path: str):
     subject_vote_payload, diagnosis_map = diagnosis_summary_for(payload, grouped_eval_path)
     rows = []
@@ -91,6 +111,7 @@ def score_payload(payload: dict, grouped_eval_path: str):
     return {
         "candidate": candidate_label(payload),
         "checkpoint": payload["checkpoint"]["path"],
+        "train_seed": train_seed_for(payload),
         "datasets": rows,
         "pass_count": int(pass_count),
         "mean_dx_bacc": float(sum(dx_bacc) / len(dx_bacc)),
@@ -102,12 +123,55 @@ def score_payload(payload: dict, grouped_eval_path: str):
     }
 
 
+def aggregate_candidate_rows(candidate: str, seed_rows: list[dict]):
+    dataset_order = [dataset_row["dataset"] for dataset_row in seed_rows[0]["datasets"]]
+    dataset_aggregates = []
+    for dataset_key in dataset_order:
+        matching_rows = []
+        for seed_row in seed_rows:
+            for dataset_row in seed_row["datasets"]:
+                if dataset_row["dataset"] == dataset_key:
+                    matching_rows.append(dataset_row)
+                    break
+        dataset_aggregates.append(
+            {
+                "dataset": dataset_key,
+                "site_bacc": mean_std([row["site_bacc"] for row in matching_rows]),
+                "site_auc": mean_std([row["site_auc"] for row in matching_rows]),
+                "dx_bacc": mean_std([row["dx_bacc"] for row in matching_rows]),
+                "dx_auc": mean_std([row["dx_auc"] for row in matching_rows]),
+                "ceiling": matching_rows[0]["ceiling"],
+                "pass_count": int(sum(1 for row in matching_rows if row["passes"])),
+                "n_pretrain_seeds": int(len(matching_rows)),
+            }
+        )
+
+    protocols = sorted({row["diagnosis_protocol"] for row in seed_rows})
+    pretrain_seeds = [row["train_seed"] for row in seed_rows if row["train_seed"] is not None]
+    return {
+        "candidate": candidate,
+        "n_pretrain_seeds": int(len(seed_rows)),
+        "pretrain_seeds": sorted(pretrain_seeds),
+        "checkpoints": [row["checkpoint"] for row in seed_rows],
+        "grouped_eval_jsons": [row["grouped_eval_json"] for row in seed_rows],
+        "subject_vote_jsons": [row["subject_vote_json"] for row in seed_rows if row["subject_vote_json"] is not None],
+        "diagnosis_protocols": protocols,
+        "pass_count": mean_std([float(row["pass_count"]) for row in seed_rows]),
+        "mean_dx_bacc": mean_std([row["mean_dx_bacc"] for row in seed_rows]),
+        "mean_dx_auc": mean_std([row["mean_dx_auc"] for row in seed_rows]),
+        "mean_site_bacc": mean_std([row["mean_site_bacc"] for row in seed_rows]),
+        "mean_site_auc": mean_std([row["mean_site_auc"] for row in seed_rows]),
+        "datasets": dataset_aggregates,
+        "seed_rows": seed_rows,
+    }
+
+
 def ranking_key(row: dict):
     return (
-        int(row["pass_count"]),
-        float(row["mean_dx_bacc"]),
-        float(row["mean_dx_auc"]),
-        -float(row["mean_site_bacc"]),
+        float(row["pass_count"]["mean"]),
+        float(row["mean_dx_bacc"]["mean"]),
+        float(row["mean_dx_auc"]["mean"]),
+        -float(row["mean_site_bacc"]["mean"]),
     )
 
 
@@ -115,33 +179,44 @@ def format_pct(value: float):
     return f"{100.0 * value:.1f}"
 
 
+def format_pct_stat(value: dict):
+    return f"{format_pct(value['mean'])} +- {format_pct(value['std'])}"
+
+
+def format_count_stat(value: dict):
+    return f"{value['mean']:.2f} +- {value['std']:.2f}"
+
+
 def build_markdown(ranked_rows: list[dict]):
     lines = [
         "# JEPA Pilot Selection",
         "",
+        "Aggregated across JEPA pretraining seeds for each candidate.",
+        "",
         "Site columns come from grouped-CV site probes. Diagnosis columns come from LOSO subject-vote when available.",
         "",
-        "| Candidate | Pass Count | Mean Site bAcc | Mean Site ROC-AUC | Mean Dx bAcc | Mean Dx ROC-AUC |",
-        "| --- | ---: | ---: | ---: | ---: | ---: |",
+        "| Candidate | Pretrain Seeds | Mean Pass Count | Mean Site bAcc | Mean Site ROC-AUC | Mean Dx bAcc | Mean Dx ROC-AUC |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: |",
     ]
     for row in ranked_rows:
+        pretrain_seeds = ",".join(str(seed) for seed in row["pretrain_seeds"]) if row["pretrain_seeds"] else str(row["n_pretrain_seeds"])
         lines.append(
-            f"| {row['candidate']} | {row['pass_count']}/3 | "
-            f"{format_pct(row['mean_site_bacc'])} | {format_pct(row['mean_site_auc'])} | "
-            f"{format_pct(row['mean_dx_bacc'])} | {format_pct(row['mean_dx_auc'])} |"
+            f"| {row['candidate']} | {pretrain_seeds} | {format_count_stat(row['pass_count'])}/{len(row['datasets'])} | "
+            f"{format_pct_stat(row['mean_site_bacc'])} | {format_pct_stat(row['mean_site_auc'])} | "
+            f"{format_pct_stat(row['mean_dx_bacc'])} | {format_pct_stat(row['mean_dx_auc'])} |"
         )
     lines.extend(["", "## Per-Dataset Checks", ""])
     for row in ranked_rows:
         lines.append(f"### {row['candidate']}")
         lines.append("")
-        lines.append("| Dataset | Site bAcc | Site ROC-AUC | Ceiling | Pass | Dx bAcc | Dx ROC-AUC |")
+        lines.append("| Dataset | Site bAcc | Site ROC-AUC | Ceiling | Pass Rate | Dx bAcc | Dx ROC-AUC |")
         lines.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: |")
         for dataset_row in row["datasets"]:
             lines.append(
-                f"| {dataset_row['dataset']} | {format_pct(dataset_row['site_bacc'])} | "
-                f"{format_pct(dataset_row['site_auc'])} | {format_pct(dataset_row['ceiling'])} | "
-                f"{'yes' if dataset_row['passes'] else 'no'} | {format_pct(dataset_row['dx_bacc'])} | "
-                f"{format_pct(dataset_row['dx_auc'])} |"
+                f"| {dataset_row['dataset']} | {format_pct_stat(dataset_row['site_bacc'])} | "
+                f"{format_pct_stat(dataset_row['site_auc'])} | {format_pct(dataset_row['ceiling'])} | "
+                f"{dataset_row['pass_count']}/{dataset_row['n_pretrain_seeds']} | "
+                f"{format_pct_stat(dataset_row['dx_bacc'])} | {format_pct_stat(dataset_row['dx_auc'])} |"
             )
         lines.append("")
     return "\n".join(lines) + "\n"
@@ -153,9 +228,16 @@ def main():
     for input_path in args.inputs:
         with open(input_path) as handle:
             payload = json.load(handle)
-        scored.append(score_payload(payload, input_path))
+        seed_row = score_payload(payload, input_path)
+        seed_row["grouped_eval_json"] = str(input_path)
+        scored.append(seed_row)
 
-    ranked = sorted(scored, key=ranking_key, reverse=True)
+    grouped: dict[str, list[dict]] = defaultdict(list)
+    for row in scored:
+        grouped[row["candidate"]].append(row)
+
+    aggregated = [aggregate_candidate_rows(candidate, seed_rows) for candidate, seed_rows in grouped.items()]
+    ranked = sorted(aggregated, key=ranking_key, reverse=True)
     output_json = Path(args.output_json)
     output_md = Path(args.output_md)
     output_json.parent.mkdir(parents=True, exist_ok=True)

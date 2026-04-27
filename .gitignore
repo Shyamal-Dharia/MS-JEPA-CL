@@ -1,8 +1,29 @@
-preprocessed_data_fir
-raw_data
+preprocessed_data_fir/
+raw_data/
 checkpoints/
-results/embeddings/
-results/figures/
+
+# Generated experiment outputs.
+logs/
+results/
+final_results/
+archive/
+
+# Local assistant/session state and scratch artifacts.
+.codex
+.codex/
+command_to_run_later.txt
+plan.docx
+demographic_tables.tex
+site_distribution_*.png
+test.ipynb
+src/jepa_fusion/_bytecode_loader.py
+
+# Python/runtime artifacts.
 **/__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Model artifacts.
 *.pt
 *.pth
+*.ckpt

@@ -98,6 +98,8 @@ class FusionJEPAConfig:
     replay_pair_sampling: bool = False
     adversarial_site_weight: float = 0.0
     site_adversary_hidden_dim: int = 256
+    infonce_weight: float = 0.0
+    infonce_temperature: float = 0.07
     site_grl_lambda: float = 1.0
     num_site_classes: int = 0
     site_class_names: list[str] = field(default_factory=list)
@@ -114,6 +116,7 @@ class FusionJEPAConfig:
     seed: int = 42
     deterministic: bool = True
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
+    use_data_parallel: bool = False
 
 
 def setup_logging(log_file: str | None = None):
@@ -377,6 +380,43 @@ def replay_pair_alignment_loss(embeddings: torch.Tensor, pair_ids):
     return torch.stack(losses).mean()
 
 
+def infonce_loss(embeddings: torch.Tensor, pair_ids, temperature: float = 0.07):
+    """InfoNCE contrastive loss on traveling-subject cross-site pairs.
+
+    For each pair (anchor, positive) from the same subject at different sites,
+    all other embeddings in the batch serve as negatives.
+    """
+    if pair_ids is None or embeddings.size(0) < 2:
+        return embeddings.new_zeros(())
+
+    pair_ids = torch.as_tensor(pair_ids, device=embeddings.device, dtype=torch.long)
+    valid_mask = pair_ids >= 0
+    if valid_mask.sum() < 2:
+        return embeddings.new_zeros(())
+
+    normalized = F.normalize(embeddings, dim=-1)
+    sim_matrix = normalized @ normalized.T / temperature
+
+    losses = []
+    valid_pair_ids = torch.unique(pair_ids[valid_mask])
+    for pid in valid_pair_ids:
+        idx = torch.nonzero(pair_ids == pid, as_tuple=False).flatten()
+        if idx.numel() != 2:
+            continue
+        for anchor_pos in range(2):
+            anchor = idx[anchor_pos]
+            positive = idx[1 - anchor_pos]
+            numerator = sim_matrix[anchor, positive]
+            mask = torch.ones(embeddings.size(0), dtype=torch.bool, device=embeddings.device)
+            mask[anchor] = False
+            denominator = torch.logsumexp(sim_matrix[anchor][mask], dim=0)
+            losses.append(denominator - numerator)
+
+    if not losses:
+        return embeddings.new_zeros(())
+    return torch.stack(losses).mean()
+
+
 def sample_mask(cfg: FusionJEPAConfig, raw_model: FusionJEPA, device: torch.device):
     if cfg.mask_profile == "temporal_default":
         mask = sample_temporal_mask(
@@ -422,6 +462,7 @@ def run_epoch(
     vic_var_losses = []
     vic_cov_losses = []
     replay_alignment_losses = []
+    infonce_losses = []
     site_adv_losses = []
     site_adv_accs = []
     main_losses = []
@@ -469,14 +510,17 @@ def run_epoch(
             var_target=cfg.vicreg_var_target,
         )
         replay_alignment = pooled.new_zeros(())
+        nce_loss = pooled.new_zeros(())
         if (
             replay_buffer is not None
-            and cfg.replay_alignment_weight > 0.0
             and replay_batch_size > 0
             and replay_pair_ids is not None
         ):
             replay_embeddings = pooled[n_main : n_main + replay_batch_size]
-            replay_alignment = replay_pair_alignment_loss(replay_embeddings, replay_pair_ids)
+            if cfg.replay_alignment_weight > 0.0:
+                replay_alignment = replay_pair_alignment_loss(replay_embeddings, replay_pair_ids)
+            if cfg.infonce_weight > 0.0:
+                nce_loss = infonce_loss(replay_embeddings, replay_pair_ids, temperature=cfg.infonce_temperature)
         site_adv_loss = pooled.new_zeros(())
         if site_logits is not None:
             site_targets = encode_site_targets(list(labels_main) + list(labels_replay), site_to_index, device)
@@ -490,6 +534,7 @@ def run_epoch(
             + (cfg.global_loss_weight * global_loss)
             + (cfg.vicreg_weight * vic_loss)
             + (cfg.replay_alignment_weight * replay_alignment)
+            + (cfg.infonce_weight * nce_loss)
             + (cfg.adversarial_site_weight * site_adv_loss)
         )
 
@@ -509,6 +554,7 @@ def run_epoch(
         vic_var_losses.append(vic_var.item())
         vic_cov_losses.append(vic_cov.item())
         replay_alignment_losses.append(replay_alignment.item())
+        infonce_losses.append(nce_loss.item())
         site_adv_losses.append(site_adv_loss.item())
 
         if replay_buffer is not None:
@@ -527,6 +573,7 @@ def run_epoch(
         "vicreg_var_loss": float(np.mean(vic_var_losses)),
         "vicreg_cov_loss": float(np.mean(vic_cov_losses)),
         "replay_alignment_loss": float(np.mean(replay_alignment_losses)),
+        "infonce_loss": float(np.mean(infonce_losses)),
         "site_adversary_loss": float(np.mean(site_adv_losses)),
         "site_adversary_acc": float(np.mean(site_adv_accs)) if site_adv_accs else None,
     }
@@ -593,10 +640,39 @@ def train_pooled(cfg: FusionJEPAConfig, logger: logging.Logger):
         worker_init_fn=make_worker_init_fn(cfg.seed + 12),
     )
 
+    # Build a pair-sampling buffer from traveling subjects for InfoNCE / alignment
+    pair_buffer = None
+    needs_pair_buffer = cfg.infonce_weight > 0.0 or cfg.replay_alignment_weight > 0.0
+    if needs_pair_buffer:
+        travel_dataset = build_dataset(
+            cfg.travel_data_dir,
+            sampling="sliding",
+            cfg=cfg,
+            max_scans=cfg.max_travel_scans,
+        )
+        pair_batch = max(1, int(cfg.batch_size * cfg.replay_fraction))
+        pair_buffer = ReplayBuffer(
+            travel_dataset,
+            batch_size=pair_batch,
+            device=cfg.device,
+            seed=cfg.seed + 14,
+            pair_sampling=True,
+        )
+        logger.info(
+            "Pooled pair buffer | travel scans=%d pair_batch=%d",
+            len(travel_dataset),
+            pair_batch,
+        )
+
     model = build_model(cfg).to(cfg.device)
-    if cfg.device == "cuda" and torch.cuda.device_count() > 1:
+    if cfg.device == "cuda" and torch.cuda.device_count() > 1 and cfg.use_data_parallel:
         logger.info("Using %d GPUs via DataParallel", torch.cuda.device_count())
         model = torch.nn.DataParallel(model)
+    elif cfg.device == "cuda" and torch.cuda.device_count() > 1:
+        logger.info(
+            "Visible GPUs: %d | single-GPU mode active because DataParallel is disabled",
+            torch.cuda.device_count(),
+        )
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.pooled_lr, weight_decay=cfg.weight_decay)
     history = []
@@ -610,20 +686,21 @@ def train_pooled(cfg: FusionJEPAConfig, logger: logging.Logger):
         for group in optimizer.param_groups:
             group["lr"] = lr
         if site_to_index:
-            metrics = run_epoch(model, loader, optimizer, cfg, cfg.device, site_to_index=site_to_index)
+            metrics = run_epoch(model, loader, optimizer, cfg, cfg.device, replay_buffer=pair_buffer, site_to_index=site_to_index)
         else:
-            metrics = run_epoch(model, loader, optimizer, cfg, cfg.device)
+            metrics = run_epoch(model, loader, optimizer, cfg, cfg.device, replay_buffer=pair_buffer)
         metrics["epoch"] = epoch + 1
         metrics["lr"] = lr
         history.append(metrics)
         logger.info(
-            "Pooled Epoch %d | loss=%.4f jepa=%.4f global=%.4f vic=%.4f align=%.4f adv=%.4f",
+            "Pooled Epoch %d | loss=%.4f jepa=%.4f global=%.4f vic=%.4f align=%.4f nce=%.4f adv=%.4f",
             epoch + 1,
             metrics["train_loss"],
             metrics["jepa_loss"],
             metrics["global_loss"],
             metrics["vicreg_loss"],
             metrics["replay_alignment_loss"],
+            metrics["infonce_loss"],
             metrics["site_adversary_loss"],
         )
 
@@ -661,11 +738,27 @@ def train_curriculum(cfg: FusionJEPAConfig, logger: logging.Logger):
         collect_record_union(phase1_dataset.records, phase2_main_dataset.records, phase2_replay_dataset.records),
     )
     site_to_index = {name: idx for idx, name in enumerate(cfg.site_class_names)}
+    use_pair_losses = cfg.replay_alignment_weight > 0.0 or cfg.infonce_weight > 0.0
+    phase1_main_batch = cfg.batch_size
+    phase1_pair_buffer = None
+    if use_pair_losses and cfg.replay_fraction > 0.0:
+        phase1_main_batch = max(1, int(cfg.batch_size * (1.0 - cfg.replay_fraction)))
+        phase1_replay_batch = max(1, cfg.batch_size - phase1_main_batch)
+        phase1_pair_buffer = ReplayBuffer(
+            phase1_dataset,
+            batch_size=phase1_replay_batch,
+            device=cfg.device,
+            seed=cfg.seed + 22,
+            pair_sampling=True,
+        )
+    else:
+        phase1_replay_batch = 0
+
     phase1_loader = DataLoader(
         phase1_dataset,
-        batch_size=cfg.batch_size,
+        batch_size=phase1_main_batch,
         shuffle=True,
-        drop_last=False,
+        drop_last=phase1_pair_buffer is not None,
         num_workers=0,
         collate_fn=collate_fn,
         worker_init_fn=make_worker_init_fn(cfg.seed + 21),
@@ -673,35 +766,54 @@ def train_curriculum(cfg: FusionJEPAConfig, logger: logging.Logger):
     )
 
     model = build_model(cfg).to(cfg.device)
-    if cfg.device == "cuda" and torch.cuda.device_count() > 1:
+    if cfg.device == "cuda" and torch.cuda.device_count() > 1 and cfg.use_data_parallel:
         logger.info("Using %d GPUs via DataParallel", torch.cuda.device_count())
         model = torch.nn.DataParallel(model)
+    elif cfg.device == "cuda" and torch.cuda.device_count() > 1:
+        logger.info(
+            "Visible GPUs: %d | single-GPU mode active because DataParallel is disabled",
+            torch.cuda.device_count(),
+        )
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.phase1_lr, weight_decay=cfg.weight_decay)
     phase1_history = []
     logger.info(
-        "Phase 1 | travel scans=%d | dataset_site_counts=%s | n_site_classes=%d adv_w=%.3f",
+        "Phase 1 | travel scans=%d | dataset_site_counts=%s | n_site_classes=%d adv_w=%.3f pair_sampling=%s align_w=%.3f nce_w=%.3f main_batch=%d replay_batch=%d",
         len(phase1_dataset),
         summarize_records(phase1_dataset.records),
         cfg.num_site_classes,
         cfg.adversarial_site_weight,
+        phase1_pair_buffer is not None,
+        cfg.replay_alignment_weight,
+        cfg.infonce_weight,
+        phase1_main_batch,
+        phase1_replay_batch,
     )
     for epoch in range(cfg.phase1_epochs):
         lr = get_lr(epoch, cfg.warmup_epochs, cfg.phase1_epochs, cfg.phase1_lr)
         for group in optimizer.param_groups:
             group["lr"] = lr
-        metrics = run_epoch(model, phase1_loader, optimizer, cfg, cfg.device, site_to_index=site_to_index or None)
+        metrics = run_epoch(
+            model,
+            phase1_loader,
+            optimizer,
+            cfg,
+            cfg.device,
+            replay_buffer=phase1_pair_buffer,
+            site_to_index=site_to_index or None,
+        )
         metrics["epoch"] = epoch + 1
         metrics["lr"] = lr
         phase1_history.append(metrics)
         logger.info(
-            "Phase 1 Epoch %d | loss=%.4f jepa=%.4f global=%.4f vic=%.4f align=%.4f adv=%.4f",
+            "Phase 1 Epoch %d | loss=%.4f jepa=%.4f global=%.4f vic=%.4f align=%.4f nce=%.4f adv=%.4f",
             epoch + 1,
             metrics["train_loss"],
             metrics["jepa_loss"],
             metrics["global_loss"],
             metrics["vicreg_loss"],
             metrics["replay_alignment_loss"],
+            metrics["infonce_loss"],
             metrics["site_adversary_loss"],
         )
 
@@ -760,13 +872,14 @@ def train_curriculum(cfg: FusionJEPAConfig, logger: logging.Logger):
         metrics["lr"] = lr
         phase2_history.append(metrics)
         logger.info(
-            "Phase 2 Epoch %d | loss=%.4f jepa=%.4f global=%.4f vic=%.4f align=%.4f adv=%.4f | main=%s replay=%s",
+            "Phase 2 Epoch %d | loss=%.4f jepa=%.4f global=%.4f vic=%.4f align=%.4f nce=%.4f adv=%.4f | main=%s replay=%s",
             epoch + 1,
             metrics["train_loss"],
             metrics["jepa_loss"],
             metrics["global_loss"],
             metrics["vicreg_loss"],
             metrics["replay_alignment_loss"],
+            metrics["infonce_loss"],
             metrics["site_adversary_loss"],
             "n/a" if metrics.get("main_loss") is None else f"{metrics['main_loss']:.4f}",
             "n/a" if metrics.get("replay_loss") is None else f"{metrics['replay_loss']:.4f}",
@@ -801,6 +914,7 @@ def parse_args():
     parser.add_argument("--pos-embed-mode", choices=["sincos", "rotary"], default=None)
     parser.add_argument("--use-conv-stem", action="store_true")
     parser.add_argument("--no-conv-stem", action="store_true")
+    parser.add_argument("--conv-kernel-size", type=int, default=None)
     parser.add_argument("--use-network-embeddings", action="store_true")
     parser.add_argument("--no-network-embeddings", action="store_true")
     parser.add_argument("--batch-size", type=int, default=None)
@@ -818,6 +932,8 @@ def parse_args():
     parser.add_argument("--global-loss-weight", type=float, default=None)
     parser.add_argument("--replay-alignment-weight", type=float, default=None)
     parser.add_argument("--replay-pair-sampling", action="store_true")
+    parser.add_argument("--infonce-weight", type=float, default=None)
+    parser.add_argument("--infonce-temperature", type=float, default=None)
     parser.add_argument("--adversarial-site-weight", type=float, default=None)
     parser.add_argument("--site-adversary-hidden-dim", type=int, default=None)
     parser.add_argument("--site-grl-lambda", type=float, default=None)
@@ -828,6 +944,7 @@ def parse_args():
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--deterministic", action="store_true")
     parser.add_argument("--non-deterministic", action="store_true")
+    parser.add_argument("--data-parallel", action="store_true")
     parser.add_argument("--quick", action="store_true")
     return parser.parse_args()
 
@@ -861,6 +978,8 @@ def main():
         cfg.use_conv_stem = True
     if args.no_conv_stem:
         cfg.use_conv_stem = False
+    if args.conv_kernel_size is not None:
+        cfg.conv_kernel_size = args.conv_kernel_size
     if args.use_network_embeddings:
         cfg.use_network_embeddings = True
     if args.no_network_embeddings:
@@ -893,8 +1012,16 @@ def main():
         cfg.global_loss_weight = args.global_loss_weight
     if args.replay_alignment_weight is not None:
         cfg.replay_alignment_weight = args.replay_alignment_weight
+        if cfg.replay_alignment_weight > 0.0:
+            cfg.replay_pair_sampling = True
     if args.replay_pair_sampling:
         cfg.replay_pair_sampling = True
+    if args.infonce_weight is not None:
+        cfg.infonce_weight = args.infonce_weight
+        if cfg.infonce_weight > 0.0:
+            cfg.replay_pair_sampling = True
+    if args.infonce_temperature is not None:
+        cfg.infonce_temperature = args.infonce_temperature
     if args.adversarial_site_weight is not None:
         cfg.adversarial_site_weight = args.adversarial_site_weight
     if args.site_adversary_hidden_dim is not None:
@@ -915,6 +1042,8 @@ def main():
         cfg.deterministic = True
     if args.non_deterministic:
         cfg.deterministic = False
+    if args.data_parallel:
+        cfg.use_data_parallel = True
 
     if args.quick:
         cfg.pooled_epochs = 1

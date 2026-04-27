@@ -16,6 +16,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 try:
+    from .dataset_utils import matched_records_for_preset
     from .protocol import (
         AUTISM_LABEL,
         HEALTHY_CONTROL_LABEL,
@@ -27,12 +28,12 @@ try:
         build_fc_features,
         build_raw_features,
         get_roi_permutation,
-        load_matched_records,
     )
 except ImportError:
     repo_root = Path(__file__).resolve().parents[2]
     if str(repo_root) not in sys.path:
         sys.path.insert(0, str(repo_root))
+    from src.jepa_fusion.dataset_utils import matched_records_for_preset
     from src.jepa_fusion.protocol import (
         AUTISM_LABEL,
         HEALTHY_CONTROL_LABEL,
@@ -44,7 +45,6 @@ except ImportError:
         build_fc_features,
         build_raw_features,
         get_roi_permutation,
-        load_matched_records,
     )
 
 
@@ -55,7 +55,7 @@ def parse_args():
             "ROI time series, Static FC, Static FC + ComBat, and Static FC + CovBat."
         )
     )
-    parser.add_argument("--dataset", choices=["abide1", "abide2", "srpbs"], required=True)
+    parser.add_argument("--dataset", choices=["abide", "abide1", "abide2", "srpbs"], required=True)
     parser.add_argument(
         "--task",
         choices=["default", "hc_asd", "hc_disorder"],
@@ -102,6 +102,33 @@ def parse_args():
     )
     parser.add_argument("--healthy-control-label", default=HEALTHY_CONTROL_LABEL)
     parser.add_argument("--autism-label", default=AUTISM_LABEL)
+    parser.add_argument(
+        "--harmonization-covariates",
+        default="",
+        help="Comma-separated covariates for ComBat/CovBat, e.g. age,sex.",
+    )
+    parser.add_argument(
+        "--harmonization-fit-controls-only",
+        action="store_true",
+        help="Fit ComBat/CovBat harmonization parameters on healthy controls only, then apply to all samples.",
+    )
+    parser.add_argument(
+        "--harmonization-age-min",
+        type=float,
+        default=0.0,
+        help="Treat ages below this threshold as invalid for harmonization covariates.",
+    )
+    parser.add_argument(
+        "--harmonization-age-max",
+        type=float,
+        default=100.0,
+        help="Treat ages above this threshold as invalid for harmonization covariates.",
+    )
+    parser.add_argument(
+        "--output-prefix",
+        default=None,
+        help="Optional subdirectory/prefix for saved outputs, e.g. new_baseline.",
+    )
     parser.add_argument("--output-json", default=None)
     parser.add_argument("--output-md", default=None)
     return parser.parse_args()
@@ -124,6 +151,18 @@ def mean_std(values: list[float]):
         "mean": float(arr.mean()),
         "std": float(arr.std(ddof=1)) if len(arr) > 1 else 0.0,
     }
+
+
+def parse_covariate_list(covariate_text: str):
+    covariates = []
+    for item in covariate_text.split(","):
+        item = item.strip().lower()
+        if item:
+            covariates.append(item)
+    invalid = sorted(set(covariates) - {"age", "sex"})
+    if invalid:
+        raise ValueError(f"Unsupported harmonization covariates: {invalid}. Expected age and/or sex.")
+    return covariates
 
 
 def maybe_subsample_balanced(records: list, y: np.ndarray, max_samples: int | None, seed: int):
@@ -250,6 +289,229 @@ class CombatTransformer:
             np.nan_to_num(x_train_h, nan=0.0, posinf=0.0, neginf=0.0),
             np.nan_to_num(x_test_h, nan=0.0, posinf=0.0, neginf=0.0),
         )
+
+
+def _encode_sex_value(value):
+    if value is None:
+        return float("nan")
+    text = str(value).strip().lower()
+    if text in {"m", "male", "1", "true"}:
+        return 1.0
+    if text in {"f", "female", "0", "false"}:
+        return 0.0
+    return float("nan")
+
+
+def build_harmonization_covariates(
+    records,
+    covariate_names: list[str],
+    fit_mask: np.ndarray,
+    *,
+    age_min: float,
+    age_max: float,
+):
+    if not covariate_names:
+        return np.zeros((len(records), 0), dtype=np.float64), {}
+
+    columns = []
+    imputations = {}
+    fit_mask = np.asarray(fit_mask, dtype=bool)
+
+    if "age" in covariate_names:
+        age = np.asarray(
+            [
+                float(record.age)
+                if record.age is not None and np.isfinite(float(record.age))
+                else float("nan")
+                for record in records
+            ],
+            dtype=np.float64,
+        )
+        valid_age_mask = np.isfinite(age) & (age >= float(age_min)) & (age <= float(age_max))
+        age = np.where(valid_age_mask, age, np.nan)
+        fit_age = age[fit_mask]
+        fit_age = fit_age[np.isfinite(fit_age)]
+        fill = float(np.median(fit_age)) if fit_age.size else 0.0
+        age = np.where(np.isfinite(age), age, fill)
+        columns.append(age[:, None])
+        imputations["age"] = {
+            "fill_value": fill,
+            "valid_range": [float(age_min), float(age_max)],
+            "n_invalid": int((~valid_age_mask).sum()),
+        }
+
+    if "sex" in covariate_names:
+        sex = np.asarray([_encode_sex_value(record.sex) for record in records], dtype=np.float64)
+        fit_sex = sex[fit_mask]
+        fit_sex = fit_sex[np.isfinite(fit_sex)]
+        fill = float(np.round(fit_sex.mean())) if fit_sex.size else 0.0
+        sex = np.where(np.isfinite(sex), sex, fill)
+        columns.append(sex[:, None])
+        imputations["sex"] = fill
+
+    return np.concatenate(columns, axis=1), imputations
+
+
+def _aprior(values: np.ndarray):
+    mean = float(np.mean(values))
+    var = float(np.var(values))
+    if var <= 1e-12:
+        return 1e6
+    return (2.0 * var + mean ** 2.0) / var
+
+
+def _bprior(values: np.ndarray):
+    mean = float(np.mean(values))
+    var = float(np.var(values))
+    if var <= 1e-12:
+        return max(mean, 1e-6) * 1e6
+    return (mean * var + mean ** 3.0) / var
+
+
+def _postmean(g_hat: np.ndarray, g_bar: np.ndarray, n: int, d_star: np.ndarray, t2: np.ndarray):
+    denom = np.maximum(t2 * float(n) + d_star, 1e-8)
+    return (t2 * float(n) * g_hat + d_star * g_bar) / denom
+
+
+def _postvar(sum2: np.ndarray, n: int, a: float, b: float):
+    return (0.5 * sum2 + b) / max(float(n) / 2.0 + a - 1.0, 1e-8)
+
+
+def _it_sol(
+    s_data: np.ndarray,
+    gamma_hat: np.ndarray,
+    delta_hat: np.ndarray,
+    gamma_bar: np.ndarray,
+    t2: np.ndarray,
+    a_prior: float,
+    b_prior: float,
+    conv: float = 1e-4,
+    max_iter: int = 100,
+):
+    n = int(s_data.shape[0])
+    gamma_old = np.asarray(gamma_hat, dtype=np.float64).copy()
+    delta_old = np.asarray(delta_hat, dtype=np.float64).copy()
+
+    for _ in range(max_iter):
+        gamma_new = _postmean(gamma_hat, gamma_bar, n, delta_old, t2)
+        sum2 = ((s_data - gamma_new[None, :]) ** 2.0).sum(axis=0)
+        delta_new = _postvar(sum2, n, a_prior, b_prior)
+
+        gamma_rel = np.max(np.abs(gamma_new - gamma_old) / np.maximum(np.abs(gamma_old), 1e-8))
+        delta_rel = np.max(np.abs(delta_new - delta_old) / np.maximum(np.abs(delta_old), 1e-8))
+        gamma_old = gamma_new
+        delta_old = delta_new
+        if max(gamma_rel, delta_rel) <= conv:
+            break
+
+    return gamma_old, np.maximum(delta_old, 1e-8)
+
+
+class ExplicitTransductiveCombat:
+    def __init__(self):
+        self.batch_levels = None
+        self.batch_to_index = None
+        self.batch_counts = None
+        self.beta_hat = None
+        self.grand_mean = None
+        self.var_pooled = None
+        self.gamma_star = None
+        self.delta_star = None
+        self.n_covariates = 0
+
+    def _batch_design(self, batches: np.ndarray):
+        design = np.zeros((len(batches), len(self.batch_levels)), dtype=np.float64)
+        for row_idx, batch in enumerate(batches.tolist()):
+            batch_key = str(batch)
+            if batch_key not in self.batch_to_index:
+                raise ValueError(
+                    "Harmonization cannot transform samples from unseen sites: "
+                    f"{batch_key}"
+                )
+            design[row_idx, self.batch_to_index[batch_key]] = 1.0
+        return design
+
+    def _stand_mean(self, covariates: np.ndarray, n_samples: int):
+        stand_mean = np.repeat(self.grand_mean[None, :], n_samples, axis=0)
+        if self.n_covariates:
+            stand_mean += covariates @ self.beta_hat[len(self.batch_levels):, :]
+        return stand_mean
+
+    def fit(self, features: np.ndarray, batches: np.ndarray, covariates: np.ndarray):
+        features = np.asarray(features, dtype=np.float64)
+        batches = np.asarray(batches, dtype=object)
+        covariates = np.asarray(covariates, dtype=np.float64)
+
+        self.batch_levels = [str(batch) for batch in np.unique(batches).tolist()]
+        self.batch_to_index = {batch: idx for idx, batch in enumerate(self.batch_levels)}
+        batch_design = self._batch_design(batches)
+        self.batch_counts = batch_design.sum(axis=0)
+        self.n_covariates = int(covariates.shape[1])
+        design = (
+            np.concatenate([batch_design, covariates], axis=1)
+            if self.n_covariates
+            else batch_design
+        )
+
+        self.beta_hat = np.linalg.pinv(design) @ features
+        weights = self.batch_counts / max(float(self.batch_counts.sum()), 1.0)
+        self.grand_mean = weights @ self.beta_hat[: len(self.batch_levels), :]
+        fitted = design @ self.beta_hat
+        residuals = features - fitted
+        self.var_pooled = np.maximum(np.mean(residuals ** 2.0, axis=0), 1e-8)
+
+        stand_mean = self._stand_mean(covariates, n_samples=features.shape[0])
+        s_data = (features - stand_mean) / np.sqrt(self.var_pooled)[None, :]
+
+        gamma_hat = np.zeros((len(self.batch_levels), features.shape[1]), dtype=np.float64)
+        delta_hat = np.zeros((len(self.batch_levels), features.shape[1]), dtype=np.float64)
+        for batch_idx, batch_key in enumerate(self.batch_levels):
+            batch_mask = batches == batch_key
+            batch_s = s_data[batch_mask]
+            gamma_hat[batch_idx] = batch_s.mean(axis=0)
+            delta_hat[batch_idx] = np.maximum(batch_s.var(axis=0), 1e-8)
+
+        gamma_bar = gamma_hat.mean(axis=1)
+        t2 = np.maximum(gamma_hat.var(axis=1), 1e-8)
+        self.gamma_star = np.zeros_like(gamma_hat)
+        self.delta_star = np.zeros_like(delta_hat)
+        for batch_idx, batch_key in enumerate(self.batch_levels):
+            batch_mask = batches == batch_key
+            gamma_star, delta_star = _it_sol(
+                s_data[batch_mask],
+                gamma_hat[batch_idx],
+                delta_hat[batch_idx],
+                np.full(features.shape[1], gamma_bar[batch_idx], dtype=np.float64),
+                np.full(features.shape[1], t2[batch_idx], dtype=np.float64),
+                _aprior(delta_hat[batch_idx]),
+                _bprior(delta_hat[batch_idx]),
+            )
+            self.gamma_star[batch_idx] = gamma_star
+            self.delta_star[batch_idx] = delta_star
+        return self
+
+    def transform(self, features: np.ndarray, batches: np.ndarray, covariates: np.ndarray):
+        features = np.asarray(features, dtype=np.float64)
+        batches = np.asarray(batches, dtype=object)
+        covariates = np.asarray(covariates, dtype=np.float64)
+
+        stand_mean = self._stand_mean(covariates, n_samples=features.shape[0])
+        s_data = (features - stand_mean) / np.sqrt(self.var_pooled)[None, :]
+        adjusted = np.empty_like(s_data, dtype=np.float64)
+        for batch_key in np.unique(batches).tolist():
+            batch_mask = batches == batch_key
+            if str(batch_key) not in self.batch_to_index:
+                raise ValueError(
+                    "Harmonization cannot transform samples from unseen sites: "
+                    f"{batch_key}"
+                )
+            batch_idx = self.batch_to_index[str(batch_key)]
+            adjusted[batch_mask] = (
+                s_data[batch_mask] - self.gamma_star[batch_idx][None, :]
+            ) / np.sqrt(self.delta_star[batch_idx])[None, :]
+
+        corrected = adjusted * np.sqrt(self.var_pooled)[None, :] + stand_mean
+        return np.nan_to_num(np.asarray(corrected, dtype=np.float32), nan=0.0, posinf=0.0, neginf=0.0)
 
 
 def _fit_batch_location_scale(features: np.ndarray, batches: np.ndarray):
@@ -466,9 +728,50 @@ def transductive_transform_features(
     covbat_n_pc: int,
     covbat_pct_var: float,
     covbat_max_components: int,
+    covariates: np.ndarray | None = None,
+    fit_mask: np.ndarray | None = None,
 ):
     if method_key in {"raw", "fc"}:
         return features
+    if covariates is not None or fit_mask is not None:
+        if covariates is None or fit_mask is None:
+            raise ValueError("Both covariates and fit_mask are required for explicit transductive harmonization.")
+        combat = ExplicitTransductiveCombat().fit(
+            features[np.asarray(fit_mask, dtype=bool)],
+            np.asarray(sites, dtype=object)[np.asarray(fit_mask, dtype=bool)],
+            np.asarray(covariates, dtype=np.float64)[np.asarray(fit_mask, dtype=bool)],
+        )
+        combat_features = combat.transform(features, sites, covariates)
+        if method_key == "fc_combat":
+            return combat_features
+        if method_key == "fc_covbat":
+            fit_mask = np.asarray(fit_mask, dtype=bool)
+            fit_features = combat_features[fit_mask]
+            scaler = StandardScaler()
+            z_fit = scaler.fit_transform(fit_features)
+            max_components = min(covbat_max_components, fit_features.shape[0] - 1, fit_features.shape[1])
+            max_components = max(1, max_components)
+            pca = PCA(
+                n_components=max_components,
+                svd_solver="randomized",
+                random_state=seed,
+            )
+            pca.fit(z_fit)
+            if covbat_n_pc > 0:
+                n_pc = min(covbat_n_pc, pca.n_components_)
+            else:
+                cumulative = np.cumsum(pca.explained_variance_ratio_)
+                n_pc = int(min(pca.n_components_, np.searchsorted(cumulative, covbat_pct_var, side="left") + 1))
+            z_all = scaler.transform(combat_features)
+            scores_fit = pca.transform(z_fit)
+            scores_all = pca.transform(z_all)
+            score_model = _fit_batch_location_scale(scores_fit[:, :n_pc], np.asarray(sites, dtype=object)[fit_mask])
+            adjusted_scores = np.array(scores_all, copy=True)
+            adjusted_scores[:, :n_pc] = _apply_batch_location_scale(scores_all[:, :n_pc], sites, score_model)
+            z_covbat = pca.inverse_transform(adjusted_scores)
+            covbat_features = scaler.inverse_transform(z_covbat)
+            return np.nan_to_num(np.asarray(covbat_features, dtype=np.float32), nan=0.0, posinf=0.0, neginf=0.0)
+        raise ValueError(f"Unsupported method: {method_key}")
     if method_key == "fc_combat":
         transformed, _ = CombatTransformer().fit_transform(features, sites, features, sites)
         return transformed
@@ -581,11 +884,23 @@ def build_markdown_table(payload: dict):
         "",
         f"Task: `{payload['config']['task_label']}`",
         "",
-        "Site probe uses grouped subject-level CV. Diagnosis uses leave-one-site-out evaluation.",
+        "Site probe uses grouped subject-level CV on release-specific batch labels. Diagnosis uses leave-one-center-out evaluation.",
         "",
         "| Method | Site bAcc | Site ROC-AUC | Dx bAcc | Dx ROC-AUC |",
         "| --- | ---: | ---: | ---: | ---: |",
     ]
+    harmonization_cfg = payload["config"]["harmonization"]
+    if harmonization_cfg["fit_controls_only"] or harmonization_cfg["covariates"]:
+        covariate_text = ", ".join(harmonization_cfg["covariates"]) if harmonization_cfg["covariates"] else "none"
+        lines.insert(
+            5,
+            (
+                "ComBat/CovBat fit: "
+                f"`controls_only={harmonization_cfg['fit_controls_only']}`, "
+                f"`covariates={covariate_text}`."
+            ),
+        )
+        lines.insert(6, "")
     for method_key, label in rows:
         site_metric = payload["summary"]["site"][method_key]["balanced_accuracy"]
         site_auc_metric = payload["summary"]["site"][method_key]["roc_auc"]
@@ -601,21 +916,25 @@ def build_markdown_table(payload: dict):
     return "\n".join(lines) + "\n"
 
 
-def default_output_paths(dataset_key: str, task_key: str, mixed_sites_only: bool):
+def default_output_paths(dataset_key: str, task_key: str, mixed_sites_only: bool, output_prefix: str | None = None):
     site_scope = "mixedsites" if mixed_sites_only else "allsites"
     stem = f"{dataset_key}_{task_key}_{site_scope}_baseline_table"
     base_dir = Path("results/reports/tables/jepa_fusion")
+    if output_prefix:
+        base_dir = base_dir / output_prefix
+        stem = f"{output_prefix}_{stem}"
     return base_dir / f"{stem}.json", base_dir / f"{stem}.md"
 
 
 def main():
     args = parse_args()
     seeds = parse_seed_list(args.seeds)
+    harmonization_covariates = parse_covariate_list(args.harmonization_covariates)
     preset = get_dataset_preset(args.dataset)
     task_key = preset.default_task if args.task == "default" else args.task
     mixed_sites_only = False if args.all_sites else preset.default_mixed_sites_only
 
-    records = load_matched_records(Path(preset.fc_dir), Path(preset.raw_dir))
+    records = matched_records_for_preset(preset)
     if not records:
         raise FileNotFoundError(
             f"No matched FC/raw records found for dataset {preset.label} "
@@ -644,10 +963,29 @@ def main():
         raw_target_timepoints=args.raw_target_timepoints,
     )
 
-    subjects = np.asarray([str(record.subject) for record in task_records], dtype=object)
-    sites = np.asarray([str(record.site) for record in task_records], dtype=object)
+    subjects = np.asarray([str(record.subject_id) for record in task_records], dtype=object)
+    holdout_sites = np.asarray([str(record.site) for record in task_records], dtype=object)
+    batch_sites = np.asarray([str(record.site_batch) for record in task_records], dtype=object)
+    fit_controls_only = bool(args.harmonization_fit_controls_only)
+    fit_mask = (
+        np.asarray(
+            [str(record.diagnosis) == str(args.healthy_control_label) for record in task_records],
+            dtype=bool,
+        )
+        if fit_controls_only
+        else np.ones(len(task_records), dtype=bool)
+    )
+    if not np.any(fit_mask):
+        raise RuntimeError("No healthy controls available for harmonization fitting.")
+    harmonization_covariate_matrix, covariate_imputations = build_harmonization_covariates(
+        task_records,
+        harmonization_covariates,
+        fit_mask,
+        age_min=args.harmonization_age_min,
+        age_max=args.harmonization_age_max,
+    )
     site_encoder = LabelEncoder()
-    y_site = site_encoder.fit_transform(sites)
+    y_site = site_encoder.fit_transform(batch_sites)
 
     method_features = {
         "raw": raw_features,
@@ -655,20 +993,24 @@ def main():
         "fc_combat": transductive_transform_features(
             "fc_combat",
             fc_features,
-            sites,
+            batch_sites,
             seed=seeds[0],
             covbat_n_pc=args.covbat_n_pc,
             covbat_pct_var=args.covbat_pct_var,
             covbat_max_components=args.covbat_max_components,
+            covariates=harmonization_covariate_matrix if (fit_controls_only or harmonization_covariates) else None,
+            fit_mask=fit_mask if (fit_controls_only or harmonization_covariates) else None,
         ),
         "fc_covbat": transductive_transform_features(
             "fc_covbat",
             fc_features,
-            sites,
+            batch_sites,
             seed=seeds[0],
             covbat_n_pc=args.covbat_n_pc,
             covbat_pct_var=args.covbat_pct_var,
             covbat_max_components=args.covbat_max_components,
+            covariates=harmonization_covariate_matrix if (fit_controls_only or harmonization_covariates) else None,
+            fit_mask=fit_mask if (fit_controls_only or harmonization_covariates) else None,
         ),
     }
 
@@ -692,7 +1034,7 @@ def main():
                     features,
                     task_y,
                     class_names=task_result.class_names,
-                    sites=sites,
+                    sites=holdout_sites,
                     seed=seed,
                 )
             )
@@ -720,13 +1062,22 @@ def main():
                 "max_components": int(args.covbat_max_components),
                 "harmonization_mode": "transductive_full_dataset_before_loso",
             },
+            "harmonization": {
+                "fit_controls_only": bool(fit_controls_only),
+                "fit_count": int(fit_mask.sum()),
+                "covariates": list(harmonization_covariates),
+                "age_min": float(args.harmonization_age_min),
+                "age_max": float(args.harmonization_age_max),
+                "covariate_imputations": covariate_imputations,
+            },
         },
         "meta": {
             "n_records_total": int(len(records)),
             "n_records_post_task_filter": int(len(task_result.records)),
             "n_records_used": int(len(task_records)),
             "n_subjects": int(len(set(subjects.tolist()))),
-            "n_sites": int(len(set(sites.tolist()))),
+            "n_sites": int(len(set(batch_sites.tolist()))),
+            "n_holdout_sites": int(len(set(holdout_sites.tolist()))),
             "site_classes": [str(name) for name in site_encoder.classes_.tolist()],
             "diagnosis_classes": list(task_result.class_names),
             "diagnosis_class_counts": class_counts(task_y, task_result.class_names),
@@ -734,6 +1085,7 @@ def main():
             "removed_task_mismatch": int(task_result.removed_task_mismatch),
             "removed_single_class_sites": int(task_result.removed_single_class_sites),
             "mixed_sites_kept": list(task_result.mixed_sites_kept),
+            "healthy_controls_used_for_harmonization": int(fit_mask.sum()),
         },
         "per_seed": {
             "site": site_runs,
@@ -751,7 +1103,12 @@ def main():
         },
     }
 
-    output_json, output_md = default_output_paths(preset.key, task_result.task_key, mixed_sites_only)
+    output_json, output_md = default_output_paths(
+        preset.key,
+        task_result.task_key,
+        mixed_sites_only,
+        output_prefix=args.output_prefix,
+    )
     if args.output_json is not None:
         output_json = Path(args.output_json)
     if args.output_md is not None:

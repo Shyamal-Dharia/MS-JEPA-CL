@@ -68,6 +68,13 @@ def build_candidates(training_mode: str):
     return candidates
 
 
+def parse_seed_list(seed_text: str) -> list[int]:
+    seeds = [int(part.strip()) for part in seed_text.split(",") if part.strip()]
+    if not seeds:
+        raise ValueError("At least one seed is required.")
+    return seeds
+
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description=(
@@ -105,7 +112,15 @@ def parse_args():
         "--train-seed",
         type=int,
         default=42,
-        help="Training seed for all pilot candidates.",
+        help="Training seed for all pilot candidates when --train-seeds is not provided.",
+    )
+    parser.add_argument(
+        "--train-seeds",
+        default=None,
+        help=(
+            "Comma-separated JEPA pretraining seeds. Use this for final paper selection, "
+            "for example `0,1,2,3,4`."
+        ),
     )
     parser.add_argument(
         "--eval-seeds",
@@ -163,6 +178,8 @@ def main():
     results_dir.mkdir(parents=True, exist_ok=True)
     candidates = build_candidates(args.training_mode)
     checkpoint_stem = Path(checkpoint_name(args.training_mode)).stem
+    train_seeds = parse_seed_list(args.train_seeds) if args.train_seeds is not None else [args.train_seed]
+    use_seed_suffix = args.train_seeds is not None or len(train_seeds) > 1
 
     env = os.environ.copy()
     if args.cuda_visible_devices is not None:
@@ -170,88 +187,90 @@ def main():
 
     eval_jsons: list[str] = []
     for candidate in candidates:
-        name = candidate["name"]
-        save_dir = checkpoints_dir / name
-        save_dir.mkdir(parents=True, exist_ok=True)
-        train_log = save_dir / "train.log"
-        checkpoint_path = save_dir / checkpoint_name(args.training_mode)
+        base_name = candidate["name"]
+        for train_seed in train_seeds:
+            run_name = f"{base_name}_seed{train_seed}" if use_seed_suffix else base_name
+            save_dir = checkpoints_dir / run_name
+            save_dir.mkdir(parents=True, exist_ok=True)
+            train_log = save_dir / "train.log"
+            checkpoint_path = save_dir / checkpoint_name(args.training_mode)
 
-        train_cmd = [
-            sys.executable,
-            "-m",
-            "src.jepa_fusion.train_jepa",
-            *candidate["train_args"],
-            "--device",
-            args.device,
-            "--save-dir",
-            str(save_dir),
-            "--log-file",
-            str(train_log),
-            "--seed",
-            str(args.train_seed),
-        ]
-        if args.batch_size is not None:
-            train_cmd.extend(["--batch-size", str(args.batch_size)])
-        if args.quick:
-            train_cmd.append("--quick")
+            train_cmd = [
+                sys.executable,
+                "-m",
+                "src.jepa_fusion.train_jepa",
+                *candidate["train_args"],
+                "--device",
+                args.device,
+                "--save-dir",
+                str(save_dir),
+                "--log-file",
+                str(train_log),
+                "--seed",
+                str(train_seed),
+            ]
+            if args.batch_size is not None:
+                train_cmd.extend(["--batch-size", str(args.batch_size)])
+            if args.quick:
+                train_cmd.append("--quick")
 
-        if args.skip_existing and checkpoint_path.exists():
-            print(f"Skipping training for {name}: {checkpoint_path} already exists.", flush=True)
-        else:
-            run_command(train_cmd, env=env, dry_run=args.dry_run)
+            if args.skip_existing and checkpoint_path.exists():
+                print(f"Skipping training for {run_name}: {checkpoint_path} already exists.", flush=True)
+            else:
+                run_command(train_cmd, env=env, dry_run=args.dry_run)
 
-        eval_json = results_dir / f"{name}_{checkpoint_stem}_jepa_eval.json"
-        eval_md = results_dir / f"{name}_{checkpoint_stem}_jepa_eval.md"
-        eval_jsons.append(str(eval_json))
-        eval_cmd = [
-            sys.executable,
-            "-m",
-            "src.jepa_fusion.evaluate_jepa",
-            "--checkpoint",
-            str(checkpoint_path),
-            "--device",
-            args.device,
-            "--seeds",
-            args.eval_seeds,
-            "--folds",
-            str(args.folds),
-            "--output-json",
-            str(eval_json),
-            "--output-md",
-            str(eval_md),
-        ]
-        if args.max_scans is not None:
-            eval_cmd.extend(["--max-scans", str(args.max_scans)])
+            eval_json = results_dir / f"{run_name}_{checkpoint_stem}_jepa_eval.json"
+            eval_md = results_dir / f"{run_name}_{checkpoint_stem}_jepa_eval.md"
+            eval_jsons.append(str(eval_json))
+            eval_cmd = [
+                sys.executable,
+                "-m",
+                "src.jepa_fusion.evaluate_jepa",
+                "--checkpoint",
+                str(checkpoint_path),
+                "--device",
+                args.device,
+                "--seeds",
+                args.eval_seeds,
+                "--folds",
+                str(args.folds),
+                "--output-json",
+                str(eval_json),
+                "--output-md",
+                str(eval_md),
+            ]
+            if args.max_scans is not None:
+                eval_cmd.extend(["--max-scans", str(args.max_scans)])
 
-        if args.skip_existing and eval_json.exists() and eval_md.exists():
-            print(f"Skipping evaluation for {name}: {eval_json} already exists.", flush=True)
-        else:
-            run_command(eval_cmd, env=env, dry_run=args.dry_run)
+            if args.skip_existing and eval_json.exists() and eval_md.exists():
+                print(f"Skipping evaluation for {run_name}: {eval_json} already exists.", flush=True)
+            else:
+                run_command(eval_cmd, env=env, dry_run=args.dry_run)
 
-        loso_json = results_dir / f"{name}_{checkpoint_stem}_subject_vote.json"
-        loso_md = results_dir / f"{name}_{checkpoint_stem}_subject_vote.md"
-        loso_cmd = [
-            sys.executable,
-            "-m",
-            "src.jepa_fusion.evaluate_jepa_subject_vote",
-            "--checkpoint",
-            str(checkpoint_path),
-            "--device",
-            args.device,
-            "--seeds",
-            args.eval_seeds,
-            "--output-json",
-            str(loso_json),
-            "--output-md",
-            str(loso_md),
-        ]
-        if args.max_scans is not None:
-            loso_cmd.extend(["--max-scans", str(args.max_scans)])
+            loso_json = results_dir / f"{run_name}_{checkpoint_stem}_subject_vote.json"
+            loso_md = results_dir / f"{run_name}_{checkpoint_stem}_subject_vote.md"
+            loso_cmd = [
+                sys.executable,
+                "-m",
+                "src.jepa_fusion.evaluate_jepa_subject_vote",
+                "--checkpoint",
+                str(checkpoint_path),
+                "--device",
+                args.device,
+                "--seeds",
+                args.eval_seeds,
+                "--output-json",
+                str(loso_json),
+                "--output-md",
+                str(loso_md),
+            ]
+            if args.max_scans is not None:
+                loso_cmd.extend(["--max-scans", str(args.max_scans)])
 
-        if args.skip_existing and loso_json.exists() and loso_md.exists():
-            print(f"Skipping LOSO evaluation for {name}: {loso_json} already exists.", flush=True)
-        else:
-            run_command(loso_cmd, env=env, dry_run=args.dry_run)
+            if args.skip_existing and loso_json.exists() and loso_md.exists():
+                print(f"Skipping LOSO evaluation for {run_name}: {loso_json} already exists.", flush=True)
+            else:
+                run_command(loso_cmd, env=env, dry_run=args.dry_run)
 
     selection_json = results_dir / f"{selection_stem(args.training_mode)}.json"
     selection_md = results_dir / f"{selection_stem(args.training_mode)}.md"
