@@ -88,7 +88,14 @@ def parse_args():
         action="store_true",
         help="Save only separate single-panel figures and skip the side-by-side summary.",
     )
-    parser.add_argument("--save-pdf", action="store_true", help="Also save PDF copies. Defaults to PNG plus CSV only.")
+    parser.add_argument("--save-pdf", action="store_true", help="Also save PDF and SVG copies. Defaults to PNG plus CSV only.")
+    parser.add_argument(
+        "--from-coordinates",
+        default=None,
+        help="Redraw from a saved coordinate CSV (written by an earlier run) instead of recomputing t-SNE.",
+    )
+    parser.add_argument("--legend-columns", type=int, default=2, help="Legend columns for single-panel figures.")
+    parser.add_argument("--dpi", type=int, default=600)
     return parser.parse_args()
 
 
@@ -304,7 +311,7 @@ def plot_panel(
         ax.scatter(
             coords[mask, 0],
             coords[mask, 1],
-            s=18,
+            s=14,
             color=colors[site],
             alpha=0.76,
             linewidths=0,
@@ -313,7 +320,7 @@ def plot_panel(
         )
         add_site_circle(ax, coords[mask], colors[site], quantile)
     if title:
-        ax.set_title(title, fontsize=12, fontweight="bold")
+        ax.set_title(title, fontsize=15, fontweight="bold")
     ax.set_xticks([])
     ax.set_yticks([])
     ax.set_aspect("equal", adjustable="datalim")
@@ -377,35 +384,109 @@ def save_single_method_figure(
     quantile: float,
     save_pdf: bool,
     legend_font_size: float,
+    legend_columns: int = 2,
+    dpi: int = 600,
 ):
-    fig, ax = plt.subplots(1, 1, figsize=(5.8, 5.0))
-    fig.subplots_adjust(left=0.015, right=0.985, top=0.985, bottom=0.105)
+    # Drawn near its printed size (four panels across a page) so text stays legible.
+    fig, ax = plt.subplots(1, 1, figsize=(3.2, 3.7))
+    fig.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.2)
     plot_panel(ax, coords, sites, None, colors, quantile)
     handles, labels = ax.get_legend_handles_labels()
     fig.legend(
         handles,
         labels,
         loc="lower center",
-        ncol=min(4, len(labels)),
+        ncol=min(legend_columns, len(labels)),
         frameon=False,
         fontsize=legend_font_size,
-        markerscale=1.25,
-        handletextpad=0.45,
-        columnspacing=1.15,
-        bbox_to_anchor=(0.5, 0.045),
+        markerscale=1.8,
+        handletextpad=0.3,
+        columnspacing=1.0,
+        labelspacing=0.35,
+        bbox_to_anchor=(0.5, 0.0),
     )
     png_path = output_prefix.with_name(f"{output_prefix.name}_{method_key}").with_suffix(".png")
-    fig.savefig(png_path, dpi=300, bbox_inches="tight")
+    fig.savefig(png_path, dpi=dpi, bbox_inches="tight")
     if save_pdf:
-        pdf_path = output_prefix.with_name(f"{output_prefix.name}_{method_key}").with_suffix(".pdf")
-        fig.savefig(pdf_path, bbox_inches="tight")
-        print(f"Saved {pdf_path}", flush=True)
+        for ext in (".pdf", ".svg"):
+            path = output_prefix.with_name(f"{output_prefix.name}_{method_key}").with_suffix(ext)
+            fig.savefig(path, dpi=dpi, bbox_inches="tight")
+            print(f"Saved {path}", flush=True)
     plt.close(fig)
     print(f"Saved {png_path}", flush=True)
 
 
+def load_coordinates(path: str):
+    with open(path, newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    sites = [row["site"] for row in rows]
+    method_keys = [name[: -len("_tsne_1")] for name in rows[0] if name.endswith("_tsne_1")]
+    coords_by_method = {
+        key: np.asarray([[float(row[f"{key}_tsne_1"]), float(row[f"{key}_tsne_2"])] for row in rows])
+        for key in method_keys
+    }
+    site_order = list(dict.fromkeys(sites))
+    return sites, site_order, coords_by_method
+
+
+def render(coords_by_method: dict, sites: list[str], selected_sites: list[str], args):
+    palette = plt.get_cmap("tab10")
+    colors = {site: palette(idx) for idx, site in enumerate(selected_sites)}
+    output_prefix = Path(args.output_prefix)
+    output_prefix.parent.mkdir(parents=True, exist_ok=True)
+
+    if not args.only_separate:
+        fig, axes = plt.subplots(1, 4, figsize=(12.8, 3.9), constrained_layout=True)
+        panel_titles = ["Static FC", "FC + ComBat", "FC + CovBat", "MS-JEPA"]
+        for ax, key, title in zip(axes, coords_by_method, panel_titles):
+            plot_panel(ax, coords_by_method[key], sites, title, colors, args.circle_quantile)
+
+        handles, labels = axes[-1].get_legend_handles_labels()
+        fig.legend(
+            handles,
+            labels,
+            loc="lower center",
+            ncol=min(4, len(labels)),
+            frameon=False,
+            fontsize=args.legend_font_size + 1,
+            markerscale=1.8,
+            handletextpad=0.35,
+            columnspacing=1.6,
+            bbox_to_anchor=(0.5, -0.08),
+        )
+        png_path = output_prefix.with_suffix(".png")
+        fig.savefig(png_path, dpi=args.dpi, bbox_inches="tight")
+        if args.save_pdf:
+            for ext in (".pdf", ".svg"):
+                fig.savefig(output_prefix.with_suffix(ext), dpi=args.dpi, bbox_inches="tight")
+        plt.close(fig)
+        print(f"Saved {png_path}", flush=True)
+
+    if args.separate or args.only_separate:
+        for key, coords in coords_by_method.items():
+            save_single_method_figure(
+                output_prefix,
+                key,
+                coords,
+                sites,
+                colors,
+                args.circle_quantile,
+                args.save_pdf,
+                args.legend_font_size,
+                args.legend_columns,
+                args.dpi,
+            )
+
+
 def main():
     args = parse_args()
+    if args.from_coordinates:
+        sites, site_order, coords_by_method = load_coordinates(args.from_coordinates)
+        selected = [s.strip() for s in args.sites.split(",") if s.strip()] if args.sites else site_order
+        print(f"Redrawing {len(sites)} subjects from {args.from_coordinates} (sites: {', '.join(selected)})", flush=True)
+        render(coords_by_method, sites, selected, args)
+        return
+
     selected_sites = [site.strip() for site in args.sites.split(",") if site.strip()] if args.sites else None
 
     print(f"Loading Static-FC subjects for {args.dataset}...", flush=True)
@@ -461,59 +542,15 @@ def main():
         pca_components=args.pca_components,
     )
 
-    palette = plt.get_cmap("tab10")
-    colors = {site: palette(idx) for idx, site in enumerate(selected_sites)}
     coords_by_method = {
         "static_fc": fc_coords,
         "combat": combat_coords,
         "covbat": covbat_coords,
         "jepa": jepa_coords,
     }
+    render(coords_by_method, sites, selected_sites, args)
 
     output_prefix = Path(args.output_prefix)
-    output_prefix.parent.mkdir(parents=True, exist_ok=True)
-
-    if not args.only_separate:
-        fig, axes = plt.subplots(1, 4, figsize=(18.8, 4.8), constrained_layout=True)
-        panel_titles = ["Static FC", "FC + ComBat", "FC + CovBat", "MS-JEPA"]
-        for ax, key, title in zip(axes, coords_by_method, panel_titles):
-            plot_panel(ax, coords_by_method[key], sites, title, colors, args.circle_quantile)
-
-        handles, labels = axes[-1].get_legend_handles_labels()
-        fig.legend(
-            handles,
-            labels,
-            loc="lower center",
-            ncol=min(4, len(labels)),
-            frameon=False,
-            fontsize=args.legend_font_size,
-            markerscale=1.25,
-            handletextpad=0.45,
-            columnspacing=1.15,
-            bbox_to_anchor=(0.5, 0.02),
-        )
-        png_path = output_prefix.with_suffix(".png")
-        fig.savefig(png_path, dpi=300, bbox_inches="tight")
-        if args.save_pdf:
-            pdf_path = output_prefix.with_suffix(".pdf")
-            fig.savefig(pdf_path, bbox_inches="tight")
-            print(f"Saved {pdf_path}", flush=True)
-        plt.close(fig)
-        print(f"Saved {png_path}", flush=True)
-
-    if args.separate or args.only_separate:
-        for key, coords in coords_by_method.items():
-            save_single_method_figure(
-                output_prefix,
-                key,
-                coords,
-                sites,
-                colors,
-                args.circle_quantile,
-                args.save_pdf,
-                args.legend_font_size,
-            )
-
     csv_path = output_prefix.with_suffix(".csv")
     write_all_coordinates(csv_path, shared_subjects, sites, diagnoses, coords_by_method)
     print(f"Saved {csv_path}", flush=True)

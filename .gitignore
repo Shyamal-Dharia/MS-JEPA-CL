@@ -31,3 +31,5 @@ src/jepa_fusion/_bytecode_loader.py
 # Personal notes and drafts (not part of the paper code).
 plan.md
 professor_update_*.md
+
+notes/

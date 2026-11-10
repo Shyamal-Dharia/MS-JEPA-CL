@@ -59,12 +59,12 @@ def parse_args():
     )
     parser.add_argument(
         "--formats",
-        default="png,pdf",
+        default="png,pdf,svg",
     )
     parser.add_argument(
         "--dpi",
         type=int,
-        default=320,
+        default=600,
     )
     parser.add_argument(
         "--include-error-bands",
@@ -86,12 +86,15 @@ def configure_style():
             "axes.labelcolor": "#0F172A",
             "axes.titlesize": 15,
             "axes.titleweight": "bold",
-            "axes.labelsize": 13,
+            "axes.labelsize": 13.5,
             "font.family": "DejaVu Sans",
-            "font.size": 12.0,
-            "legend.fontsize": 9,
-            "xtick.labelsize": 12,
-            "ytick.labelsize": 12,
+            "font.size": 12.5,
+            "legend.fontsize": 11,
+            "legend.title_fontsize": 11.5,
+            "xtick.labelsize": 12.5,
+            "ytick.labelsize": 12.5,
+            "pdf.fonttype": 42,
+            "svg.fonttype": "none",
             "axes.spines.top": True,
             "axes.grid": False,
         }
@@ -166,8 +169,8 @@ def plot_dataset(ax, payload: dict, include_error_bands: bool):
             series["site_mean"],
             color=style["color"],
             marker=style["site_marker"],
-            linewidth=2.2,
-            markersize=6,
+            linewidth=2.4,
+            markersize=7,
             label=style["label"],
         )
         ax2.plot(
@@ -175,8 +178,8 @@ def plot_dataset(ax, payload: dict, include_error_bands: bool):
             series["dx_mean"],
             color=style["color"],
             marker=style["dx_marker"],
-            linewidth=2.0,
-            markersize=5.5,
+            linewidth=2.2,
+            markersize=6.5,
             linestyle="--",
             alpha=0.95,
         )
@@ -269,20 +272,23 @@ def plot_dataset(ax, payload: dict, include_error_bands: bool):
     legend1 = ax.legend(
         handles=method_handles,
         loc="lower left",
-        bbox_to_anchor=(0.0, 1.03),
-        ncol=2,
+        bbox_to_anchor=(-0.14, 1.02),
+        ncol=1,
         frameon=False,
         title="Method",
+        handlelength=1.8,
         borderaxespad=0.0,
     )
     ax.add_artist(legend1)
     ax.legend(
         handles=metric_handles,
         loc="lower right",
-        bbox_to_anchor=(1.0, 1.03),
+        bbox_to_anchor=(1.17, 1.02),
         ncol=2,
         frameon=False,
         title="Metric",
+        handlelength=1.8,
+        columnspacing=1.0,
         borderaxespad=0.0,
     )
 
@@ -300,24 +306,24 @@ def main():
     dataset_keys = ["abide", "srpbs"] if args.datasets == "both" else [args.datasets]
 
     if len(dataset_keys) == 1:
-        fig, ax = plt.subplots(figsize=(8.4, 5.2))
+        fig, ax = plt.subplots(figsize=(6.2, 4.9))
         plot_dataset(ax, dataset_inputs[dataset_keys[0]], include_error_bands=args.include_error_bands)
-        fig.tight_layout(rect=[0, 0, 1, 0.88])
+        fig.tight_layout(rect=[0, 0, 1, 0.79])
         save_figure(fig, outdir / f"lowk_dual_axis_{dataset_keys[0]}", formats=formats, dpi=args.dpi)
         plt.close(fig)
         return
 
     for dataset_key in dataset_keys:
-        fig, ax = plt.subplots(figsize=(8.4, 5.2))
+        fig, ax = plt.subplots(figsize=(6.2, 4.9))
         plot_dataset(ax, dataset_inputs[dataset_key], include_error_bands=args.include_error_bands)
-        fig.tight_layout(rect=[0, 0, 1, 0.88])
+        fig.tight_layout(rect=[0, 0, 1, 0.79])
         save_figure(fig, outdir / f"lowk_dual_axis_{dataset_key}", formats=formats, dpi=args.dpi)
         plt.close(fig)
 
-    fig, axes = plt.subplots(1, 2, figsize=(15.0, 5.4), sharex=False)
+    fig, axes = plt.subplots(1, 2, figsize=(13.0, 5.0), sharex=False)
     for ax, dataset_key in zip(axes, dataset_keys):
         plot_dataset(ax, dataset_inputs[dataset_key], include_error_bands=args.include_error_bands)
-    fig.tight_layout(rect=[0, 0, 1, 0.86])
+    fig.tight_layout(rect=[0, 0, 1, 0.79], w_pad=4.0)
     save_figure(fig, outdir / "lowk_dual_axis_both", formats=formats, dpi=args.dpi)
     plt.close(fig)
 

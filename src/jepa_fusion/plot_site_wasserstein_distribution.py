@@ -20,10 +20,10 @@ METHOD_ORDER = [
 ]
 METHOD_SHORT = {
     "Static FC": "Static FC",
-    "FC + ComBat": "FC + ComBat",
-    "FC + CovBat": "FC + CovBat",
-    "JEPA Rotary (Pooled)": "JEPA Pooled",
-    "JEPA Rotary (Curriculum + Replay)": "JEPA Curr.+Replay",
+    "FC + ComBat": "FC +\nComBat",
+    "FC + CovBat": "FC +\nCovBat",
+    "JEPA Rotary (Pooled)": "JEPA\nPooled",
+    "JEPA Rotary (Curriculum + Replay)": "JEPA Curr.\n+Replay",
 }
 METHOD_COLORS = {
     "Static FC": "#6B7280",
@@ -48,12 +48,12 @@ def parse_args():
     )
     parser.add_argument(
         "--formats",
-        default="png,pdf",
+        default="png,pdf,svg",
     )
     parser.add_argument(
         "--dpi",
         type=int,
-        default=320,
+        default=600,
     )
     parser.add_argument(
         "--trim-iqr-multiplier",
@@ -88,12 +88,14 @@ def configure_style():
             "axes.labelcolor": "#0F172A",
             "axes.titlesize": 14,
             "axes.titleweight": "bold",
-            "axes.labelsize": 13,
+            "axes.labelsize": 14,
             "font.family": "DejaVu Sans",
-            "font.size": 12.0,
-            "legend.fontsize": 11,
-            "xtick.labelsize": 12,
-            "ytick.labelsize": 12,
+            "font.size": 13.0,
+            "legend.fontsize": 12,
+            "xtick.labelsize": 13,
+            "ytick.labelsize": 13,
+            "pdf.fonttype": 42,
+            "svg.fonttype": "none",
             "axes.spines.top": True,
             "axes.spines.right": True,
         }
@@ -146,10 +148,10 @@ def box_scatter(ax, labels: list[str], values: list[list[float]]):
         widths=0.56,
         patch_artist=True,
         showfliers=False,
-        medianprops={"color": "#111827", "linewidth": 1.5},
-        whiskerprops={"color": "#475569", "linewidth": 1.0},
-        capprops={"color": "#475569", "linewidth": 1.0},
-        boxprops={"linewidth": 1.0, "color": "#475569"},
+        medianprops={"color": "#111827", "linewidth": 2.0},
+        whiskerprops={"color": "#475569", "linewidth": 1.3},
+        capprops={"color": "#475569", "linewidth": 1.3},
+        boxprops={"linewidth": 1.3, "color": "#475569"},
     )
     rng = np.random.default_rng(0)
     for patch, label, vals, pos in zip(bp["boxes"], labels, values, positions):
@@ -157,10 +159,10 @@ def box_scatter(ax, labels: list[str], values: list[list[float]]):
         patch.set_facecolor(color)
         patch.set_alpha(0.24)
         x = pos + rng.uniform(-0.13, 0.13, size=len(vals))
-        ax.scatter(x, vals, s=10, alpha=0.22, color=color, edgecolors="none", rasterized=True)
+        ax.scatter(x, vals, s=14, alpha=0.28, color=color, edgecolors="none", rasterized=True)
 
     ax.set_xticks(positions)
-    ax.set_xticklabels([METHOD_SHORT[label] for label in labels], rotation=16, ha="right")
+    ax.set_xticklabels([METHOD_SHORT[label] for label in labels], rotation=0, ha="center", linespacing=1.05)
     ax.grid(axis="y", color="#CBD5E1", linewidth=0.8, alpha=0.75)
     ax.set_axisbelow(True)
 
@@ -189,9 +191,9 @@ def main():
     for dataset_key, dataset_payload in payload["datasets"].items():
         method_rows = dataset_method_rows(dataset_payload)
         for metric in metrics:
-            fig, ax = plt.subplots(figsize=(7.6, 5.4))
+            fig, ax = plt.subplots(figsize=(5.4, 4.1))
             draw_metric(ax, method_rows, metric, title_lookup[metric], args.trim_iqr_multiplier)
-            fig.subplots_adjust(left=0.12, right=0.98, bottom=0.20, top=0.96)
+            fig.subplots_adjust(left=0.14, right=0.98, bottom=0.18, top=0.97)
             save_figure(fig, outdir / f"site_wasserstein_{dataset_key}_{metric}", formats=formats, dpi=args.dpi)
             plt.close(fig)
 

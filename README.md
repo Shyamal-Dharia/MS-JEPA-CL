@@ -70,7 +70,7 @@ Probe and pretraining seeds are `0,8,16,32,128` unless stated otherwise.
 | Table 8: auxiliary-loss ablation | `bash run_paper_tables.sh aux tables` |
 | Table 7: demographic probes | [Demographics](#table-7-demographics) |
 | Figure 3: Sliced Wasserstein distance | [Site alignment](#figure-3-site-alignment) |
-| Figure 4: four-site t-SNE | `python -m src.jepa_fusion.plot_four_site_tsne --dataset abide` |
+| Figure 4: four-site t-SNE | `python -m src.jepa_fusion.plot_four_site_tsne --dataset abide --separate --save-pdf` |
 | Table 9: zero-shot transfer | [Zero-shot transfer](#table-9-zero-shot-transfer) |
 | Figure 5: parcel attribution | [Attribution](#figure-5-attribution) |
 
@@ -84,7 +84,7 @@ Probe and pretraining seeds are `0,8,16,32,128` unless stated otherwise.
 | `final_run_v1_pilot_temporal_*_pooled_seed*` | JEPA + VICReg, pooled | Table 6 (pooled rows), Table 8 |
 | `final_run_v1_rotary_curr_replay_seed*` | JEPA + VICReg + replay alignment (λ=0.1), curriculum | Table 6 (Curriculum + Replay), Table 7, Figure 3 |
 | `final_run_v1_rotary_curr_replay_{adv,nce,both}_seed*` | as above + adversarial and/or InfoNCE (0.1) | Table 8 |
-| `final_run_v1_rotary_curr_replay_nce_seed*` | curriculum + replay + InfoNCE (0.1), SRPBS + ABIDE-I + ABIDE-II | Figure 5 (attribution); default for Figure 4 |
+| `final_run_v1_rotary_curr_replay_nce_seed*` | curriculum + replay + InfoNCE (0.1), SRPBS + ABIDE-I + ABIDE-II | Figure 5 (attribution, seeds 0,8,16,32,128); Figure 4 (seed 0) |
 | `final_run_v1_transfer_*_rotary_curr_replay_nce_seed*` | curriculum + replay + InfoNCE (0.1), SRPBS + one ABIDE release | Table 9 (MS-JEPA) |
 | `masked_recon_ssl_*_seed*` | masked ROI reconstruction, same encoder and masking | Table 9 (Masked Recon. SSL) |
 
