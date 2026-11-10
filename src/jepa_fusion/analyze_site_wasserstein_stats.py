@@ -36,7 +36,7 @@ def parse_args():
     )
     parser.add_argument(
         "--report-json",
-        default="results/reports/tables/jepa_fusion/site_wasserstein_pca50/site_wasserstein_pca50_all.json",
+        default="results/reports/tables/jepa_fusion/site_wasserstein_pca50_centermerged/site_wasserstein_pca50_centermerged_all.json",
     )
     parser.add_argument(
         "--n-permutations",
@@ -50,7 +50,7 @@ def parse_args():
     )
     parser.add_argument(
         "--output-prefix",
-        default="site_wasserstein_stats_pca50",
+        default="site_wasserstein_stats_pca50_centermerged",
     )
     return parser.parse_args()
 

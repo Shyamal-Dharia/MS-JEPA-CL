@@ -40,11 +40,11 @@ def parse_args():
     )
     parser.add_argument(
         "--report-json",
-        default="results/reports/tables/jepa_fusion/site_wasserstein_pca50/site_wasserstein_pca50_all.json",
+        default="results/reports/tables/jepa_fusion/site_wasserstein_pca50_centermerged/site_wasserstein_pca50_centermerged_all.json",
     )
     parser.add_argument(
         "--outdir",
-        default="results/figures/site_wasserstein_pca50",
+        default="results/figures/site_wasserstein_pca50_centermerged",
     )
     parser.add_argument(
         "--formats",

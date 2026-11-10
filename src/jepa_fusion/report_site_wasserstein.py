@@ -67,16 +67,16 @@ def parse_args():
     parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--device", default=None)
     parser.add_argument("--cache-dir", default="results/cache/jepa_embedding_invariance")
-    parser.add_argument("--pca-dim", type=int, default=20)
+    parser.add_argument("--pca-dim", type=int, default=50)
     parser.add_argument("--n-projections", type=int, default=256)
     parser.add_argument("--projection-seed", type=int, default=0)
     parser.add_argument(
         "--site-label-level",
         choices=["auto", "batch", "center"],
-        default="auto",
+        default="center",
         help="Which site labels to use for Wasserstein comparison. 'auto' collapses ABIDE to center labels and keeps batch labels elsewhere.",
     )
-    parser.add_argument("--output-prefix", default="site_wasserstein")
+    parser.add_argument("--output-prefix", default="site_wasserstein_pca50_centermerged")
     return parser.parse_args()
 
 
