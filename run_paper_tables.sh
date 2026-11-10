@@ -126,6 +126,8 @@ run_baselines() {
     run_cmd python -m src.jepa_fusion.evaluate_baselines \
       --dataset abide \
       --seeds "$SEEDS_CSV" \
+      --harmonization-covariates age,sex \
+      --harmonization-fit-controls-only \
       --output-json "$abide_json" \
       --output-md "$abide_md"
   fi
@@ -136,6 +138,8 @@ run_baselines() {
     run_cmd python -m src.jepa_fusion.evaluate_baselines \
       --dataset srpbs \
       --seeds "$SEEDS_CSV" \
+      --harmonization-covariates age,sex \
+      --harmonization-fit-controls-only \
       --output-json "$srpbs_json" \
       --output-md "$srpbs_md"
   fi
@@ -487,7 +491,7 @@ run_lowk() {
   if [[ "$SKIP_EXISTING" == "1" && -f "$srpbs_json" && -f "$srpbs_md" ]]; then
     echo "Skipping lowk srpbs: ${srpbs_json} exists"
   else
-    run_cmd python -m src.jepa_fusion.evaluate_baselines_lowk \
+    run_cmd python -m src.jepa_fusion.evaluate_baselines_lowk_newbaseline \
       --dataset srpbs \
       --k-values 10,20,30,40,50 \
       --seeds "$SEEDS_CSV" \
@@ -498,13 +502,19 @@ run_lowk() {
   if [[ "$SKIP_EXISTING" == "1" && -f "$abide_json" && -f "$abide_md" ]]; then
     echo "Skipping lowk abide: ${abide_json} exists"
   else
-    run_cmd python -m src.jepa_fusion.evaluate_baselines_lowk \
+    run_cmd python -m src.jepa_fusion.evaluate_baselines_lowk_newbaseline \
       --dataset abide \
       --k-values 10,20,30,40,50 \
       --seeds "$SEEDS_CSV" \
       --output-json "$abide_json" \
       --output-md "$abide_md"
   fi
+  run_cmd python -m src.jepa_fusion.plot_lowk_dual_axis \
+    --abide-json "$abide_json" \
+    --srpbs-json "$srpbs_json" \
+    --abide-baseline-json "${RESULTS_ROOT}/${RUN_TAG}_abide_hc_asd_mixedsites_baseline_table.json" \
+    --srpbs-baseline-json "${RESULTS_ROOT}/${RUN_TAG}_srpbs_hc_disorder_mixedsites_baseline_table.json" \
+    --outdir "results/figures/jepa_fusion/${RUN_TAG}_lowk"
 }
 
 run_tex_tables() {

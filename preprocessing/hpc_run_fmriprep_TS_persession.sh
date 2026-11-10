@@ -33,7 +33,7 @@
 #
 # Usage:
 #   # Process all subject-sessions (24 concurrent):
-#   sbatch --array=1-$(wc -l < /scratch/shyamal/SRPBS_TS_BIDS/subject_session_list.txt)%24 hpc_run_fmriprep_TS_persession.sh
+#   sbatch --array=1-$(wc -l < ${SCRATCH_ROOT}/SRPBS_TS_BIDS/subject_session_list.txt)%24 hpc_run_fmriprep_TS_persession.sh
 #
 #   # Process first 5 as a test:
 #   sbatch --array=1-5 hpc_run_fmriprep_TS_persession.sh
@@ -47,13 +47,14 @@ set -euo pipefail
 # CONFIGURATION
 # ============================================================================
 
-BIDS_DIR="/scratch/shyamal/SRPBS_TS_BIDS"
-OUTPUT_DIR="/scratch/shyamal/derivatives/fmriprep_TS_persession"
-WORK_DIR="/scratch/shyamal/work/fmriprep_TS_persession"
-FS_LICENSE="/scratch/shyamal/freesurfer_license.txt"
+SCRATCH_ROOT="${SCRATCH_ROOT:-/scratch/$USER}"
+BIDS_DIR="${SCRATCH_ROOT}/SRPBS_TS_BIDS"
+OUTPUT_DIR="${SCRATCH_ROOT}/derivatives/fmriprep_TS_persession"
+WORK_DIR="${SCRATCH_ROOT}/work/fmriprep_TS_persession"
+FS_LICENSE="${SCRATCH_ROOT}/freesurfer_license.txt"
 
 FMRIPREP_VERSION="24.1.1"
-SIF_FILE="/scratch/shyamal/containers/fmriprep-${FMRIPREP_VERSION}.sif"
+SIF_FILE="${SCRATCH_ROOT}/containers/fmriprep-${FMRIPREP_VERSION}.sif"
 
 # Resources (must match #SBATCH directives)
 NTHREADS=8
@@ -66,7 +67,7 @@ OMP_NTHREADS=4
 
 module load apptainer/1.3.5
 
-TEMPLATEFLOW_DIR="/scratch/shyamal/templateflow"
+TEMPLATEFLOW_DIR="${SCRATCH_ROOT}/templateflow"
 mkdir -p "${TEMPLATEFLOW_DIR}"
 export APPTAINERENV_TEMPLATEFLOW_HOME=/templateflow
 export SINGULARITYENV_TEMPLATEFLOW_HOME=/templateflow

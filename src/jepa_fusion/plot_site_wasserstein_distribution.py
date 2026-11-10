@@ -94,8 +94,8 @@ def configure_style():
             "legend.fontsize": 11,
             "xtick.labelsize": 12,
             "ytick.labelsize": 12,
-            "axes.spines.top": False,
-            "axes.spines.right": False,
+            "axes.spines.top": True,
+            "axes.spines.right": True,
         }
     )
 

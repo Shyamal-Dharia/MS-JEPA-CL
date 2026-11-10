@@ -43,6 +43,7 @@ class FusionJEPAConfig:
     main_dataset_keys: list[str] = field(default_factory=lambda: list(MAIN_DATASET_ORDER))
     main_data_dirs: list[str] = field(default_factory=lambda: list(MAIN_DATA_DIRS))
     travel_data_dir: str = TRAVEL_DATA_DIR
+    use_travel_data: bool = True
 
     training_mode: str = "pooled"
     model_family: str = "temporal"
@@ -620,7 +621,9 @@ def build_dataset(
 def train_pooled(cfg: FusionJEPAConfig, logger: logging.Logger):
     save_dir = Path(cfg.save_dir)
     save_dir.mkdir(parents=True, exist_ok=True)
-    pooled_dirs = list(cfg.main_data_dirs) + [cfg.travel_data_dir]
+    pooled_dirs = list(cfg.main_data_dirs)
+    if cfg.use_travel_data:
+        pooled_dirs.append(cfg.travel_data_dir)
     dataset = build_dataset(
         pooled_dirs,
         sampling=cfg.pooled_sampling,
@@ -644,6 +647,8 @@ def train_pooled(cfg: FusionJEPAConfig, logger: logging.Logger):
     pair_buffer = None
     needs_pair_buffer = cfg.infonce_weight > 0.0 or cfg.replay_alignment_weight > 0.0
     if needs_pair_buffer:
+        if not cfg.use_travel_data:
+            raise ValueError("Traveling-subject pair losses require use_travel_data=True.")
         travel_dataset = build_dataset(
             cfg.travel_data_dir,
             sampling="sliding",
@@ -712,6 +717,8 @@ def train_pooled(cfg: FusionJEPAConfig, logger: logging.Logger):
 
 
 def train_curriculum(cfg: FusionJEPAConfig, logger: logging.Logger):
+    if not cfg.use_travel_data:
+        raise ValueError("Curriculum training requires traveling-subject data for phase 1 and replay.")
     save_dir = Path(cfg.save_dir)
     save_dir.mkdir(parents=True, exist_ok=True)
 
@@ -907,6 +914,11 @@ def parse_args():
         default=None,
         help="Optional override for the travelling-subject ROI directory.",
     )
+    parser.add_argument(
+        "--no-travel-data",
+        action="store_true",
+        help="Exclude traveling-subject data from pooled training. Curriculum training still requires travel data.",
+    )
     parser.add_argument("--training-mode", choices=["pooled", "curriculum"], default=None)
     parser.add_argument("--model-family", choices=["temporal", "st_roi_patch"], default=None)
     parser.add_argument("--temporal-variant", choices=["basic", "conv_net", "rotary_conv_net"], default=None)
@@ -961,6 +973,8 @@ def main():
         cfg.main_data_dirs = resolve_main_data_dirs(cfg.main_dataset_keys)
     if args.travel_data_dir is not None:
         cfg.travel_data_dir = args.travel_data_dir
+    if args.no_travel_data:
+        cfg.use_travel_data = False
     if args.training_mode is not None:
         cfg.training_mode = args.training_mode
     if args.model_family is not None:

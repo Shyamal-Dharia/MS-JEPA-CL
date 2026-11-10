@@ -25,7 +25,7 @@
 #
 # Usage:
 #   # Process all subjects (24 concurrent):
-#   sbatch --array=1-$(wc -l < /scratch/shyamal/SRPBS_1600_BIDS/subject_list.txt)%24 hpc_run_fmriprep_1600.sh
+#   sbatch --array=1-$(wc -l < ${SCRATCH_ROOT}/SRPBS_1600_BIDS/subject_list.txt)%24 hpc_run_fmriprep_1600.sh
 #
 #   # Process first 10 as a test:
 #   sbatch --array=1-10 hpc_run_fmriprep_1600.sh
@@ -34,7 +34,7 @@
 #   sbatch --array=42 hpc_run_fmriprep_1600.sh
 #
 #   # Rerun only incomplete subjects (from a rerun list):
-#   sbatch --array=1-$(wc -l < /scratch/shyamal/rerun_subject_list.txt)%24 hpc_run_fmriprep_1600.sh
+#   sbatch --array=1-$(wc -l < ${SCRATCH_ROOT}/rerun_subject_list.txt)%24 hpc_run_fmriprep_1600.sh
 #
 set -euo pipefail
 
@@ -42,13 +42,14 @@ set -euo pipefail
 # CONFIGURATION — Edit these paths to match your HPC layout
 # ============================================================================
 
-BIDS_DIR="/scratch/shyamal/SRPBS_1600_BIDS"
-OUTPUT_DIR="/scratch/shyamal/derivatives/fmriprep_1600"
-WORK_DIR="/scratch/shyamal/work/fmriprep_1600"
-FS_LICENSE="/scratch/shyamal/freesurfer_license.txt"
+SCRATCH_ROOT="${SCRATCH_ROOT:-/scratch/$USER}"
+BIDS_DIR="${SCRATCH_ROOT}/SRPBS_1600_BIDS"
+OUTPUT_DIR="${SCRATCH_ROOT}/derivatives/fmriprep_1600"
+WORK_DIR="${SCRATCH_ROOT}/work/fmriprep_1600"
+FS_LICENSE="${SCRATCH_ROOT}/freesurfer_license.txt"
 
 FMRIPREP_VERSION="24.1.1"
-SIF_FILE="/scratch/shyamal/containers/fmriprep-${FMRIPREP_VERSION}.sif"
+SIF_FILE="${SCRATCH_ROOT}/containers/fmriprep-${FMRIPREP_VERSION}.sif"
 
 # Subject list — switch to rerun_subject_list.txt for reruns
 SUBJECT_LIST="${BIDS_DIR}/subject_list.txt"
@@ -64,7 +65,7 @@ OMP_NTHREADS=4
 
 module load apptainer/1.3.5
 
-TEMPLATEFLOW_DIR="/scratch/shyamal/templateflow"
+TEMPLATEFLOW_DIR="${SCRATCH_ROOT}/templateflow"
 mkdir -p "${TEMPLATEFLOW_DIR}"
 export APPTAINERENV_TEMPLATEFLOW_HOME=/templateflow
 export SINGULARITYENV_TEMPLATEFLOW_HOME=/templateflow

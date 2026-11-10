@@ -5,7 +5,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SRC="${SRC:-shyamal@fir.alliancecan.ca:/scratch/shyamal/final_files/fmriprep_1600/}"
+SRC="${SRC:?Set SRC=user@host:/path/to/fmriprep_1600/}"
+REMOTE_HOST="${SRC%%:*}"
 DST="${DST:-$ROOT/preprocessed_data_fir/fmriprep_1600/}"
 MUX="/tmp/sshmux_fir"
 SSH="ssh -S $MUX -T -o Compression=no -x"
@@ -15,7 +16,7 @@ rm -f "$MUX"
 sleep 2
 
 echo "=== Authenticate ONCE (password + Duo) ==="
-if ! ssh -fNM -S "$MUX" -T -o Compression=no -o ControlPersist=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3 shyamal@fir.alliancecan.ca; then
+if ! ssh -fNM -S "$MUX" -T -o Compression=no -o ControlPersist=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3 "$REMOTE_HOST"; then
     echo "SSH failed!"
     exit 1
 fi
@@ -47,4 +48,4 @@ echo "=== 5 streams running. Monitor: watch -n 60 'du -sh $DST' ==="
 echo "Waiting for all to finish..."
 wait
 echo "=== ALL DONE ==="
-ssh -S "$MUX" -O exit shyamal@fir.alliancecan.ca 2>/dev/null
+ssh -S "$MUX" -O exit "$REMOTE_HOST" 2>/dev/null
