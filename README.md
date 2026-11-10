@@ -4,6 +4,14 @@ Code for **"Zero-Shot Harmonization of Multi-Site Resting-State fMRI with
 Joint-Embedding Predictive Architectures"** (Shyamal Y. Dharia, Stephen D. Smith,
 Camilo E. Valderrama).
 
+![MS-JEPA pretraining framework](docs/ms_jepa_workflow.png)
+
+*MS-JEPA pretraining. Each 90-s window (45 time points × 400 Schaefer ROIs) is
+tokenized over time, two temporal blocks are masked, and a predictor maps the
+context encoder's output to the EMA target encoder's embeddings of the masked
+tokens. VICReg regularization and traveling-subject replay alignment are added
+to the JEPA loss.*
+
 MS-JEPA learns site-robust rs-fMRI representations by predicting masked temporal
 windows in latent space. A traveling-subject curriculum with replay alignment
 encourages cross-site consistency. Representations are evaluated with frozen
